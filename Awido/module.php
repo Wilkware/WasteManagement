@@ -245,10 +245,10 @@ class Awido extends IPSModule
 
     foreach($data as $addon) {
       if($aId == "null") {
-        $line[] = '{"label": "' . $street->value . '","value": "' . $street->key . '"}';
+        $line[] = '{"label": "' . $addon->value . '","value": "' . $addon->key . '"}';
       }
-      else if ($aId == $street->key) {
-        $line[] = '{"label": "' . $street->value . '","value": "' . $street->key . '"}';
+      else if ($aId == $addon->key) {
+        $line[] = '{"label": "' . $addon->value . '","value": "' . $addon->key . '"}';
       }
     }
     return $form . implode(',', $line) . ']}';
