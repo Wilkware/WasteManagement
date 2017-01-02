@@ -17,7 +17,7 @@ class Awido extends IPSModule
     "Erding"            => "Landkreis Erding",
     "kaw-guenzburg"     => "Landkreis Günzburg",
     "azv-hef-rof"       => "Landkreis Hersfeld-Rotenburg",
-    "kehlheim"          => "Landkreis Kelheim",
+    "kelheim"           => "Landkreis Kelheim",
     "landkreisbetriebe" => "Landkreis Neuburg-Schrobenhausen",
     "eww-suew"          => "Landkreis Südliche Weinstraße",
     "lra-dah"           => "Landratsamt Dachau",
@@ -67,7 +67,7 @@ class Awido extends IPSModule
     $formclient = $this->FormClient($clientId);
     $formplaces = $this->FormPlaces($clientId, $placeId);
     $formstreet = $this->FormStreet($clientId, $placeId, $streetId);
-    $formaddons = $this->FormAddons($clientId, $placeId, $streetId, $addonId);
+    $formaddons = $this->FormAddons($clientId, $streetId, $addonId);
     $formstatus = $this->FormStatus();
 
     return '{ "elements": [' . $formclient . $formplaces . $formstreet . $formaddons . '], "status": [' . $formstatus . ']}';
@@ -88,10 +88,20 @@ class Awido extends IPSModule
     if($clientId == "null") {
       $status = 201;
       IPS_SetProperty($this->InstanceID, "placeGUID", "null");
+      IPS_SetProperty($this->InstanceID, "streetGUID", "null");
+      IPS_SetProperty($this->InstanceID, "addonGUID", "null");
     }
     else if($placeId == "null") {
       $status = 202;
       IPS_SetProperty($this->InstanceID, "streetGUID", "null");
+      IPS_SetProperty($this->InstanceID, "addonGUID", "null");
+    }
+    else if($streetId == "null") {
+      $status = 203;
+      IPS_SetProperty($this->InstanceID, "addonGUID", "null");
+    }
+    else if($addonId == "null") {
+      $status = 204;
     }
 
     $this->SetStatus($status);
@@ -147,13 +157,13 @@ class Awido extends IPSModule
    */
   protected function FormPlaces($cId, $pId)
   {
-    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getPlaces/client=";
+    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getPlaces/client=".$cId;
 
     if($cId == "null") {
       return '';
     }
 
-    $json = file_get_contents($url.$cId);
+    $json = file_get_contents($url);
     $data = json_decode($json);
 
     $form = ',{ "type": "Select", "name": "placeGUID", "caption": "Location:", "options": [';
@@ -173,29 +183,75 @@ class Awido extends IPSModule
   }
 
   /**
-   * Erstellt ein DropDown-Menü mit den auswählbaren Orte im Entsorkungsgebiet.
+   * Erstellt ein DropDown-Menü mit den auswählbaren OT/Strassen im Entsorkungsgebiet.
    *
    * @access protected
    * @param  string $cId Client ID.
    * @param  string $pId Place GUID.
+   * @param  string $sId Street GUID.
    * @return string Ortsteil/Strasse Elemente.
    */
   protected function FormStreet($cId, $pId, $sId)
   {
-    return '';
+    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getGroupedStreets/".$pId."?selectedOTId=null&client=".$cId;
+
+    if($cId == "null" || $pId == "null") {
+      return '';
+    }
+
+    $json = file_get_contents($url);
+    $data = json_decode($json);
+
+    $form = ',{ "type": "Select", "name": "streetGUID", "caption": "District/Street:", "options": [';
+    $line = array();
+    // Reset key
+    $line[] = '{"label": "Please select ...","value": "null"}';
+
+    foreach($data as $street) {
+      if($sId == "null") {
+        $line[] = '{"label": "' . $street->value . '","value": "' . $street->key . '"}';
+      }
+      else if ($sId == $street->key) {
+        $line[] = '{"label": "' . $street->value . '","value": "' . $street->key . '"}';
+      }
+    }
+    return $form . implode(',', $line) . ']}';
   }
 
   /**
-   * Prüft den Parent auf vorhandensein und Status.
+   * Erstellt ein DropDown-Menü mit den auswählbaren Hausnummern im Entsorkungsgebiet.
    *
    * @access protected
    * @param  string $cId Client ID .
    * @param  string $sId Street GUID .
+   * @param  string $aId Addon GUID .
    * @return string Client ID Elements.
    */
-  protected function FormAddons($cId, $sId, $sId, $aId)
+  protected function FormAddons($cId, $sId, $aId)
   {
-    return '';
+    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getStreetAddons/".$sId."?client=".$cId;
+
+    if($cId == "null" || $sId == "null") {
+      return '';
+    }
+
+    $json = file_get_contents($url);
+    $data = json_decode($json);
+
+    $form = ',{ "type": "Select", "name": "streetGUID", "caption": "District/Street:", "options": [';
+    $line = array();
+    // Reset key
+    $line[] = '{"label": "Please select ...","value": "null"}';
+
+    foreach($data as $addon) {
+      if($aId == "null") {
+        $line[] = '{"label": "' . $street->value . '","value": "' . $street->key . '"}';
+      }
+      else if ($aId == $street->key) {
+        $line[] = '{"label": "' . $street->value . '","value": "' . $street->key . '"}';
+      }
+    }
+    return $form . implode(',', $line) . ']}';
   }
 
   /**
@@ -206,31 +262,13 @@ class Awido extends IPSModule
    */
   protected function FormStatus()
   {
-    $form = '{
-                "code": 101,
-                "icon": "inactive",
-                "caption": "Creating instance."
-              },
-              {
-                "code": 102,
-                "icon": "active",
-                "caption": "AWIDO active."
-              },
-              {
-                "code": 104,
-                "icon": "inactive",
-                "caption": "AWIDO inactive."
-              },
-              {
-                "code": 201,
-                "icon": "inactive",
-                "caption": "Select a valid refuse management!"
-              },
-              {
-                "code": 202,
-                "icon": "inactive",
-                "caption": "Select a valid place!"
-              }';
+    $form =  '{"code": 101, "icon": "inactive", "caption": "Creating instance."},
+              {"code": 102, "icon": "active",   "caption": "AWIDO active."},
+              {"code": 104, "icon": "inactive", "caption": "AWIDO inactive."},
+              {"code": 201, "icon": "inactive", "caption": "Select a valid refuse management!"},
+              {"code": 202, "icon": "inactive", "caption": "Select a valid place!"},
+              {"code": 203, "icon": "inactive", "caption": "Select a valid location/street!"},
+              {"code": 204, "icon": "inactive", "caption": "Select a valid street number!"}';
     return $form;
   }
 
