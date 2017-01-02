@@ -1,0 +1,11 @@
+{
+	"translations": {
+		"de": { 
+			"Please select ...": "Bitte wählen ...",
+			"Refuse management:": "Abfallwirtschaft:",
+			"Location:": "Wählen Sie Ihren Ort:",
+			"District/Street:": "Ortsteil/Strasse:",
+			"Street number:": "Hausnummer:",
+		}
+	}
+}

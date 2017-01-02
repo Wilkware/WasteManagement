@@ -1,0 +1,14 @@
+{
+  "id": "{8A591704-E699-4F78-A728-490210FDE747}",
+  "name": "Awido",
+  "type": 3,
+  "vendor": "",
+  "aliases": 
+  [
+    "Abfallwirtschaft"
+  ],
+  "parentRequirements": [],
+  "childRequirements": [],
+  "implemented": [],
+  "prefix": "AWIDO"
+}
