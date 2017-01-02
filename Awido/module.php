@@ -169,7 +169,7 @@ class Awido extends IPSModule
     else {
   		$json = file_get_contents($url.$cId);
   		$data = json_decode($json);
-      $this->SendDebug("FormPlaces", $cId."=>".$data, 0);
+      $this->SendDebug("FormPlaces", $cId."=>".implode(",", $data), 0);
 
     	$form = '{ "type": "Select", "name": "placeGUID", "caption": "Location:", "options": [';
       $line = array();
