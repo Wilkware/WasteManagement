@@ -89,9 +89,16 @@ class Awido extends IPSModule
     parent::ApplyChanges();
 
 		$client = $this->ReadPropertyInteger("clientID");
+    $this->SendDebug("ApplyChanges", "clientID=".$client, 0);
+		$place  = $this->ReadPropertyInteger("placeGUID");
+    $this->SendDebug("ApplyChanges", "placeGUID=".$place, 0);
 
     if($client == "null") {
       $this->SetStatus(201);
+    }
+
+    if($place == "") {
+      $this->SetStatus(202);
     }
 
     //$this->SetTimerInterval("UpdateTimer", 0);
@@ -154,6 +161,22 @@ class Awido extends IPSModule
    */
   protected function FormPlaces($cId)
   {
+    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getPlaces/client=";
+
+    if($cId == "null") {
+      return '';
+    }
+    else {
+  		$json = file_get_contents($url.$cId);
+  		$data = json_decode($json);
+      $this->SendDebug("FormPlaces", $cId."=>".$data, 0);
+
+    	$form = '{ "type": "Select", "name": "placeGUID", "caption": "Location:", "options": [';
+      $line = array();
+      foreach($data as $key => $value) {
+      }
+    	return $form . implode(',', $line) . ']}';
+    }
     return '';
   }
 
