@@ -157,7 +157,7 @@ class Awido extends IPSModule
    * @param  string $pId Place GUID.
    * @return string Ortsteil/Strasse Elemente.
    */
-  protected function FormStreet($cId, $pId);
+  protected function FormStreet($cId, $pId)
   {
     return '';
   }
@@ -170,7 +170,7 @@ class Awido extends IPSModule
    * @param  string $sId Street GUID .
    * @return string Client ID Elements.
    */
-  protected function FormAddons($cId, $sId);
+  protected function FormAddons($cId, $sId)
   {
     return '';
   }
