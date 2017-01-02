@@ -65,15 +65,7 @@ class Awido extends IPSModule
     $placeId  = $this->ReadPropertyString("placeGUID");
     $streetId = $this->ReadPropertyString("streetGUID");
     $addonId  = $this->ReadPropertyString("addonGUID");
-    $this->SendDebug("GetConfigurationForm", "clientID=".$clientId."placeId=".$placeId."streetId=".$streetId."addonId=".$addonId, 0);
-
-    // Reset all?
-    if ($clientId == "null") {
-      $placeId  = "";
-      $placeId = "";
-      $streetId = "";
-      $addonId  = "";
-    }
+    $this->SendDebug("GetConfigurationForm", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId, 0);
 
 		$formclient = $this->FormClient($clientId);
 		$formplaces = $this->FormPlaces($clientId);
@@ -89,16 +81,20 @@ class Awido extends IPSModule
     //Never delete this line!
     parent::ApplyChanges();
 
-		$client = $this->ReadPropertyString("clientID");
-    $this->SendDebug("ApplyChanges", "clientID=".$client, 0);
-		$place  = $this->ReadPropertyString("placeGUID");
-    $this->SendDebug("ApplyChanges", "placeGUID=".$place, 0);
+		$clientId = $this->ReadPropertyString("clientID");
+		$placeId  = $this->ReadPropertyString("placeGUID");
+    $this->SendDebug("ApplyChanges", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId, 0);
 
-    if($client == "null") {
+    if($clientId == "null") {
       $this->SetStatus(201);
+
+      if($placeId != "") {
+        $placeId = "";
+        IPS_SetProperty(($this->InstanceID, "placeGUID", $placeId);
+      }
     }
 
-    if($place == "") {
+    if($placeId == "") {
       $this->SetStatus(202);
     }
 
