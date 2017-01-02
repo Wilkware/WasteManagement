@@ -123,7 +123,7 @@ class Awido extends IPSModule
     $line = array();
 
     // Reset key
-    $line[] = '{"label": "null","value": "Please select ..."}';
+    $line[] = '{"label": "Please select ...","value": "null"}';
 
     foreach (static::$Clients as $Client => $Name)
     {
@@ -159,7 +159,7 @@ class Awido extends IPSModule
     $form = ',{ "type": "Select", "name": "placeGUID", "caption": "Location:", "options": [';
     $line = array();
     // Reset key
-    $line[] = '{"label": "null","value": "Please select ..."}';
+    $line[] = '{"label": "Please select ...","value": "null"}';
 
     foreach($data as $place) {
       if($pId == "null") {
