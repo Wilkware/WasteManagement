@@ -90,7 +90,7 @@ class Awido extends IPSModule
 
       if($placeId != "") {
         $placeId = "";
-        IPS_SetProperty(($this->InstanceID, "placeGUID", $placeId);
+        IPS_SetProperty($this->InstanceID, "placeGUID", $placeId);
       }
     }
 
