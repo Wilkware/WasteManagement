@@ -91,7 +91,7 @@ class Awido extends IPSModule
 		$client = $this->ReadPropertyInteger("clientID");
 
     if($client == "null") {
-      this->SetStatus(201);
+      $this->SetStatus(201);
     }
 
     //$this->SetTimerInterval("UpdateTimer", 0);
