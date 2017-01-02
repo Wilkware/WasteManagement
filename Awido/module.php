@@ -147,7 +147,7 @@ class Awido extends IPSModule
   protected function FormPlaces($cId)
   {
     return '';
-  };
+  }
 
   /**
    * Erstellt ein DropDown-Menü mit den auswählbaren Orte im Entsorkungsgebiet.
@@ -160,7 +160,7 @@ class Awido extends IPSModule
   protected function FormStreet($cId, $pId);
   {
     return '';
-  };
+  }
 
   /**
    * Prüft den Parent auf vorhandensein und Status.
@@ -173,7 +173,7 @@ class Awido extends IPSModule
   protected function FormAddons($cId, $sId);
   {
     return '';
-  };
+  }
 
   /**
    * Prüft den Parent auf vorhandensein und Status.
@@ -184,7 +184,7 @@ class Awido extends IPSModule
   protected function FormStatus()
   {
     return '';
-  };
+  }
 
 }
 
