@@ -238,7 +238,7 @@ class Awido extends IPSModule
     $json = file_get_contents($url);
     $data = json_decode($json);
 
-    $form = ',{ "type": "Select", "name": "streetGUID", "caption": "District/Street:", "options": [';
+    $form = ',{ "type": "Select", "name": "addonGUID", "caption": "Street number:", "options": [';
     $line = array();
     // Reset key
     $line[] = '{"label": "Please select ...","value": "null"}';
