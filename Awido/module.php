@@ -65,6 +65,7 @@ class Awido extends IPSModule
     $placeId  = $this->ReadPropertyString("placeGUID");
     $streetId = $this->ReadPropertyString("streetGUID");
     $addonId  = $this->ReadPropertyString("addonGUID");
+    $this->SendDebug("GetConfigurationForm", "clientID=".$clientId."placeId=".$placeId."streetId=".$streetId."addonId=".$addonId, 0);
 
     // Reset all?
     if ($clientId == "null") {
@@ -88,9 +89,9 @@ class Awido extends IPSModule
     //Never delete this line!
     parent::ApplyChanges();
 
-		$client = $this->ReadPropertyInteger("clientID");
+		$client = $this->ReadPropertyString("clientID");
     $this->SendDebug("ApplyChanges", "clientID=".$client, 0);
-		$place  = $this->ReadPropertyInteger("placeGUID");
+		$place  = $this->ReadPropertyString("placeGUID");
     $this->SendDebug("ApplyChanges", "placeGUID=".$place, 0);
 
     if($client == "null") {
