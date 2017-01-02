@@ -83,6 +83,8 @@ class Awido extends IPSModule
 
 		$clientId = $this->ReadPropertyString("clientID");
 		$placeId  = $this->ReadPropertyString("placeGUID");
+    $streetId = $this->ReadPropertyString("streetGUID");
+    $addonId  = $this->ReadPropertyString("addonGUID");
     $this->SendDebug("ApplyChanges", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId, 0);
 
     if($clientId == "null") {
