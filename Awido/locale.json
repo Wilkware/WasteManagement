@@ -5,7 +5,13 @@
 			"Refuse management:": "Abfallwirtschaft:",
 			"Location:": "Wählen Sie Ihren Ort:",
 			"District/Street:": "Ortsteil/Strasse:",
-			"Street number:": "Hausnummer:"
+			"Street number:": "Hausnummer:",
+			"Creating instance.": "Die Instanz wird erstellt.",
+			"AWIDO active.": "Instanz ist aktiv.",
+			"AWIDO inactive.": "Instanz ist inaktiv.",
+      "Select a valid refuse management!", "Bitte eine Abfallwirtschaft auswählen!",
+      "Select a valid place!", "Bitte eine Ort auswählen!",
+      "Select a valid location/street!", "Bitte einen Ortsteil bzw. Strasse auswählen!"
 		}
 	}
 }

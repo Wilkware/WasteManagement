@@ -2,35 +2,39 @@
 
 class Awido extends IPSModule
 {
-
   /**
    * (bekannte) Client IDs - Array
    *
    * @access private
-   *  @var array Key ist die clientID, Value ist der Name
+   * @var array Key ist die clientID, Value ist der Name
    */
   static $Clients = array(
     "null" => "Please select ...",
     // =====================================
-    "rmk" => "Rems-Murr-Kreis",
-    "neustadt" => "Neustadt a.d. Waldnaab",
-    "awb-duerkheim" => "Landkreis Bad Dürkheim",
-    "wgv" => "Landkreis Bad Tölz - Wolfratshausen",
-    "kehlheim" => "Landkreis Kelheim",
-    "kaw-guenzburg" => "Landkreis Günzburg",
-    "memmingen" => "Stadt Memmingen",
-    "eww-suew" => "Landkreis Südliche Weinstraße",
-    "lra-dah" => "Landratsamt Dachau",
+    "awld"              => "Lahn-Dill-Kreis",
+    "awb-ak"            => "Landkreis Altenkirchen",
+    "awb-duerkheim"     => "Landkreis Bad Dürkheim",
+    "wgv"               => "Landkreis Bad Tölz-Wolfratshausen",
+    "awv-nordschwaben"  => "Landkreis Dillingen a.d. Donau und Donau-Ries",
+    "Erding"            => "Landkreis Erding",
+    "kaw-guenzburg"     => "Landkreis Günzburg",
+    "azv-hef-rof"       => "Landkreis Hersfeld-Rotenburg",
+    "kehlheim"          => "Landkreis Kelheim",
     "landkreisbetriebe" => "Landkreis Neuburg-Schrobenhausen",
-    "awb-ak" => "Landkreis Altenkirchen",
-    "awld" => "Lahn-Dill-Kreis",
-    "azv-hef-rof" => "Landkreis Hersfeld-Rotenburg",
-    "awv-nordschwaben" => "Landkreise Dillingen a.d. Donau und Donau-Ries (AWV Nordschwaben)",
-    "Erding" => "Landkreis Erding"
-    //"???" => "Landratsamt Aichach-Friedberg",
+    "eww-suew"          => "Landkreis Südliche Weinstraße",
+    "lra-dah"           => "Landratsamt Dachau",
+    "neustadt"          => "Neustadt a.d. Waldnaab",
+    "rmk"               => "Rems-Murr-Kreis",
+    "memmingen"         => "Stadt Memmingen"
+    //"???"             => "Landratsamt Aichach-Friedberg"
   );
 
   
+  /**
+   * Create.
+   *
+   * @access public
+   */
   public function Create()
   {
     //Never delete this line!
@@ -49,7 +53,12 @@ class Awido extends IPSModule
     $this->RegisterTimer("UpdateTimer",0,"AWIDO_Update(\$_IPS['TARGET']);");
   }
 
-	//Configuration Form
+  /**
+   * Configuration Form.
+   *
+   * @access public
+   * @return JSON configuration string.
+   */
 	public function GetConfigurationForm()
 	{
 		$clientId = $this->ReadPropertyString("clientID");
@@ -80,6 +89,10 @@ class Awido extends IPSModule
     parent::ApplyChanges();
 
 		$client = $this->ReadPropertyInteger("clientID");
+
+    if($client == "null") {
+      this->SetStatus(201);
+    }
 
     //$this->SetTimerInterval("UpdateTimer", 0);
 
@@ -178,7 +191,32 @@ class Awido extends IPSModule
    */
   protected function FormStatus()
   {
-    return '';
+    $form = '{
+                "code": 101,
+                "icon": "inactive",
+                "caption": "Creating instance."
+              },
+              {
+                "code": 102,
+                "icon": "active",
+                "caption": "AWIDO active."
+              },
+              {
+                "code": 104,
+                "icon": "inactive",
+                "caption": "AWIDO inactive."
+              },
+              {
+                "code": 201,
+                "icon": "inactive",
+                "caption": "Select a valid refuse management!"
+              },
+              {
+                "code": 202,
+                "icon": "inactive",
+                "caption": "Select a valid place!"
+              }';
+    return $form;
   }
 
 }
