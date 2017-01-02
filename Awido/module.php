@@ -169,12 +169,11 @@ class Awido extends IPSModule
     else {
   		$json = file_get_contents($url.$cId);
   		$data = json_decode($json);
-      //$this->SendDebug("FormPlaces", $cId."=>".implode(",", $data), 0);
 
     	$form = '{ "type": "Select", "name": "placeGUID", "caption": "Location:", "options": [';
       $line = array();
-      foreach($data as $key => $value) {
-          $line[] = '{"label": "' . $value . '","value": "' . $key . '"}';
+      foreach($data as $place) {
+          $line[] = '{"label": "' . $place->value . '","value": "' . $place->key . '"}';
       }
     	return $form . implode(',', $line) . ']}';
     }
