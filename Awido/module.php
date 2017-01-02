@@ -71,7 +71,7 @@ class Awido extends IPSModule
 		$formaddons = $this->FormAddons($clientId, $streetId);
 		$formstatus = $this->FormStatus();
 
-		return = '{ "elements": [' . $formclient . $formplaces . $formstreet . $formaddons . '], "status": [' . $formstatus . ']}';
+		return '{ "elements": [' . $formclient . $formplaces . $formstreet . $formaddons . '], "status": [' . $formstatus . ']}';
 	}
 
   public function ApplyChanges()

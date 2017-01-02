@@ -1,4 +1,4 @@
-# Lichtautomat
+# Awido - Abfallwirtschaft
 
 ### Inhaltverzeichnis
 
