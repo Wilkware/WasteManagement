@@ -9,8 +9,6 @@ class Awido extends IPSModule
    * @var array Key ist die clientID, Value ist der Name
    */
   static $Clients = array(
-    "null" => "Please select ...",
-    // =====================================
     "awld"              => "Lahn-Dill-Kreis",
     "awb-ak"            => "Landkreis Altenkirchen",
     "awb-duerkheim"     => "Landkreis Bad Dürkheim",
@@ -29,7 +27,6 @@ class Awido extends IPSModule
     //"???"             => "Landratsamt Aichach-Friedberg"
   );
 
-  
   /**
    * Create.
    *
@@ -39,14 +36,14 @@ class Awido extends IPSModule
   {
     //Never delete this line!
     parent::Create();
-    
+
     $this->RegisterPropertyString("clientID", "null");
     // Places
-    $this->RegisterPropertyString("placeGUID", "");
+    $this->RegisterPropertyString("placeGUID", "null");
     // Street
-    $this->RegisterPropertyString("streetGUID", "");
+    $this->RegisterPropertyString("streetGUID", "null");
     // Addon
-    $this->RegisterPropertyString("addonGUID", "");
+    $this->RegisterPropertyString("addonGUID", "null");
     // Fraction
 
     // Update daily timer
@@ -59,51 +56,48 @@ class Awido extends IPSModule
    * @access public
    * @return JSON configuration string.
    */
-	public function GetConfigurationForm()
-	{
-		$clientId = $this->ReadPropertyString("clientID");
+  public function GetConfigurationForm()
+  {
+    $clientId = $this->ReadPropertyString("clientID");
     $placeId  = $this->ReadPropertyString("placeGUID");
     $streetId = $this->ReadPropertyString("streetGUID");
     $addonId  = $this->ReadPropertyString("addonGUID");
     $this->SendDebug("GetConfigurationForm", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId, 0);
 
-		$formclient = $this->FormClient($clientId);
-		$formplaces = $this->FormPlaces($clientId);
-		$formstreet = $this->FormStreet($clientId, $placeId);
-		$formaddons = $this->FormAddons($clientId, $streetId);
-		$formstatus = $this->FormStatus();
+    $formclient = $this->FormClient($clientId);
+    $formplaces = $this->FormPlaces($clientId, $placeId);
+    $formstreet = $this->FormStreet($clientId, $placeId, $streetId);
+    $formaddons = $this->FormAddons($clientId, $placeId, $streetId, $addonId);
+    $formstatus = $this->FormStatus();
 
-		return '{ "elements": [' . $formclient . $formplaces . $formstreet . $formaddons . '], "status": [' . $formstatus . ']}';
-	}
+    return '{ "elements": [' . $formclient . $formplaces . $formstreet . $formaddons . '], "status": [' . $formstatus . ']}';
+  }
 
   public function ApplyChanges()
   {
     //Never delete this line!
     parent::ApplyChanges();
 
-		$clientId = $this->ReadPropertyString("clientID");
-		$placeId  = $this->ReadPropertyString("placeGUID");
+    $clientId = $this->ReadPropertyString("clientID");
+    $placeId  = $this->ReadPropertyString("placeGUID");
     $streetId = $this->ReadPropertyString("streetGUID");
     $addonId  = $this->ReadPropertyString("addonGUID");
     $this->SendDebug("ApplyChanges", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId, 0);
 
+    $status = 102;
     if($clientId == "null") {
-      $this->SetStatus(201);
-
-      if($placeId != "") {
-        $placeId = "";
-        IPS_SetProperty($this->InstanceID, "placeGUID", $placeId);
-      }
+      $status = 201;
+      IPS_SetProperty($this->InstanceID, "placeGUID", "null");
+    }
+    else if($placeId == "null") {
+      $status = 202;
+      IPS_SetProperty($this->InstanceID, "streetGUID", "null");
     }
 
-    if($placeId == "") {
-      $this->SetStatus(202);
-    }
-
+    $this->SetStatus($status);
     //$this->SetTimerInterval("UpdateTimer", 0);
 
   }
-  
 
   /**
   * This function will be available automatically after the module is imported with the module control.
@@ -116,7 +110,6 @@ class Awido extends IPSModule
   {
   }
 
-
   /**
    * Erstellt ein DropDown-Menü mit den auswählbaren Client IDs (Abfallwirtschaften).
    *
@@ -126,29 +119,22 @@ class Awido extends IPSModule
    */
   protected function FormClient($cId)
   {
-  	$form = '{ "type": "Select", "name": "clientID", "caption": "Refuse management:", "options": [';
+    $form = '{ "type": "Select", "name": "clientID", "caption": "Refuse management:", "options": [';
     $line = array();
 
+    // Reset key
+    $line[] = '{"label": "null","value": "Please select ..."}';
 
-    if ($cId == "null") {
-      // alles anbieten
-      foreach (static::$Clients as $Client => $Name)
-      {
+    foreach (static::$Clients as $Client => $Name)
+    {
+      if ($cId == "null") {
         $line[] = '{"label": "' . $Name . '","value": "' . $Client . '"}';
       }
-    }
-    else {
-      // nur aktuelle Auswahl anbieten, sonst reset
-      foreach (static::$Clients as $Client => $Name)
-      {
-        if ($Client == "null" || $Client == $cId) {
+      else if ($Client == $cId) {
           $line[] = '{"label": "' . $Name . '","value": "' . $Client . '"}';
-        }
       }
-
     }
-
-  	return $form . implode(',', $line) . ']}';
+    return $form . implode(',', $line) . ']}';
   }
 
   /**
@@ -156,27 +142,34 @@ class Awido extends IPSModule
    *
    * @access protected
    * @param  string $cId Client ID .
+   * @param  string $pId Place GUID  .
    * @return string Places Elemente.
    */
-  protected function FormPlaces($cId)
+  protected function FormPlaces($cId, $pId)
   {
     $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getPlaces/client=";
 
     if($cId == "null") {
       return '';
     }
-    else {
-  		$json = file_get_contents($url.$cId);
-  		$data = json_decode($json);
 
-    	$form = ',{ "type": "Select", "name": "placeGUID", "caption": "Location:", "options": [';
-      $line = array();
-      foreach($data as $place) {
-          $line[] = '{"label": "' . $place->value . '","value": "' . $place->key . '"}';
+    $json = file_get_contents($url.$cId);
+    $data = json_decode($json);
+
+    $form = ',{ "type": "Select", "name": "placeGUID", "caption": "Location:", "options": [';
+    $line = array();
+    // Reset key
+    $line[] = '{"label": "null","value": "Please select ..."}';
+
+    foreach($data as $place) {
+      if($pId == "null") {
+        $line[] = '{"label": "' . $place->value . '","value": "' . $place->key . '"}';
       }
-    	return $form . implode(',', $line) . ']}';
+      else if ($pId == $place->key) {
+        $line[] = '{"label": "' . $place->value . '","value": "' . $place->key . '"}';
+      }
     }
-    return '';
+    return $form . implode(',', $line) . ']}';
   }
 
   /**
@@ -187,7 +180,7 @@ class Awido extends IPSModule
    * @param  string $pId Place GUID.
    * @return string Ortsteil/Strasse Elemente.
    */
-  protected function FormStreet($cId, $pId)
+  protected function FormStreet($cId, $pId, $sId)
   {
     return '';
   }
@@ -200,7 +193,7 @@ class Awido extends IPSModule
    * @param  string $sId Street GUID .
    * @return string Client ID Elements.
    */
-  protected function FormAddons($cId, $sId)
+  protected function FormAddons($cId, $sId, $sId, $aId)
   {
     return '';
   }
