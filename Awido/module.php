@@ -91,7 +91,7 @@ class Awido extends IPSModule
     $streetId = $this->ReadPropertyString("streetGUID");
     $addonId  = $this->ReadPropertyString("addonGUID");
     $fractIds = $this->ReadPropertyString("fractionIDs");
-    $this->SendDebug("GetConfigurationForm", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId.", fractIds=".$fractIds, 0);
+    $this->SendDebug("ApplyChanges", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId.", fractIds=".$fractIds, 0);
 
     $status = 102;
     if($clientId == "null") {
@@ -100,6 +100,10 @@ class Awido extends IPSModule
       IPS_SetProperty($this->InstanceID, "streetGUID", "null");
       IPS_SetProperty($this->InstanceID, "addonGUID", "null");
       IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
+      for ($i=1; $i<=10; $i++)
+  		{
+  			IPS_SetProperty($this->InstanceID, "fractionID".$i, true);
+  		}
     }
     else if($placeId == "null") {
       $status = 202;
@@ -290,12 +294,15 @@ class Awido extends IPSModule
     $json = file_get_contents($url);
     $data = json_decode($json);
 
-    $form = ',';
+    $form = ',{ "type": "Label", "label": "The following disposals are offered:" } ,';
     $line = array();
+    $ids  = array();
 
     foreach($data as $fract) {
+        $ids[]  = $fract->id;
         $line[] = '{ "type": "CheckBox", "name": "fractionID' . $fract->id .'", "caption": "' . $fract->nm . ' (' . $fract->snm .')" }';
     }
+    IPS_SetProperty($this->InstanceID, "fractionIDs", implode(',', $ids));
     return $form . implode(',', $line);
   }
 
