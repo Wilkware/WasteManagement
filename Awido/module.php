@@ -143,7 +143,7 @@ class Awido extends IPSModule
     $activate = $this->ReadPropertyString("activateAWIDO");
     $this->SendDebug("ApplyChanges", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId.", fractIds=".$fractIds, 0);
 
-    $status = 102;
+    //$status = 102;
     if($clientId == "null") {
       $status = 201;
     }
@@ -159,12 +159,19 @@ class Awido extends IPSModule
     else if($fractIds == "null") {
       $status = 205;
     }
-    else {
+    else if($activate == true) {
       $this->CreateVariables($clientId, $fractIds);
+      $status = 102;
+      $this->SetTimerInterval("UpdateTimer", 1000*60*60*24);
+      $this->SendDebug("ApplyChanges", "Timer aktiviert!", 0);
+    }
+    else {
+      $status = 104;
+      $this->SetTimerInterval("UpdateTimer", 0);
+      $this->SendDebug("ApplyChanges", "Timer deaktiviert!", 0);
     }
 
     $this->SetStatus($status);
-    //$this->SetTimerInterval("UpdateTimer", 0);
   }
 
   /**
