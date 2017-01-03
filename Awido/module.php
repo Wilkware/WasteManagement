@@ -143,6 +143,9 @@ class Awido extends IPSModule
     $activate = $this->ReadPropertyString("activateAWIDO");
     $this->SendDebug("ApplyChanges", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId.", fractIds=".$fractIds, 0);
 
+    // Safty default
+    $this->SetTimerInterval("UpdateTimer", 0);
+
     //$status = 102;
     if($clientId == "null") {
       $status = 201;
@@ -167,22 +170,9 @@ class Awido extends IPSModule
     }
     else {
       $status = 104;
-      $this->SetTimerInterval("UpdateTimer", 0);
-      $this->SendDebug("ApplyChanges", "Timer deaktiviert!", 0);
     }
 
     $this->SetStatus($status);
-  }
-
-  /**
-  * This function will be available automatically after the module is imported with the module control.
-  * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
-  *
-  * AWIDO_Update($id);
-  *
-  */
-  public function Update()
-  {
   }
 
   /**
@@ -402,7 +392,41 @@ class Awido extends IPSModule
    */
   protected function CreateVariables($cId, $fIds)
   {
-  }
-}
+    // should never happends
+    if($cId == "null" || $fIds == "null") {
+      return;
+    }
+    // delete all existing variables
+    $objects = IPS_GetChildrenIDs(this->InstanceID);
+    foreach($object as $obj) {
+      if(IPS_GetName($obj) != "UpdateTimer") {
+        IPS_DeleteVariable($obj);
+      }
+    }
+    // create all new
+    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=".$cId;
 
+    $json = file_get_contents($url);
+    $data = json_decode($json);
+
+    foreach($data as $fract) {
+        $fractID = $this->ReadPropertyBoolean("fractionID".$fract->id);
+        if($fractID == true) {
+          $this->RegisterVariableString($fract->snm, $fract->nm, "~String", $fract->id);
+        }
+    }
+  }
+
+  /**
+  * This function will be available automatically after the module is imported with the module control.
+  * Using the custom prefix this function will be callable from PHP and JSON-RPC through:
+  *
+  * AWIDO_Update($id);
+  *
+  */
+  public function Update()
+  {
+  }
+
+}
 ?>
