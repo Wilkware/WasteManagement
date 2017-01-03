@@ -67,7 +67,7 @@ class Awido extends IPSModule
     $formclient = $this->FormClient($clientId);
     $formplaces = $this->FormPlaces($clientId, $placeId);
     $formstreet = $this->FormStreet($clientId, $placeId, $streetId);
-    $formaddons = $this->FormAddons($clientId, $streetId, $addonId);
+    $formaddons = $this->FormAddons($clientId, $placeId, $streetId, $addonId);
     $formstatus = $this->FormStatus();
 
     return '{ "elements": [' . $formclient . $formplaces . $formstreet . $formaddons . '], "status": [' . $formstatus . ']}';
@@ -87,25 +87,15 @@ class Awido extends IPSModule
     $status = 102;
     if($clientId == "null") {
       $status = 201;
-      $this->SendDebug("ApplyChanges", "status=".$status, 0);
-      IPS_SetProperty($this->InstanceID, "placeGUID", "null");
-      IPS_SetProperty($this->InstanceID, "streetGUID", "null");
-      IPS_SetProperty($this->InstanceID, "addonGUID", "null");
     }
     else if($placeId == "null") {
       $status = 202;
-      $this->SendDebug("ApplyChanges", "status=".$status, 0);
-      IPS_SetProperty($this->InstanceID, "streetGUID", "null");
-      IPS_SetProperty($this->InstanceID, "addonGUID", "null");
     }
     else if($streetId == "null") {
       $status = 203;
-      $this->SendDebug("ApplyChanges", "status=".$status, 0);
-      IPS_SetProperty($this->InstanceID, "addonGUID", "null");
     }
     else if($addonId == "null") {
       $status = 204;
-      $this->SendDebug("ApplyChanges", "status=".$status, 0);
     }
 
     $this->SetStatus($status);
@@ -227,15 +217,16 @@ class Awido extends IPSModule
    *
    * @access protected
    * @param  string $cId Client ID .
+   * @param  string $pId Place GUID.
    * @param  string $sId Street GUID .
    * @param  string $aId Addon GUID .
    * @return string Client ID Elements.
    */
-  protected function FormAddons($cId, $sId, $aId)
+  protected function FormAddons($cId, $pId, $sId, $aId)
   {
     $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getStreetAddons/".$sId."?client=".$cId;
 
-    if($cId == "null" || $sId == "null") {
+    if($cId == "null" || $pId == "null" || $sId == "null") {
       return '';
     }
 
