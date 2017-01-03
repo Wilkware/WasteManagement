@@ -12,16 +12,32 @@
 
 ### 1. Funktionsumfang
 
-* Überwacht und schaltet das Licht automatisch nach einer bestimmten Zeit wieder aus.
-* Dabei wird der Schaltstatus eines HomeMatic Tasters (z.B. HM-LC-Sw1PBU-FM) überwacht.
-* Bei Variablenänderung der Statusvariable (STATE)) wird ein Timer gestartet.
-* Nach eingestellter Zeit wird der Staus wieder zurückgestellt ("STATE" = flase).
-* Sollte das Licht schon vorher manuell aus geschalten worden sein, wird der Timer deaktiviert.
-* Zusätzlich bzw. ausschließlich kann ein Script ausgeführt werden. 
+Das Modul nutzt die von awido (www.awido-online.de) bereitgestellten Daten zur Berechnung
+der bevorstehenden Entsorgungstermine (Abfallentsorgung).
+
+Derzeit unterstütz das Modul folgende Gebiete:
+
+* Lahn-Dill-Kreis
+* Landkreis Altenkirchen
+* Landkreis Bad Dürkheim
+* Landkreis Bad Tölz-Wolfratshausen
+* Landkreis Dillingen a.d. Donau und Donau-Ries
+* Landkreis Erding
+* Landkreis Günzburg
+* Landkreis Hersfeld-Rotenburg
+* Landkreis Kelheim
+* Landkreis Neuburg-Schrobenhausen
+* Landkreis Südliche Weinstraße
+* Landratsamt Dachau
+* Neustadt a.d. Waldnaab
+* Rems-Murr-Kreis
+* Stadt Memmingen
+
+Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
 ### 2. Voraussetzungen
 
-- IP-Symcon ab Version 4.x
+- IP-Symcon ab Version 4.x (getestet mit Version 4.1.534 auf RP3)
 
 ### 3. Software-Installation
 
@@ -34,8 +50,21 @@
 
 __Konfigurationsseite__:
 
+Die Konfiguration läuft über mehrere Schritte und bedingt pro Konfigurationsschritt(auswahl) ein 'Übernehmen' der Daten.
+Bis man zum Schluss die Instanz über die Update-Checkbox aktiv setzt.
+Eine Neuauswahl erreicht man durch Auswahl "Bitte wählen ..." an der gewüschten Stelle.
+
+VORSTICHT: eine Änderung der Auswahl bedingt ein Löschen und Neuanlegen der Statusvariablen!!!
+Hat man diese in einem WF verlinkt muss man danach die Links neu setzen. Ich denke aber mal das ein Umzug nicht so häufig vorkommt ;-)
+
 Name               | Beschreibung
 ------------------ | ---------------------------------
+clientID           | Gebiets-Id (siehe Liste oben)
+placeGUID          | Ort im Entsorgungsgebiet
+streetGUID         | Ortsteil/Strasse im gewählten Ort
+addonGUID          | Hausnummer (Alle = gesamte Strasse)
+fractionIDs        | Entrogungs-Ids, d.h. was wird im Gebiet an Entsorgung angeboten
+activateAWIDO      | Status, ob das tägliche Update aktiv oder inaktiv ist
 
 
 ### 5. Statusvariablen und Profile
@@ -44,13 +73,22 @@ Die Statusvariablen/Timer werden automatisch angelegt. Das Löschen einzelner ka
 
 Name               | Typ       | Beschreibung
 ------------------ | --------- | ----------------
-
+UpdateTimer        | Timer     | Timmer zum täglichen Update der Entsorgungstermine
+<Entsorgungsart>   | String    | Abhängig vom Entsorgungsgebiet und den angebotenem Service mehrere Variablen, z.B.: Restmüll, Biotonne usw.
 
 Es werden keine zusätzlichen Profile benötigt.
 
 ### 6. WebFront
 
-Es ist keine weitere Steuerung oder gesonderte Darstellung integriert.
+Man kann die Statusvariaben(Strings) direkt im WF verlinken.
+Aber wie bei der Konfiguration beschrieben, muss man aufpassen wenn die Konfiguration geändert wird. Dann müssen die Links neu eingerichtet werden.
+
 
 ### 7. PHP-Befehlsreferenz
 
+`void AWIDO_Update(int $InstanzID);`
+Holt die nächsten anstehenden Entsorgungstermine für die gewählten Entsorgungsarten.
+Die Funktion liefert keinerlei Rückgabewert.
+
+Beispiel:
+`AWIDO_Update(12345);`

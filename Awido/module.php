@@ -47,8 +47,7 @@ class Awido extends IPSModule
     // FractionIDs
     $this->RegisterPropertyString("fractionIDs", "null");
     // Fractions
-    for ($i=1; $i<=10; $i++)
-		{
+    for ($i=1; $i<=10; $i++) {
 			$this->RegisterPropertyBoolean("fractionID".$i, false);
 		}
     // Activation
@@ -385,10 +384,11 @@ class Awido extends IPSModule
   }
 
   /**
-   * xxx.
+   * Create the varables for the fractions.
    *
    * @access protected
    * @param  string $fIds fract ids.
+   * @param  string $cId Client ID .
    */
   protected function CreateVariables($cId, $fIds)
   {
@@ -454,15 +454,15 @@ class Awido extends IPSModule
     $data = json_decode($json);
 
 		foreach($data->calendar as $day) {
-			if($day->fr == "")
+			if($day->fr == "") {
 				continue;
+      }
 
-			if($day->dt < date("Ymd"))
+			if($day->dt < date("Ymd")) {
 				continue;
-
+      }
 
 			$tag = substr($day->dt, 6).".".substr($day->dt, 4, 2).".".substr($day->dt, 0, 4);
-			$this->SendDebug("AWIDO_Update", "Fraction:".$day->fr[0]." Tag:".$tag, 0);
 
       if ($array[$day->fr[0]]['value'] == "" ) {
         $tag = substr($day->dt, 6).".".substr($day->dt, 4, 2).".".substr($day->dt, 0, 4);
