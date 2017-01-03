@@ -474,7 +474,7 @@ class Awido extends IPSModule
     foreach($array as $line) {
       if($line->exist == true) {
         $varId = $this->GetIDForIdent($line->ident);
-        SetValueString($varId, $line->value)
+        SetValueString($varId, $line->value);
       }
     }
   }
