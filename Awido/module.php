@@ -104,6 +104,11 @@ class Awido extends IPSModule
   		{
   			IPS_SetProperty($this->InstanceID, "fractionID".$i, false);
   		}
+      $placeId  = $this->ReadPropertyString("placeGUID");
+      $streetId = $this->ReadPropertyString("streetGUID");
+      $addonId  = $this->ReadPropertyString("addonGUID");
+      $fractIds = $this->ReadPropertyString("fractionIDs");
+      $this->SendDebug("ApplyChanges", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId.", fractIds=".$fractIds, 0);
     }
     else if($placeId == "null") {
       $status = 202;
