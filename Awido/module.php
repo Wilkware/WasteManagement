@@ -87,21 +87,25 @@ class Awido extends IPSModule
     $status = 102;
     if($clientId == "null") {
       $status = 201;
+      $this->SendDebug("ApplyChanges", "status=".$status, 0);
       IPS_SetProperty($this->InstanceID, "placeGUID", "null");
       IPS_SetProperty($this->InstanceID, "streetGUID", "null");
       IPS_SetProperty($this->InstanceID, "addonGUID", "null");
     }
     else if($placeId == "null") {
       $status = 202;
+      $this->SendDebug("ApplyChanges", "status=".$status, 0);
       IPS_SetProperty($this->InstanceID, "streetGUID", "null");
       IPS_SetProperty($this->InstanceID, "addonGUID", "null");
     }
     else if($streetId == "null") {
       $status = 203;
+      $this->SendDebug("ApplyChanges", "status=".$status, 0);
       IPS_SetProperty($this->InstanceID, "addonGUID", "null");
     }
     else if($addonId == "null") {
       $status = 204;
+      $this->SendDebug("ApplyChanges", "status=".$status, 0);
     }
 
     $this->SetStatus($status);
