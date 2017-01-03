@@ -15,7 +15,7 @@
 Das Modul nutzt die von awido (www.awido-online.de) bereitgestellten Daten zur Berechnung
 der bevorstehenden Entsorgungstermine (Abfallentsorgung).
 
-Derzeit unterstütz das Modul folgende Gebiete:
+Derzeit unterstützt das Modul folgende Gebiete:
 
 * Lahn-Dill-Kreis
 * Landkreis Altenkirchen
@@ -52,7 +52,7 @@ __Konfigurationsseite__:
 
 Die Konfiguration läuft über mehrere Schritte und bedingt pro Konfigurationsschritt(auswahl) ein 'Übernehmen' der Daten.
 Bis man zum Schluss die Instanz über die Update-Checkbox aktiv setzt.
-Eine Neuauswahl erreicht man durch Auswahl "Bitte wählen ..." an der gewüschten Stelle.
+Eine Neuauswahl erreicht man durch Auswahl "Bitte wählen ..." an der gewüschten Stelle (immer 'Übernehmen' klicken).
 
 VORSTICHT: eine Änderung der Auswahl bedingt ein Löschen und Neuanlegen der Statusvariablen!!!
 Hat man diese in einem WF verlinkt muss man danach die Links neu setzen. Ich denke aber mal das ein Umzug nicht so häufig vorkommt ;-)
@@ -63,7 +63,7 @@ clientID           | Gebiets-Id (siehe Liste oben)
 placeGUID          | Ort im Entsorgungsgebiet
 streetGUID         | Ortsteil/Strasse im gewählten Ort
 addonGUID          | Hausnummer (Alle = gesamte Strasse)
-fractionIDs        | Entrogungs-Ids, d.h. was wird im Gebiet an Entsorgung angeboten
+fractionIDs        | Entsorgungs-Ids, d.h. was wird im Gebiet an Entsorgung angeboten
 activateAWIDO      | Status, ob das tägliche Update aktiv oder inaktiv ist
 
 
@@ -71,10 +71,10 @@ activateAWIDO      | Status, ob das tägliche Update aktiv oder inaktiv ist
 
 Die Statusvariablen/Timer werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 
-Name               | Typ       | Beschreibung
------------------- | --------- | ----------------
-UpdateTimer        | Timer     | Timmer zum täglichen Update der Entsorgungstermine
-<Entsorgungsart>   | String    | Abhängig vom Entsorgungsgebiet und den angebotenem Service mehrere Variablen, z.B.: Restmüll, Biotonne usw.
+Name                 | Typ       | Beschreibung
+-------------------- | --------- | ----------------
+UpdateTimer          | Timer     | Timmer zum täglichen Update der Entsorgungstermine
+Entsorgungsart(1-10) | String    | Abhängig vom Entsorgungsgebiet und den angebotenem Service mehrere Variablen, z.B.: Restmüll, Biotonne usw.
 
 Es werden keine zusätzlichen Profile benötigt.
 
