@@ -120,6 +120,9 @@ class Awido extends IPSModule
       $status = 204;
       IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
     }
+    else if($fractIds == "null") {
+      $status = 205;
+    }
 
     $this->SetStatus($status);
     //$this->SetTimerInterval("UpdateTimer", 0);
@@ -320,7 +323,8 @@ class Awido extends IPSModule
               {"code": 201, "icon": "inactive", "caption": "Select a valid refuse management!"},
               {"code": 202, "icon": "inactive", "caption": "Select a valid place!"},
               {"code": 203, "icon": "inactive", "caption": "Select a valid location/street!"},
-              {"code": 204, "icon": "inactive", "caption": "Select a valid street number!"}';
+              {"code": 204, "icon": "inactive", "caption": "Select a valid street number!"},
+              {"code": 205, "icon": "inactive", "caption": "Select a offered disapsal!"}';
     return $form;
   }
 
