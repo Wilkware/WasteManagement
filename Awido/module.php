@@ -51,7 +51,8 @@ class Awido extends IPSModule
 		{
 			$this->RegisterPropertyBoolean("fractionID".$i, false);
 		}
-
+    // Activation
+		$this->RegisterPropertyBoolean("activateAWIDO", false);
     // Update daily timer
     $this->RegisterTimer("UpdateTimer",0,"AWIDO_Update(\$_IPS['TARGET']);");
   }
@@ -69,6 +70,8 @@ class Awido extends IPSModule
     $streetId = $this->ReadPropertyString("streetGUID");
     $addonId  = $this->ReadPropertyString("addonGUID");
     $fractIds = $this->ReadPropertyString("fractionIDs");
+    $activate = $this->ReadPropertyString("activateAWIDO");
+
     $this->SendDebug("GetConfigurationForm", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId.", fractIds=".$fractIds, 0);
 
     if($clientId == "null") {
@@ -79,32 +82,40 @@ class Awido extends IPSModule
       for ($i=1; $i<=10; $i++) {
   			IPS_SetProperty($this->InstanceID, "fractionID".$i, false);
   		}
+ 			IPS_SetProperty($this->InstanceID, "activateAWIDO", false);
       // zusätzlich da Werte mit IPS_SetProperty nicht sofort übernommen werden
       $placeId  = "null";
       $streetId = "null";
       $addonId  = "null";
       $fractIds = "null";
+      $activate = false;
     }
     else if($placeId == "null") {
       IPS_SetProperty($this->InstanceID, "streetGUID", "null");
       IPS_SetProperty($this->InstanceID, "addonGUID", "null");
       IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
+ 			IPS_SetProperty($this->InstanceID, "activateAWIDO", false);
       // zusätzlich da Werte mit IPS_SetProperty nicht sofort übernommen werden
       $streetId = "null";
       $addonId  = "null";
       $fractIds = "null";
+      $activate = false;
     }
     else if($streetId == "null") {
       IPS_SetProperty($this->InstanceID, "addonGUID", "null");
       IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
+ 			IPS_SetProperty($this->InstanceID, "activateAWIDO", false);
       // zusätzlich da Werte mit IPS_SetProperty nicht sofort übernommen werden
       $addonId  = "null";
       $fractIds = "null";
+      $activate = false;
     }
     else if($addonId == "null") {
       IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
+ 			IPS_SetProperty($this->InstanceID, "activateAWIDO", false);
       // zusätzlich da Werte mit IPS_SetProperty nicht sofort übernommen werden
       $fractIds = "null";
+      $activate = false;
     }
 
     $formclient = $this->FormClient($clientId);
@@ -112,9 +123,11 @@ class Awido extends IPSModule
     $formstreet = $this->FormStreet($clientId, $placeId, $streetId);
     $formaddons = $this->FormAddons($clientId, $placeId, $streetId, $addonId);
     $formfracts = $this->FormFractions($clientId, $addonId);
+    $formactive = $this->FormActivate($clientId, $addonId);
+
     $formstatus = $this->FormStatus();
 
-    return '{ "elements": [' . $formclient . $formplaces . $formstreet . $formaddons . $formfracts . '], "status": [' . $formstatus . ']}';
+    return '{ "elements": [' . $formclient . $formplaces . $formstreet . $formaddons . $formfracts . $formactive . '], "status": [' . $formstatus . ']}';
   }
 
   public function ApplyChanges()
@@ -127,9 +140,10 @@ class Awido extends IPSModule
     $streetId = $this->ReadPropertyString("streetGUID");
     $addonId  = $this->ReadPropertyString("addonGUID");
     $fractIds = $this->ReadPropertyString("fractionIDs");
+    $activate = $this->ReadPropertyString("activateAWIDO");
     $this->SendDebug("ApplyChanges", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId.", fractIds=".$fractIds, 0);
 
-    $status = 104;
+    $status = 102;
     if($clientId == "null") {
       $status = 201;
     }
@@ -144,6 +158,9 @@ class Awido extends IPSModule
     }
     else if($fractIds == "null") {
       $status = 205;
+    }
+    else {
+      $this->CreateVariables($clientId, $fractIds);
     }
 
     $this->SetStatus($status);
@@ -267,7 +284,7 @@ class Awido extends IPSModule
    * @param  string $pId Place GUID.
    * @param  string $sId Street GUID .
    * @param  string $aId Addon GUID .
-   * @return string Client ID Elements.
+   * @return string Addon ID Elements.
    */
   protected function FormAddons($cId, $pId, $sId, $aId)
   {
@@ -305,7 +322,7 @@ class Awido extends IPSModule
    * @access protected
    * @param  string $cId Client ID .
    * @param  string $aId Addon GUID .
-   * @return string Client ID Elements.
+   * @return string Fraction ID Elements.
    */
   protected function FormFractions($cId, $aId)
   {
@@ -332,6 +349,26 @@ class Awido extends IPSModule
   }
 
   /**
+   * Check zum Aktivieren des Moduls.
+   *
+   * @access protected
+   * @param  string $cId Client ID .
+   * @param  string $aId Addon GUID .
+   * @return string Activation Elements.
+   */
+  protected function FormFractions($cId, $aId)
+  {
+    if($cId == "null" || $aId == "null") {
+      return '';
+    }
+
+    $form = ',{ "type": "Label", "label": "The following selection box activates or deactivates the instance:" } ,
+              { "type": "CheckBox", "name": "activateAWIDO", "caption": "Activate daily update?" }';
+
+    return $form;
+  }
+
+  /**
    * Prüft den Parent auf vorhandensein und Status.
    *
    * @access protected
@@ -350,6 +387,15 @@ class Awido extends IPSModule
     return $form;
   }
 
+  /**
+   * xxx.
+   *
+   * @access protected
+   * @param  string $fIds fract ids.
+   */
+  protected function CreateVariables($cId, $fIds)
+  {
+  }
 }
 
 ?>
