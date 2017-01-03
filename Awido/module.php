@@ -11,15 +11,15 @@ class Awido extends IPSModule
   static $Clients = array(
     "awld"              => "Lahn-Dill-Kreis",
     "awb-ak"            => "Landkreis Altenkirchen",
-    "awb-duerkheim"     => "Landkreis Bad Dürkheim",
-    "wgv"               => "Landkreis Bad Tölz-Wolfratshausen",
+    "awb-duerkheim"     => "Landkreis Bad DÃ¼rkheim",
+    "wgv"               => "Landkreis Bad TÃ¶lz-Wolfratshausen",
     "awv-nordschwaben"  => "Landkreis Dillingen a.d. Donau und Donau-Ries",
     "Erding"            => "Landkreis Erding",
-    "kaw-guenzburg"     => "Landkreis Günzburg",
+    "kaw-guenzburg"     => "Landkreis GÃ¼nzburg",
     "azv-hef-rof"       => "Landkreis Hersfeld-Rotenburg",
     "kelheim"           => "Landkreis Kelheim",
     "landkreisbetriebe" => "Landkreis Neuburg-Schrobenhausen",
-    "eww-suew"          => "Landkreis Südliche Weinstraße",
+    "eww-suew"          => "Landkreis SÃ¼dliche WeinstraÃŸe",
     "lra-dah"           => "Landratsamt Dachau",
     "neustadt"          => "Neustadt a.d. Waldnaab",
     "rmk"               => "Rems-Murr-Kreis",
@@ -121,7 +121,7 @@ class Awido extends IPSModule
   }
 
   /**
-   * Erstellt ein DropDown-Menü mit den auswählbaren Client IDs (Abfallwirtschaften).
+   * Erstellt ein DropDown-MenÃ¼ mit den auswÃ¤hlbaren Client IDs (Abfallwirtschaften).
    *
    * @access protected
    * @param  string $cId Client ID .
@@ -148,7 +148,7 @@ class Awido extends IPSModule
   }
 
   /**
-   * Erstellt ein DropDown-Menü mit den auswählbaren Orte im Entsorkungsgebiet.
+   * Erstellt ein DropDown-MenÃ¼ mit den auswÃ¤hlbaren Orte im Entsorkungsgebiet.
    *
    * @access protected
    * @param  string $cId Client ID .
@@ -183,7 +183,7 @@ class Awido extends IPSModule
   }
 
   /**
-   * Erstellt ein DropDown-Menü mit den auswählbaren OT/Strassen im Entsorkungsgebiet.
+   * Erstellt ein DropDown-MenÃ¼ mit den auswÃ¤hlbaren OT/Strassen im Entsorkungsgebiet.
    *
    * @access protected
    * @param  string $cId Client ID.
@@ -219,7 +219,7 @@ class Awido extends IPSModule
   }
 
   /**
-   * Erstellt ein DropDown-Menü mit den auswählbaren Hausnummern im Entsorkungsgebiet.
+   * Erstellt ein DropDown-MenÃ¼ mit den auswÃ¤hlbaren Hausnummern im Entsorkungsgebiet.
    *
    * @access protected
    * @param  string $cId Client ID .
@@ -256,7 +256,7 @@ class Awido extends IPSModule
   }
 
   /**
-   * Prüft den Parent auf vorhandensein und Status.
+   * PrÃ¼ft den Parent auf vorhandensein und Status.
    *
    * @access protected
    * @return string Status Elemente.
