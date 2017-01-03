@@ -445,7 +445,7 @@ class Awido extends IPSModule
     $array = array();
     foreach($data as $fract) {
         $fractID = $this->ReadPropertyBoolean("fractionID".$fract->id);
-        $array[$fract->snm] = array('value' => '', 'exist' => $fractID);
+        $array[$fract->snm] = array('ident' => $fract->snm, 'value' => '', 'exist' => $fractID);
     }
 
     // update data
@@ -472,9 +472,9 @@ class Awido extends IPSModule
 
     // write data to variable
     foreach($array as $line) {
-      if($line->exist == true) {
-        $varId = $this->GetIDForIdent($line->ident);
-        SetValueString($varId, $line->value);
+      if($line['exist'] == true) {
+        $varId = $this->GetIDForIdent($line['ident']);
+        SetValueString($varId, $line['value']);
       }
     }
   }
