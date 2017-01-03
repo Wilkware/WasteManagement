@@ -437,7 +437,7 @@ class Awido extends IPSModule
     }
 
     // rebuild informations
-    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=".$cId;
+    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=".$clientId;
 
     $json = file_get_contents($url);
     $data = json_decode($json);
