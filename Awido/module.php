@@ -462,7 +462,7 @@ class Awido extends IPSModule
 
 
 			$tag = substr($day->dt, 6).".".substr($day->dt, 4, 2).".".substr($day->dt, 0, 4);
-			$this->SendDebug("AWIDO_Update", "Fraction:".$day->fr." Tag:".$tag, 0);
+			$this->SendDebug("AWIDO_Update", "Fraction:".$day->fr[0]." Tag:".$tag, 0);
 
       if ($array[$day->fr[0]]['value'] == "" ) {
         $tag = substr($day->dt, 6).".".substr($day->dt, 4, 2).".".substr($day->dt, 0, 4);
