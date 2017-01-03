@@ -356,7 +356,7 @@ class Awido extends IPSModule
    * @param  string $aId Addon GUID .
    * @return string Activation Elements.
    */
-  protected function FormFractions($cId, $aId)
+  protected function FormActivate($cId, $aId)
   {
     if($cId == "null" || $aId == "null") {
       return '';
