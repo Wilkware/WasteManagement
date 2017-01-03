@@ -397,10 +397,10 @@ class Awido extends IPSModule
       return;
     }
     // delete all existing variables
-    $objects = IPS_GetChildrenIDs($this->InstanceID);
-    foreach($object as $obj) {
-      if(IPS_GetName($obj) != "UpdateTimer") {
-        IPS_DeleteVariable($obj);
+    $childs = IPS_GetChildrenIDs($this->InstanceID);
+    foreach($childs as $object) {
+      if(IPS_GetName($object) != "UpdateTimer") {
+        IPS_DeleteVariable($object);
       }
     }
     // create all new
