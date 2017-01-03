@@ -71,6 +71,38 @@ class Awido extends IPSModule
     $fractIds = $this->ReadPropertyString("fractionIDs");
     $this->SendDebug("GetConfigurationForm", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId.", fractIds=".$fractIds, 0);
 
+    if($clientId == "null") {
+      IPS_SetProperty($this->InstanceID, "placeGUID", "null");
+      IPS_SetProperty($this->InstanceID, "streetGUID", "null");
+      IPS_SetProperty($this->InstanceID, "addonGUID", "null");
+      IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
+      for ($i=1; $i<=10; $i++) {
+  			IPS_SetProperty($this->InstanceID, "fractionID".$i, false);
+  		}
+      $placeId  = "null";
+      $streetId = "null";
+      $addonId  = "null";
+      $fractIds = "null";
+    }
+    else if($placeId == "null") {
+      IPS_SetProperty($this->InstanceID, "streetGUID", "null");
+      IPS_SetProperty($this->InstanceID, "addonGUID", "null");
+      IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
+      $streetId = "null";
+      $addonId  = "null";
+      $fractIds = "null";
+    }
+    else if($streetId == "null") {
+      IPS_SetProperty($this->InstanceID, "addonGUID", "null");
+      IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
+      $addonId  = "null";
+      $fractIds = "null";
+    }
+    else if($addonId == "null") {
+      IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
+      $fractIds = "null";
+    }
+
     $formclient = $this->FormClient($clientId);
     $formplaces = $this->FormPlaces($clientId, $placeId);
     $formstreet = $this->FormStreet($clientId, $placeId, $streetId);
@@ -96,46 +128,22 @@ class Awido extends IPSModule
     $status = 102;
     if($clientId == "null") {
       $status = 201;
-      IPS_SetProperty($this->InstanceID, "placeGUID", "null");
-      IPS_SetProperty($this->InstanceID, "streetGUID", "null");
-      IPS_SetProperty($this->InstanceID, "addonGUID", "null");
-      IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
-      for ($i=1; $i<=10; $i++)
-  		{
-  			IPS_SetProperty($this->InstanceID, "fractionID".$i, false);
-  		}
-      $placeId  = $this->ReadPropertyString("placeGUID");
-      $streetId = $this->ReadPropertyString("streetGUID");
-      $addonId  = $this->ReadPropertyString("addonGUID");
-      $fractIds = $this->ReadPropertyString("fractionIDs");
-      $this->SendDebug("ApplyChanges", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId.", fractIds=".$fractIds, 0);
     }
     else if($placeId == "null") {
       $status = 202;
-      IPS_SetProperty($this->InstanceID, "streetGUID", "null");
-      IPS_SetProperty($this->InstanceID, "addonGUID", "null");
-      IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
     }
     else if($streetId == "null") {
       $status = 203;
-      IPS_SetProperty($this->InstanceID, "addonGUID", "null");
-      IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
     }
     else if($addonId == "null") {
       $status = 204;
-      IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
     }
     else if($fractIds == "null") {
       $status = 205;
-      for ($i=1; $i<=10; $i++)
-  		{
-  			IPS_SetProperty($this->InstanceID, "fractionID".$i, false);
-  		}
     }
 
     $this->SetStatus($status);
     //$this->SetTimerInterval("UpdateTimer", 0);
-
   }
 
   /**
