@@ -445,7 +445,7 @@ class Awido extends IPSModule
     $array = array();
     foreach($data as $fract) {
         $fractID = $this->ReadPropertyBoolean("fractionID".$fract->id);
-        $array[] = array('ident' => $fract->snm,'value' => '', 'exist' => $fractID);
+        $array[$fract->snm] = array('value' => '', 'exist' => $fractID);
     }
 
     // update data
