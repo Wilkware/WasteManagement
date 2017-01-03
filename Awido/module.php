@@ -464,9 +464,9 @@ class Awido extends IPSModule
 
 			$tag = substr($day->dt, 6).".".substr($day->dt, 4, 2).".".substr($day->dt, 0, 4);
 
-      if (array[$day->fr]['value'] == "" ) {
+      if ($array[$day->fr]['value'] == "" ) {
         $tag = substr($day->dt, 6).".".substr($day->dt, 4, 2).".".substr($day->dt, 0, 4);
-        array[$day->fr]['value'] = $tag;
+        $array[$day->fr]['value'] = $tag;
       }
 		}
 
