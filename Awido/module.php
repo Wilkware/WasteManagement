@@ -426,6 +426,57 @@ class Awido extends IPSModule
   */
   public function Update()
   {
+    $clientId = $this->ReadPropertyString("clientID");
+    $placeId  = $this->ReadPropertyString("placeGUID");
+    $streetId = $this->ReadPropertyString("streetGUID");
+    $addonId  = $this->ReadPropertyString("addonGUID");
+    $fractIds = $this->ReadPropertyString("fractionIDs");
+
+    if($clientId == "null" || $placeId == "null" || $streetId == "null" || $addonId == "null" || $fractIds == "null") {
+      return;
+    }
+
+    // rebuild informations
+    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=".$cId;
+
+    $json = file_get_contents($url);
+    $data = json_decode($json);
+
+    $array = array();
+    foreach($data as $fract) {
+        $fractID = $this->ReadPropertyBoolean("fractionID".$fract->id);
+        $array[] = array('ident' => $fract->snm,'value' => '', 'exist' => $fractID);
+    }
+
+    // update data
+    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getData/".$addonId."?fractions=".$fractIds."&client=".$clientId;
+    $json = file_get_contents($url);
+    $data = json_decode($json);
+
+		foreach($data->calendar as $day) {
+			if($day->fr == "")
+				continue;
+
+			if($day->dt < date("Ymd"))
+				continue;
+
+			$this->SendDebug("AWIDO_Update", $day, 0);
+
+			$tag = substr($day->dt, 6).".".substr($day->dt, 4, 2).".".substr($day->dt, 0, 4);
+
+      if (array[$day->fr]['value'] == "" ) {
+        $tag = substr($day->dt, 6).".".substr($day->dt, 4, 2).".".substr($day->dt, 0, 4);
+        array[$day->fr]['value'] = $tag;
+      }
+		}
+
+    // write data to variable
+    foreach($array as $line) {
+      if($line->exist == true) {
+        $varId = $this->GetIDForIdent($line->ident);
+        SetValueString($varId, $line->value)
+      }
+    }
   }
 
 }
