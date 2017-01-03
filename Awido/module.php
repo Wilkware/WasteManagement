@@ -101,7 +101,9 @@ class Awido extends IPSModule
       IPS_SetProperty($this->InstanceID, "addonGUID", "null");
     }
     else if($addonId == "null") {
-      $status = 204;
+      if (ExistAddons($clientId, $placeId, $streetId)) {
+        $status = 204;
+      }
     }
 
     $this->SetStatus($status);
@@ -271,6 +273,34 @@ class Awido extends IPSModule
               {"code": 203, "icon": "inactive", "caption": "Select a valid location/street!"},
               {"code": 204, "icon": "inactive", "caption": "Select a valid street number!"}';
     return $form;
+  }
+
+  /**
+   * Checkt ob es auswählbare Hausnummern im Entsorkungsgebiet gibt.
+   *
+   * @access protected
+   * @param  string $cId Client ID .
+   * @param  string $pId Place GUID.
+   * @param  string $sId Street GUID .
+   * @return bool true wenn Hausnummern existieren, sonst false.
+   */
+  protected function ExistAddons($cId, $pId, $sId)
+  {
+    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getStreetAddons/".$sId."?client=".$cId;
+
+    if($cId == "null" || $pId == "null" || $sId == "null") {
+      return false;
+    }
+
+    $json = file_get_contents($url);
+    $data = json_decode($json);
+
+    foreach($data as $addon) {
+      if($addon->value == "") {
+        return false;
+      }
+    }
+    return true;
   }
 
 }
