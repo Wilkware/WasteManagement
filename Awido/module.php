@@ -44,7 +44,13 @@ class Awido extends IPSModule
     $this->RegisterPropertyString("streetGUID", "null");
     // Addon
     $this->RegisterPropertyString("addonGUID", "null");
-    // Fraction
+    // FractionIDs
+    $this->RegisterPropertyString("fractionIDs", "null");
+    // Fractions
+    for ($i=1; $i<=10; $i++)
+		{
+			$this->RegisterPropertyBoolean("fractionID".$i, true);
+		}
 
     // Update daily timer
     $this->RegisterTimer("UpdateTimer",0,"AWIDO_Update(\$_IPS['TARGET']);");
@@ -62,15 +68,17 @@ class Awido extends IPSModule
     $placeId  = $this->ReadPropertyString("placeGUID");
     $streetId = $this->ReadPropertyString("streetGUID");
     $addonId  = $this->ReadPropertyString("addonGUID");
-    $this->SendDebug("GetConfigurationForm", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId, 0);
+    $fractIds = $this->ReadPropertyString("fractionIDs");
+    $this->SendDebug("GetConfigurationForm", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId.", fractIds=".$fractIds, 0);
 
     $formclient = $this->FormClient($clientId);
     $formplaces = $this->FormPlaces($clientId, $placeId);
     $formstreet = $this->FormStreet($clientId, $placeId, $streetId);
     $formaddons = $this->FormAddons($clientId, $placeId, $streetId, $addonId);
+    $formfracts = $this->FormFractions($clientId, $addonId);
     $formstatus = $this->FormStatus();
 
-    return '{ "elements": [' . $formclient . $formplaces . $formstreet . $formaddons . '], "status": [' . $formstatus . ']}';
+    return '{ "elements": [' . $formclient . $formplaces . $formstreet . $formaddons . $formfracts . '], "status": [' . $formstatus . ']}';
   }
 
   public function ApplyChanges()
@@ -82,7 +90,8 @@ class Awido extends IPSModule
     $placeId  = $this->ReadPropertyString("placeGUID");
     $streetId = $this->ReadPropertyString("streetGUID");
     $addonId  = $this->ReadPropertyString("addonGUID");
-    $this->SendDebug("ApplyChanges", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId, 0);
+    $fractIds = $this->ReadPropertyString("fractionIDs");
+    $this->SendDebug("GetConfigurationForm", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId.", fractIds=".$fractIds, 0);
 
     $status = 102;
     if($clientId == "null") {
@@ -90,20 +99,22 @@ class Awido extends IPSModule
       IPS_SetProperty($this->InstanceID, "placeGUID", "null");
       IPS_SetProperty($this->InstanceID, "streetGUID", "null");
       IPS_SetProperty($this->InstanceID, "addonGUID", "null");
+      IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
     }
     else if($placeId == "null") {
       $status = 202;
       IPS_SetProperty($this->InstanceID, "streetGUID", "null");
       IPS_SetProperty($this->InstanceID, "addonGUID", "null");
+      IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
     }
     else if($streetId == "null") {
       $status = 203;
       IPS_SetProperty($this->InstanceID, "addonGUID", "null");
+      IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
     }
     else if($addonId == "null") {
-      if ($this->ExistAddons($clientId, $placeId, $streetId) == true) {
-        $status = 204;
-      }
+      $status = 204;
+      IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
     }
 
     $this->SetStatus($status);
@@ -247,6 +258,9 @@ class Awido extends IPSModule
     $line[] = '{"label": "Please select ...","value": "null"}';
 
     foreach($data as $addon) {
+      if($addon->value == "") {
+        $addon->value = "All";
+      }
       if($aId == "null") {
         $line[] = '{"label": "' . $addon->value . '","value": "' . $addon->key . '"}';
       }
@@ -255,6 +269,34 @@ class Awido extends IPSModule
       }
     }
     return $form . implode(',', $line) . ']}';
+  }
+
+  /**
+   * Erstellt für die angebotenen Entsorgungen Auswahlboxen.
+   *
+   * @access protected
+   * @param  string $cId Client ID .
+   * @param  string $aId Addon GUID .
+   * @return string Client ID Elements.
+   */
+  protected function FormFractions($cId, $aId)
+  {
+    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=".$cId;
+
+    if($cId == "null" || $aId == "null") {
+      return '';
+    }
+
+    $json = file_get_contents($url);
+    $data = json_decode($json);
+
+    $form = ',';
+    $line = array();
+
+    foreach($data as $fract) {
+        $line[] = '{ "type": "CheckBox", "name": "fractionID' . $fract->id .'", "caption": "' . $fract->nm . ' (' . $fract->snm .')" }';
+    }
+    return $form . implode(',', $line);
   }
 
   /**
@@ -273,34 +315,6 @@ class Awido extends IPSModule
               {"code": 203, "icon": "inactive", "caption": "Select a valid location/street!"},
               {"code": 204, "icon": "inactive", "caption": "Select a valid street number!"}';
     return $form;
-  }
-
-  /**
-   * Checkt ob es auswählbare Hausnummern im Entsorkungsgebiet gibt.
-   *
-   * @access protected
-   * @param  string $cId Client ID .
-   * @param  string $pId Place GUID.
-   * @param  string $sId Street GUID .
-   * @return bool true wenn Hausnummern existieren, sonst false.
-   */
-  protected function ExistAddons($cId, $pId, $sId)
-  {
-    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getStreetAddons/".$sId."?client=".$cId;
-
-    if($cId == "null" || $pId == "null" || $sId == "null") {
-      return false;
-    }
-
-    $json = file_get_contents($url);
-    $data = json_decode($json);
-
-    foreach($data as $addon) {
-      if($addon->value == "") {
-        return false;
-      }
-    }
-    return true;
   }
 
 }
