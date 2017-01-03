@@ -101,7 +101,7 @@ class Awido extends IPSModule
       IPS_SetProperty($this->InstanceID, "addonGUID", "null");
     }
     else if($addonId == "null") {
-      if (ExistAddons($clientId, $placeId, $streetId)) {
+      if ($this->ExistAddons($clientId, $placeId, $streetId) == true) {
         $status = 204;
       }
     }
