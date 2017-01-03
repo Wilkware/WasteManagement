@@ -49,7 +49,7 @@ class Awido extends IPSModule
     // Fractions
     for ($i=1; $i<=10; $i++)
 		{
-			$this->RegisterPropertyBoolean("fractionID".$i, true);
+			$this->RegisterPropertyBoolean("fractionID".$i, false);
 		}
 
     // Update daily timer
@@ -102,7 +102,7 @@ class Awido extends IPSModule
       IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
       for ($i=1; $i<=10; $i++)
   		{
-  			IPS_SetProperty($this->InstanceID, "fractionID".$i, true);
+  			IPS_SetProperty($this->InstanceID, "fractionID".$i, false);
   		}
     }
     else if($placeId == "null") {
@@ -303,6 +303,7 @@ class Awido extends IPSModule
 
     foreach($data as $fract) {
         $ids[]  = $fract->id;
+  			IPS_SetProperty($this->InstanceID, "fractionID".$fract->id, $fract->vb);
         $line[] = '{ "type": "CheckBox", "name": "fractionID' . $fract->id .'", "caption": "' . $fract->nm . ' (' . $fract->snm .')" }';
     }
     IPS_SetProperty($this->InstanceID, "fractionIDs", implode(',', $ids));
