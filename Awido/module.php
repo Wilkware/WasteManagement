@@ -121,7 +121,7 @@ class Awido extends IPSModule
       IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
     }
     else if($fractIds == "null") {
-      $status = 102;
+      $status = 205;
     }
 
     $this->SetStatus($status);
@@ -307,6 +307,7 @@ class Awido extends IPSModule
         $line[] = '{ "type": "CheckBox", "name": "fractionID' . $fract->id .'", "caption": "' . $fract->nm . ' (' . $fract->snm .')" }';
     }
     IPS_SetProperty($this->InstanceID, "fractionIDs", implode(',', $ids));
+    $this->SetStatus(101);
     return $form . implode(',', $line);
   }
 
