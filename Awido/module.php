@@ -121,7 +121,7 @@ class Awido extends IPSModule
       IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
     }
     else if($fractIds == "null") {
-      $status = 205;
+      $status = 102;
     }
 
     $this->SetStatus($status);
