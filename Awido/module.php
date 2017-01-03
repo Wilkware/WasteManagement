@@ -79,6 +79,7 @@ class Awido extends IPSModule
       for ($i=1; $i<=10; $i++) {
   			IPS_SetProperty($this->InstanceID, "fractionID".$i, false);
   		}
+      // zusätzlich da Werte mit IPS_SetProperty nicht sofort übernommen werden
       $placeId  = "null";
       $streetId = "null";
       $addonId  = "null";
@@ -88,6 +89,7 @@ class Awido extends IPSModule
       IPS_SetProperty($this->InstanceID, "streetGUID", "null");
       IPS_SetProperty($this->InstanceID, "addonGUID", "null");
       IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
+      // zusätzlich da Werte mit IPS_SetProperty nicht sofort übernommen werden
       $streetId = "null";
       $addonId  = "null";
       $fractIds = "null";
@@ -95,11 +97,13 @@ class Awido extends IPSModule
     else if($streetId == "null") {
       IPS_SetProperty($this->InstanceID, "addonGUID", "null");
       IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
+      // zusätzlich da Werte mit IPS_SetProperty nicht sofort übernommen werden
       $addonId  = "null";
       $fractIds = "null";
     }
     else if($addonId == "null") {
       IPS_SetProperty($this->InstanceID, "fractionIDs", "null");
+      // zusätzlich da Werte mit IPS_SetProperty nicht sofort übernommen werden
       $fractIds = "null";
     }
 
@@ -125,7 +129,7 @@ class Awido extends IPSModule
     $fractIds = $this->ReadPropertyString("fractionIDs");
     $this->SendDebug("ApplyChanges", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId.", fractIds=".$fractIds, 0);
 
-    $status = 102;
+    $status = 104;
     if($clientId == "null") {
       $status = 201;
     }
