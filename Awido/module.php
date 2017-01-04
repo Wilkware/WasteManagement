@@ -54,7 +54,7 @@ class Awido extends IPSModule
 		$this->RegisterPropertyBoolean("activateAWIDO", false);
     // Update daily timer
     //old $this->RegisterTimer("UpdateTimer",0,"AWIDO_Update(\$_IPS['TARGET']);");
-    this->RegisterCyclicTimer("UpdateTimer", 0, 10, 0, "AWIDO_Update(".$this->InstanceID.")");
+    $this->RegisterCyclicTimer("UpdateTimer", 0, 10, 0, "AWIDO_Update(".$this->InstanceID.")");
   }
 
   /**
