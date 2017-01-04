@@ -54,7 +54,7 @@ class Awido extends IPSModule
 		$this->RegisterPropertyBoolean("activateAWIDO", false);
     // Update daily timer
     //old $this->RegisterTimer("UpdateTimer",0,"AWIDO_Update(\$_IPS['TARGET']);");
-    $this->RegisterCyclicTimer("UpdateTimer", 0, 10, 0, "AWIDO_Update(\$_IPS['TARGET']);");
+    $this->RegisterCyclicTimer("UpdateTimer", 0, 10, 0, 'AWIDO_Update('.$this->InstanceID.');');
   }
 
   /**
@@ -431,7 +431,7 @@ class Awido extends IPSModule
   protected function RegisterCyclicTimer($ident, $hour, $minute, $second, $script)
 	{
 		$id = @$this->GetIDForIdent($ident);
-		$name = "Awido Update Timer";
+		$name = $ident;
 		if ($id && IPS_GetEvent($id)['EventType'] <> 1)
 		{
 		  IPS_DeleteEvent($id);
@@ -445,8 +445,8 @@ class Awido extends IPSModule
 		}
 		IPS_SetName($id, $name);
 		// IPS_SetInfo($id, "Update AstroTimer");
-		//IPS_SetHidden($id, true);
-		IPS_SetEventScript($id, "\$id = \$_IPS['TARGET'];\n$script;");
+		// IPS_SetHidden($id, true);
+		IPS_SetEventScript($id, $script);
 		if (!IPS_EventExists($id)) throw new Exception("Ident with name $ident is used for wrong object type");
 		//IPS_SetEventCyclic($id, 0, 0, 0, 0, 0, 0);
 		IPS_SetEventCyclicTimeFrom($id, $hour, $minute, $second);
