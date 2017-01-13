@@ -128,7 +128,7 @@ class Awido extends IPSModule
 
     $formstatus = $this->FormStatus();
 
-    return '{ "elements": [' . $formclient . $formplaces . $formstreet . $formaddons . $formfracts . $formactive . '], "actions": [' . $formaction . '], "status": [' . $formstatus . ']}';
+    return '{ "elements": [' . $formclient . $formplaces . $formstreet . $formaddons . $formfracts . $formactive . '], ' . $formactions . '"status": [' . $formstatus . ']}';
   }
 
   public function ApplyChanges()
@@ -362,10 +362,9 @@ class Awido extends IPSModule
     if($cId == "null" || $aId == "null") {
       return '';
     }
-
-    $form = ' { "type": "Label", "label": "The following selection box activates or deactivates the instance:" } ,
-              { "type": "CheckBox", "name": "activateAWIDO", "caption": "Activate daily update?" }';       
-
+    $form = '"actions": [
+            { "type": "Label", "label": "The following selection box activates or deactivates the instance:" } ,
+            { "type": "CheckBox", "name": "activateAWIDO", "caption": "Activate daily update?" } ],';       
     return $form;
   }
 
@@ -383,7 +382,7 @@ class Awido extends IPSModule
       return '';
     }
 
-    $form = ',{ "type": "Label", "label": "Update dates." } ,
+    $form = ' { "type": "Label", "label": "Update dates." } ,
               { "type": "Button", "label": "Update", "onClick": "TLA_Update($id);" }';        
 
     return $form;
