@@ -384,7 +384,7 @@ class Awido extends IPSModule
 
     $form = '"actions": [
             { "type": "Label", "label": "Update dates." } ,
-            { "type": "Button", "label": "Update", "onClick": "TLA_Update($id);" } ],';        
+            { "type": "Button", "label": "Update", "onClick": "AWIDO_Update($id);" } ],';        
 
     return $form;
   }
