@@ -362,8 +362,8 @@ class Awido extends IPSModule
     if($cId == "null" || $aId == "null") {
       return '';
     }
-
-    $form = ' { "type": "Label", "label": "The following selection box activates or deactivates the instance:" } ,
+    return '';
+    $form = ',{ "type": "Label", "label": "The following selection box activates or deactivates the instance:" } ,
               { "type": "CheckBox", "name": "activateAWIDO", "caption": "Activate daily update?" }';       
 
     return $form;
