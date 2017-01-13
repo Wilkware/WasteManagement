@@ -362,9 +362,10 @@ class Awido extends IPSModule
     if($cId == "null" || $aId == "null") {
       return '';
     }
-    $form = '"actions": [
-            { "type": "Label", "label": "The following selection box activates or deactivates the instance:" } ,
-            { "type": "CheckBox", "name": "activateAWIDO", "caption": "Activate daily update?" } ],';       
+
+    $form = ' { "type": "Label", "label": "The following selection box activates or deactivates the instance:" } ,
+              { "type": "CheckBox", "name": "activateAWIDO", "caption": "Activate daily update?" }';       
+
     return $form;
   }
 
@@ -382,8 +383,9 @@ class Awido extends IPSModule
       return '';
     }
 
-    $form = ' { "type": "Label", "label": "Update dates." } ,
-              { "type": "Button", "label": "Update", "onClick": "TLA_Update($id);" }';        
+    $form = '"actions": [
+            { "type": "Label", "label": "Update dates." } ,
+            { "type": "Button", "label": "Update", "onClick": "TLA_Update($id);" } ],';        
 
     return $form;
   }
