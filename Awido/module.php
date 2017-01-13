@@ -364,12 +364,7 @@ class Awido extends IPSModule
     }
 
     $form = ',{ "type": "Label", "label": "The following selection box activates or deactivates the instance:" } ,
-              { "type": "CheckBox", "name": "activateAWIDO", "caption": "Activate daily update?" }';
-	  $form .= "actions":
-			[
-				{ "type": "Label", "label": "update values" },
-				{ "type": "Button", "label": "update", "onClick": "Astronomy_SetAstronomyValues($id);" }
-			],		              
+              { "type": "CheckBox", "name": "activateAWIDO", "caption": "Activate daily update?" }';       
 
     return $form;
   }
