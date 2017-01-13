@@ -124,10 +124,11 @@ class Awido extends IPSModule
     $formaddons = $this->FormAddons($clientId, $placeId, $streetId, $addonId);
     $formfracts = $this->FormFractions($clientId, $addonId);
     $formactive = $this->FormActivate($clientId, $addonId);
+    $formaction = $this->FormActions($clientId, $addonId);
 
     $formstatus = $this->FormStatus();
 
-    return '{ "elements": [' . $formclient . $formplaces . $formstreet . $formaddons . $formfracts . $formactive . '], "status": [' . $formstatus . ']}';
+    return '{ "elements": [' . $formclient . $formplaces . $formstreet . $formaddons . $formfracts . $formactive . '], "actions": [' . $formaction . '], "status": [' . $formstatus . ']}';
   }
 
   public function ApplyChanges()
@@ -364,6 +365,31 @@ class Awido extends IPSModule
 
     $form = ',{ "type": "Label", "label": "The following selection box activates or deactivates the instance:" } ,
               { "type": "CheckBox", "name": "activateAWIDO", "caption": "Activate daily update?" }';
+	  $form .= "actions":
+			[
+				{ "type": "Label", "label": "update values" },
+				{ "type": "Button", "label": "update", "onClick": "Astronomy_SetAstronomyValues($id);" }
+			],		              
+
+    return $form;
+  }
+
+  /**
+   * Action zum Aktiualisieren der Daten.
+   *
+   * @access protected
+   * @param  string $cId Client ID .
+   * @param  string $aId Addon GUID .
+   * @return string Action Elements.
+   */
+  protected function FormActions($cId, $aId)
+  {
+    if($cId == "null" || $aId == "null") {
+      return '';
+    }
+
+    $form = ',{ "type": "Label", "label": "Update dates." } ,
+              { "type": "Button", "label": "Update", "onClick": "TLA_Update($id);" }';        
 
     return $form;
   }
@@ -478,6 +504,7 @@ class Awido extends IPSModule
     $json = file_get_contents($url);
     $data = json_decode($json);
 
+    // Fractions mit Kurzzeichen(Short Name)) in Array konvertieren
     $array = array();
     foreach($data as $fract) {
         $fractID = $this->ReadPropertyBoolean("fractionID".$fract->id);
@@ -489,20 +516,23 @@ class Awido extends IPSModule
     $json = file_get_contents($url);
     $data = json_decode($json);
 
+    // Kalenderdaten durchgehen
 		foreach($data->calendar as $day) {
+      // nur Abholdaten nehmen, keine Feiertage
 			if($day->fr == "") {
 				continue;
       }
-
+      // Datum in Vergangenheit brauchen wir nicht
 			if($day->dt < date("Ymd")) {
 				continue;
       }
-
+      // YYYYMMDD umwandeln in DD.MM.YYYY
 			$tag = substr($day->dt, 6).".".substr($day->dt, 4, 2).".".substr($day->dt, 0, 4);
-
-      if ($array[$day->fr[0]]['value'] == "" ) {
-        $tag = substr($day->dt, 6).".".substr($day->dt, 4, 2).".".substr($day->dt, 0, 4);
-        $array[$day->fr[0]]['value'] = $tag;
+      // Entsorgungsart herausfinden
+      foreach($day->fr as $snm) { 
+        if ($array[$snm]['value'] == "" ) {
+          $array[$snm]['value'] = $tag;
+        }
       }
 		}
 
@@ -510,7 +540,10 @@ class Awido extends IPSModule
     foreach($array as $line) {
       if($line['exist'] == true) {
         $varId = $this->GetIDForIdent($line['ident']);
-        SetValueString($varId, $line['value']);
+        // falls haendich geloescht, dann eben nicht!
+        if ($varId != 0) {
+          SetValueString($varId, $line['value']);
+        }
       }
     }
   }
