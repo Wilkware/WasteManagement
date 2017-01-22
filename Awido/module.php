@@ -166,7 +166,9 @@ class Awido extends IPSModule
       $status = 205;
     }
     else if($activate == true) {
-      $this->CreateVariables($clientId, $fractIds);
+      if (IPS_GetKernelRunlevel() == KR_READY) {
+        $this->CreateVariables($clientId, $fractIds);
+      }
       $status = 102;
       IPS_SetEventActive($eId, true);
       //old $this->SetTimerInterval("UpdateTimer", 1000*60*60*24);
