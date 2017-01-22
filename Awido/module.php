@@ -166,7 +166,7 @@ class Awido extends IPSModule
       $status = 205;
     }
     else if($activate == true) {
-      if (IPS_GetKernelRunlevel() == KR_READY) {
+      if (IPS_GetKernelRunlevel() == 10103) { // KR_READY
         $this->CreateVariables($clientId, $fractIds);
       }
       $status = 102;
