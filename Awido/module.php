@@ -52,6 +52,8 @@ class Awido extends IPSModule
 		}
     // Activation
 		$this->RegisterPropertyBoolean("activateAWIDO", false);
+    // Script
+    $this->RegisterPropertyInteger("scriptID", 0);
     // Update daily timer
     //old $this->RegisterTimer("UpdateTimer",0,"AWIDO_Update(\$_IPS['TARGET']);");
     $this->RegisterCyclicTimer("UpdateTimer", 0, 10, 0, 'AWIDO_Update('.$this->InstanceID.');');
@@ -166,9 +168,7 @@ class Awido extends IPSModule
       $status = 205;
     }
     else if($activate == true) {
-      if (IPS_GetKernelRunlevel() == 10103) { // KR_READY
-        $this->CreateVariables($clientId, $fractIds);
-      }
+      $this->CreateVariables($clientId, $fractIds);
       $status = 102;
       IPS_SetEventActive($eId, true);
       //old $this->SetTimerInterval("UpdateTimer", 1000*60*60*24);
@@ -365,8 +365,9 @@ class Awido extends IPSModule
       return '';
     }
     $form = ',{ "type": "Label", "label": "The following selection box activates or deactivates the instance:" } ,
-              { "type": "CheckBox", "name": "activateAWIDO", "caption": "Activate daily update?" }';       
-
+              { "type": "CheckBox", "name": "activateAWIDO", "caption": "Activate daily update?" } ,
+              { "type": "Label", "label": "Call the following scipt after update the dates:" } ,       
+          		{ "type": "SelectScript", "name": "scriptID", "caption": "Script:" }';
     return $form;
   }
 
@@ -423,24 +424,35 @@ class Awido extends IPSModule
     if($cId == "null" || $fIds == "null") {
       return;
     }
-    // delete all existing variables
-    $childs = IPS_GetChildrenIDs($this->InstanceID);
-    foreach($childs as $object) {
-      if(IPS_GetName($object) != "UpdateTimer") {
-        IPS_DeleteVariable($object);
-      }
-    }
-    // create all new
-    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=".$cId;
-
+    
+    // collect existing variables
+    //$variables = array();
+    //$childs = IPS_GetChildrenIDs($this->InstanceID);
+    //foreach($childs as $id) {
+    //  if(IPS_GetName($id) != "UpdateTimer") {
+    //  $ident = IPS_GetObject($id)["ObjectIdent"];
+    //  $variables[] = array("id" => $id, "ident" => IPS_GetObject($id)["ObjectIdent"]);
+    //  IPS_DeleteVariable($object);
+    //  }
+    //}
+    
+    // create or update all variables (no delete because lost link targets)
+    $url  = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=".$cId;
     $json = file_get_contents($url);
     $data = json_decode($json);
 
     foreach($data as $fract) {
-        $fractID = $this->ReadPropertyBoolean("fractionID".$fract->id);
-        if($fractID == true) {
+      $fractID = $this->ReadPropertyBoolean("fractionID".$fract->id);
+      if($fractID == true) {
+        $vid = $this->GetIDForIdent($fract->snm);
+        if ($vid === false) { // new
           $this->RegisterVariableString($fract->snm, $fract->nm, "~String", $fract->id);
         }
+        else {  // update
+          IPS_SetName($vid, $fract->nm);
+          IPS_SetPosition($vid, $fract->id);               
+        }
+      }
     }
   }
 
@@ -490,6 +502,7 @@ class Awido extends IPSModule
     $streetId = $this->ReadPropertyString("streetGUID");
     $addonId  = $this->ReadPropertyString("addonGUID");
     $fractIds = $this->ReadPropertyString("fractionIDs");
+    $scriptId = $this->ReadPropertyInteger("scriptID");
 
     if($clientId == "null" || $placeId == "null" || $streetId == "null" || $addonId == "null" || $fractIds == "null") {
       return;
@@ -543,7 +556,16 @@ class Awido extends IPSModule
         }
       }
     }
+    // execute Script
+    if ($scriptId <> 0) {
+      if (IPS_ScriptExists($scriptId)) {
+          $sr = IPS_RunScript($scriptId);
+          $this->SendDebug('Script Execute: Return Value', $rs, 0);
+      }
+    }
+    else {
+      $this->SendDebug("AWIDO_Update", "Script #" . $scriptId . " existiert nicht!",0);
+    }
   }
-
 }
 ?>

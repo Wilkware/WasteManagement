@@ -10,6 +10,8 @@
       "The following disposals are offered:": "Folgende Entsorgungen werden angeboten:",
       "The following selection box activates or deactivates the instance:": "Die nachfolgende Auswahlbox aktiviert bzw. deaktiviert die Instanz:",
       "Activate daily update?": "Tägliche Aktualisierung aktivieren?",
+      "Call the following scipt after update the dates:": "Nach Aktualisierung der Werte folgendes Script aufrufen:",
+ 			"Script:": "Script:",
 			"Update dates.": "Werte aktualisieren!",
 			"Update": "Aktualisieren",            
       "Creating instance.": "Die Instanz wird erstellt.",
