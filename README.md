@@ -15,6 +15,10 @@
 Das Modul nutzt die von awido (www.awido-online.de) bereitgestellten Daten zur Berechnung
 der bevorstehenden Entsorgungstermine (Abfallentsorgung).
 
+* _NEU_: Bei Neuauswahl werden nicht mehr alle Variablen gelöscht und neu angelegt, somit behalten bestehende Links ihr Ziel.
+* _NEU_: Es kann ein Script nach Aktualisierung der Daten ausgeführt werden, z.B. zum Sortieren oder Senden von Erinnerungsnachrichten. 
+
+
 Derzeit unterstützt das Modul folgende Gebiete:
 
 * Lahn-Dill-Kreis
@@ -54,8 +58,9 @@ Die Konfiguration läuft über mehrere Schritte und bedingt pro Konfigurationssc
 Bis man zum Schluss die Instanz über die Update-Checkbox aktiv setzt.
 Eine Neuauswahl erreicht man durch Auswahl "Bitte wählen ..." an der gewüschten Stelle (immer 'Übernehmen' klicken).
 
-VORSTICHT: eine Änderung der Auswahl bedingt ein Löschen und Neuanlegen der Statusvariablen!!!
-Hat man diese in einem WF verlinkt muss man danach die Links neu setzen. Ich denke aber mal das ein Umzug nicht so häufig vorkommt ;-)
+VORSTICHT: eine Änderung der Auswahl bedingt ein Update bzw. ein Neuanlegen der Statusvariablen!!!
+Alte Variablen, welche es im anderen Landkreis gab werden nicht gelöscht! Hat man diese in einem WF verlinkt muss man danach 
+selber aufräumen. Ich denke aber mal das ein Umzug nicht so häufig vorkommt ;-)
 
 Name               | Beschreibung
 ------------------ | ---------------------------------
@@ -65,6 +70,9 @@ streetGUID         | Ortsteil/Strasse im gewählten Ort
 addonGUID          | Hausnummer (Alle = gesamte Strasse)
 fractionIDs        | Entsorgungs-Ids, d.h. was wird im Gebiet an Entsorgung angeboten
 activateAWIDO      | Status, ob das tägliche Update aktiv oder inaktiv ist
+ScriptID           | Script, welches nach dem Update der Termine ausgeführt wird, z.B. für Visualisierung, Sortierung usw.
+
+
 
 
 ### 5. Statusvariablen und Profile
