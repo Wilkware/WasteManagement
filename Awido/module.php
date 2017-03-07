@@ -14,7 +14,7 @@ class Awido extends IPSModule
     "ansbach"           => "Landkreis Ansbach",
     "awb-duerkheim"     => "Landkreis Bad Dürkheim",
     "wgv"               => "Landkreis Bad Tölz-Wolfratshausen",
-    "coburg"            => "Landkreis Coburg"
+    "coburg"            => "Landkreis Coburg",
     "awv-nordschwaben"  => "Landkreis Dillingen a.d. Donau und Donau-Ries",
     "Erding"            => "Landkreis Erding",
     "kaw-guenzburg"     => "Landkreis Günzburg",
