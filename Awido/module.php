@@ -11,8 +11,10 @@ class Awido extends IPSModule
   static $Clients = array(
     "awld"              => "Lahn-Dill-Kreis",
     "awb-ak"            => "Landkreis Altenkirchen",
+    "ansbach"           => "Landkreis Ansbach",
     "awb-duerkheim"     => "Landkreis Bad Dürkheim",
     "wgv"               => "Landkreis Bad Tölz-Wolfratshausen",
+    "coburg"            => "Landkreis Coburg"
     "awv-nordschwaben"  => "Landkreis Dillingen a.d. Donau und Donau-Ries",
     "Erding"            => "Landkreis Erding",
     "kaw-guenzburg"     => "Landkreis Günzburg",

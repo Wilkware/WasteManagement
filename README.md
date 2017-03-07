@@ -15,16 +15,16 @@
 Das Modul nutzt die von awido (www.awido-online.de) bereitgestellten Daten zur Berechnung
 der bevorstehenden Entsorgungstermine (Abfallentsorgung).
 
-* _NEU_: Bei Neuauswahl werden nicht mehr alle Variablen gelöscht und neu angelegt, somit behalten bestehende Links ihr Ziel.
-* _NEU_: Es kann ein Script nach Aktualisierung der Daten ausgeführt werden, z.B. zum Sortieren oder Senden von Erinnerungsnachrichten. 
-
+* _NEU_: Landkreis Ansbach und Coburg
 
 Derzeit unterstützt das Modul folgende Gebiete:
 
 * Lahn-Dill-Kreis
 * Landkreis Altenkirchen
+* Landkreis Ansbach
 * Landkreis Bad Dürkheim
 * Landkreis Bad Tölz-Wolfratshausen
+* Landkreis Coburg
 * Landkreis Dillingen a.d. Donau und Donau-Ries
 * Landkreis Erding
 * Landkreis Günzburg
@@ -46,7 +46,7 @@ Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 ### 3. Software-Installation
 
 Über das Modul-Control folgende URL hinzufügen.  
-`git://github.com/Wilkware/IPSymconAwido.git`
+`https://github.com/Wilkware/IPSymconAwido` oder `git://github.com/Wilkware/IPSymconAwido.git`
 
 ### 4. Einrichten der Instanzen in IP-Symcon
 
