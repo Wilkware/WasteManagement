@@ -446,7 +446,7 @@ class Awido extends IPSModule
     foreach($data as $fract) {
       $fractID = $this->ReadPropertyBoolean("fractionID".$fract->id);
       if($fractID == true) {
-        $vid = $this->GetIDForIdent($fract->snm);
+        $vid = @$this->GetIDForIdent($fract->snm);
         if ($vid === false) { // new
           $this->RegisterVariableString($fract->snm, $fract->nm, "~String", $fract->id);
         }
