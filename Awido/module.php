@@ -74,7 +74,7 @@ class Awido extends IPSModule
     $streetId = $this->ReadPropertyString("streetGUID");
     $addonId  = $this->ReadPropertyString("addonGUID");
     $fractIds = $this->ReadPropertyString("fractionIDs");
-    $activate = $this->ReadPropertyString("activateAWIDO");
+    $activate = $this->ReadPropertyBoolean("activateAWIDO");
 
     $this->SendDebug("GetConfigurationForm", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId.", fractIds=".$fractIds, 0);
 
@@ -145,7 +145,7 @@ class Awido extends IPSModule
     $streetId = $this->ReadPropertyString("streetGUID");
     $addonId  = $this->ReadPropertyString("addonGUID");
     $fractIds = $this->ReadPropertyString("fractionIDs");
-    $activate = $this->ReadPropertyString("activateAWIDO");
+    $activate = $this->ReadPropertyBoolean("activateAWIDO");
     $this->SendDebug("ApplyChanges", "clientID=".$clientId.", placeId=".$placeId.", streetId=".$streetId.", addonId=".$addonId.", fractIds=".$fractIds, 0);
 
     // Safty default
