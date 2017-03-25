@@ -15,7 +15,7 @@
 Das Modul nutzt die von awido (www.awido-online.de) bereitgestellten Daten zur Berechnung
 der bevorstehenden Entsorgungstermine (Abfallentsorgung).
 
-* _NEU_: Landkreis Ansbach und Coburg
+* _NEU_: Landratsamt Aichach-Friedberg
 
 Derzeit unterstützt das Modul folgende Gebiete:
 
@@ -33,6 +33,7 @@ Derzeit unterstützt das Modul folgende Gebiete:
 * Landkreis Neuburg-Schrobenhausen
 * Landkreis Südliche Weinstraße
 * Landratsamt Dachau
+* Landratsamt Aichach-Friedberg
 * Neustadt a.d. Waldnaab
 * Rems-Murr-Kreis
 * Stadt Memmingen

@@ -22,6 +22,7 @@ class Awido extends IPSModule
     "kelheim"           => "Landkreis Kelheim",
     "landkreisbetriebe" => "Landkreis Neuburg-Schrobenhausen",
     "eww-suew"          => "Landkreis Südliche Weinstraße",
+    "aic-fdb"           => "Landratsamt Aichach-Friedberg",
     "lra-dah"           => "Landratsamt Dachau",
     "neustadt"          => "Neustadt a.d. Waldnaab",
     "rmk"               => "Rems-Murr-Kreis",
