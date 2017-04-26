@@ -15,7 +15,7 @@
 Das Modul nutzt die von awido (www.awido-online.de) bereitgestellten Daten zur Berechnung
 der bevorstehenden Entsorgungstermine (Abfallentsorgung).
 
-* _NEU_: Landratsamt Aichach-Friedberg
+* _NEU_: Zweckverband München-Südost
 
 Derzeit unterstützt das Modul folgende Gebiete:
 
@@ -37,6 +37,7 @@ Derzeit unterstützt das Modul folgende Gebiete:
 * Neustadt a.d. Waldnaab
 * Rems-Murr-Kreis
 * Stadt Memmingen
+* Zweckverband München-Südost
 
 Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 

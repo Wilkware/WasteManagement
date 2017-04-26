@@ -26,7 +26,8 @@ class Awido extends IPSModule
     "lra-dah"           => "Landratsamt Dachau",
     "neustadt"          => "Neustadt a.d. Waldnaab",
     "rmk"               => "Rems-Murr-Kreis",
-    "memmingen"         => "Stadt Memmingen"
+    "memmingen"         => "Stadt Memmingen",
+    "zv-muc-so"         => "Zweckverband München-Südost"
     //"???"             => "Landratsamt Aichach-Friedberg"
   );
 
