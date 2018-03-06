@@ -563,7 +563,7 @@ class Awido extends IPSModule
     // execute Script
     if ($scriptId <> 0) {
       if (IPS_ScriptExists($scriptId)) {
-          $sr = IPS_RunScript($scriptId);
+          $rs = IPS_RunScript($scriptId);
           $this->SendDebug('Script Execute: Return Value', $rs, 0);
       }
     }
