@@ -1,7 +1,7 @@
 [![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![Version](https://img.shields.io/badge/Symcon%20Version-4.1--5.0-blue.svg)] (https://www.symcon.de)
 [![Version](https://img.shields.io/badge/Modul%20Version-1.0.20180405-orange.svg)]()
-[![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
-[![Version](https://img.shields.io/badge/Symcon%20Version-4.1--5.0-blue.svg)] ()
+[![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 # Awido - Abfallwirtschaft
 IP-Symcon Modul für die Visualisierung von Entsorgungsterminen
@@ -51,6 +51,7 @@ Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 ### 2. Voraussetzungen
 
 - IP-Symcon ab Version 4.x (getestet mit Version 4.1.534 auf RP3)
+- IP-Symvon Version 5.0 Beta
 
 ### 3. Software-Installation
 
