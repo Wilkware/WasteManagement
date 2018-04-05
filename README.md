@@ -1,4 +1,10 @@
+[![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![Version](https://img.shields.io/badge/Modul%20Version-1.0.20180405-orange.svg)]()
+[![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)  
+[![Version](https://img.shields.io/badge/Symcon%20Version-4.1--5.0-blue.svg)] ()
+
 # Awido - Abfallwirtschaft
+IP-Symcon Modul für die Visualisierung von Entsorgungsterminen
 
 ### Inhaltverzeichnis
 
@@ -9,13 +15,12 @@
 5. [Statusvariablen und Profile](#5-statusvariablen-und-profile)
 6. [WebFront](#6-webfront)
 7. [PHP-Befehlsreferenz](#7-php-befehlsreferenz)
+8. [Changlog] (#8-changelog)
 
 ### 1. Funktionsumfang
 
 Das Modul nutzt die von awido (www.awido-online.de) bereitgestellten Daten zur Berechnung
 der bevorstehenden Entsorgungstermine (Abfallentsorgung).
-
-* _NEU_: Zweckverband München-Südost
 
 Derzeit unterstützt das Modul folgende Gebiete:
 
@@ -30,8 +35,10 @@ Derzeit unterstützt das Modul folgende Gebiete:
 * Landkreis Günzburg
 * Landkreis Hersfeld-Rotenburg
 * Landkreis Kelheim
+* Landkreis Kronach
 * Landkreis Neuburg-Schrobenhausen
 * Landkreis Südliche Weinstraße
+* Landkreis Tübingen
 * Landratsamt Dachau
 * Landratsamt Aichach-Friedberg
 * Neustadt a.d. Waldnaab
@@ -75,8 +82,6 @@ activateAWIDO      | Status, ob das tägliche Update aktiv oder inaktiv ist
 ScriptID           | Script, welches nach dem Update der Termine ausgeführt wird, z.B. für Visualisierung, Sortierung usw.
 
 
-
-
 ### 5. Statusvariablen und Profile
 
 Die Statusvariablen/Timer werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
@@ -102,3 +107,22 @@ Die Funktion liefert keinerlei Rückgabewert.
 
 Beispiel:
 `AWIDO_Update(12345);`
+
+### 8. Changelog
+
+Version 20180405
+* _NEU_: Landkreis Kronach
+* _NEU_: Landkreis Tübingen
+Version 20170417
+* _NEU_: Zweckverband München-Südost
+
+### Entwickler
+* Heiko Wilknitz (@wilkware)
+* [@wilkware](https://github.com/wilkware)
+
+### Copyright
+(c) 2018 Heiko Wilknitz
+
+### Spenden
+Die Software ist für die nicht kommzerielle Nutzung kostenlos, Schenkungen als Unterstützung für den Entwickler bitte hier:  
+<a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8816166" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>
