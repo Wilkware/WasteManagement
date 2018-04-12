@@ -1,10 +1,10 @@
-[![Version](https://img.shields.io/badge/Symcon-PHPModul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 ![Version](https://img.shields.io/badge/Symcon%20Version-4.1--5.0-blue.svg)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.0.20180405-orange.svg)]()
+![Version](https://img.shields.io/badge/Modul%20Version-1.0.20180405-orange.svg)
 [![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 # Awido - Abfallwirtschaft
-IP-Symcon Modul für die Visualisierung von Entsorgungsterminen
+IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
 
 ### Inhaltverzeichnis
 
@@ -114,15 +114,15 @@ Beispiel:
 Version 20180405
 * _NEU_: Landkreis Kronach
 * _NEU_: Landkreis Tübingen
+
 Version 20170417
 * _NEU_: Zweckverband München-Südost
 
 ### Entwickler
-* Heiko Wilknitz (@wilkware)
-* [@wilkware](https://github.com/wilkware)
+* Heiko Wilknitz ([@wilkware](https://github.com/wilkware))
 
 ### Copyright
-(c) 2018 Heiko Wilknitz
+(c) 2017-2018 Heiko Wilknitz
 
 ### Spenden
 Die Software ist für die nicht kommzerielle Nutzung kostenlos, Schenkungen als Unterstützung für den Entwickler bitte hier:  
