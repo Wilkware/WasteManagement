@@ -23,6 +23,7 @@ class Awido extends IPSModule
     "kelheim"           => "Landkreis Kelheim",
     "kronach"           => "Landkreis Kronach",
     "landkreisbetriebe" => "Landkreis Neuburg-Schrobenhausen",
+    "rosenheim"         => "Landkreis Rosenheim",
     "eww-suew"          => "Landkreis Südliche Weinstraße",
     "kreis-tir"         => "Landkreis Tirschenreuth",
     "tuebingen"         => "Landkreis Tübingen",

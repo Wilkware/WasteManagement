@@ -37,6 +37,7 @@ Derzeit unterstützt das Modul folgende Gebiete:
 * Landkreis Kelheim
 * Landkreis Kronach
 * Landkreis Neuburg-Schrobenhausen
+* Landkreis Rosenheim
 * Landkreis Südliche Weinstraße
 * Landkreis Tirschenreuth
 * Landkreis Tübingen
@@ -114,6 +115,7 @@ Beispiel:
 
 Version 20180628
 * _NEU_: Landkreis Tirschenreuth
+* _NEU_: Landkreis Rosenheim
 
 Version 20180405
 * _NEU_: Landkreis Kronach
