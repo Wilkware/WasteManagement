@@ -10,6 +10,7 @@ class Awido extends IPSModule
    */
   static $Clients = array(
     "awld"              => "Lahn-Dill-Kreis",
+    "aic-fdb"           => "Landkreis Aichach-Friedberg",
     "awb-ak"            => "Landkreis Altenkirchen",
     "ansbach"           => "Landkreis Ansbach",
     "awb-duerkheim"     => "Landkreis Bad Dürkheim",
@@ -23,8 +24,8 @@ class Awido extends IPSModule
     "kronach"           => "Landkreis Kronach",
     "landkreisbetriebe" => "Landkreis Neuburg-Schrobenhausen",
     "eww-suew"          => "Landkreis Südliche Weinstraße",
+    "kreis-tir"         => "Landkreis Tirschenreuth",
     "tuebingen"         => "Landkreis Tübingen",
-    "aic-fdb"           => "Landratsamt Aichach-Friedberg",
     "lra-dah"           => "Landratsamt Dachau",
     "neustadt"          => "Neustadt a.d. Waldnaab",
     "rmk"               => "Rems-Murr-Kreis",

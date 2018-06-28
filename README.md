@@ -1,6 +1,6 @@
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Version](https://img.shields.io/badge/Symcon%20Version-4.1--5.0-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.0.20180405-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Version](https://img.shields.io/badge/Modul%20Version-1.0.20180628-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
 [![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 # Awido - Abfallwirtschaft
@@ -38,6 +38,7 @@ Derzeit unterstützt das Modul folgende Gebiete:
 * Landkreis Kronach
 * Landkreis Neuburg-Schrobenhausen
 * Landkreis Südliche Weinstraße
+* Landkreis Tirschenreuth
 * Landkreis Tübingen
 * Landratsamt Dachau
 * Landratsamt Aichach-Friedberg
@@ -110,6 +111,9 @@ Beispiel:
 `AWIDO_Update(12345);`
 
 ### 8. Changelog
+
+Version 20180628
+* _NEU_: Landkreis Tirschenreuth
 
 Version 20180405
 * _NEU_: Landkreis Kronach
