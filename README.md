@@ -1,6 +1,6 @@
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Version](https://img.shields.io/badge/Symcon%20Version-4.1--5.0-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.0.20180628-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Version](https://img.shields.io/badge/Modul%20Version-1.0.20180725-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
 [![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 # Awido - Abfallwirtschaft
@@ -46,6 +46,7 @@ Derzeit unterstützt das Modul folgende Gebiete:
 * Neustadt a.d. Waldnaab
 * Rems-Murr-Kreis
 * Stadt Memmingen
+* Stadt Unterschleissheim
 * Zweckverband München-Südost
 
 Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
@@ -112,6 +113,9 @@ Beispiel:
 `AWIDO_Update(12345);`
 
 ### 8. Changelog
+
+Version 20180725
+* _NEU_: Stadt Unterschleissheim
 
 Version 20180628
 * _NEU_: Landkreis Tirschenreuth

@@ -31,6 +31,7 @@ class Awido extends IPSModule
     "neustadt"          => "Neustadt a.d. Waldnaab",
     "rmk"               => "Rems-Murr-Kreis",
     "memmingen"         => "Stadt Memmingen",
+    "unterschleissheim" => "Stadt Unterschleissheim",
     "zv-muc-so"         => "Zweckverband München-Südost"
     //"???"             => "Landratsamt Aichach-Friedberg"
   );
