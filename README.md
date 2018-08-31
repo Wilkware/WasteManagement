@@ -15,7 +15,7 @@ IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
 5. [Statusvariablen und Profile](#5-statusvariablen-und-profile)
 6. [WebFront](#6-webfront)
 7. [PHP-Befehlsreferenz](#7-php-befehlsreferenz)
-8. [Changelog] (#8-changelog)
+8. [Changelog](#8-changelog)
 
 ### 1. Funktionsumfang
 
