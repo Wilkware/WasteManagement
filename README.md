@@ -1,6 +1,6 @@
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Version](https://img.shields.io/badge/Symcon%20Version-4.1--5.0-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.0.20180725-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Version](https://img.shields.io/badge/Modul%20Version-1.0.20180831-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
 [![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 # Awido - Abfallwirtschaft
@@ -29,6 +29,7 @@ Derzeit unterstützt das Modul folgende Gebiete:
 * Landkreis Ansbach
 * Landkreis Bad Dürkheim
 * Landkreis Bad Tölz-Wolfratshausen
+* Landkreis Berchtesgadener Land
 * Landkreis Coburg
 * Landkreis Dillingen a.d. Donau und Donau-Ries
 * Landkreis Erding
@@ -44,6 +45,7 @@ Derzeit unterstützt das Modul folgende Gebiete:
 * Landratsamt Dachau
 * Landratsamt Aichach-Friedberg
 * Neustadt a.d. Waldnaab
+* Pullach im Isartal
 * Rems-Murr-Kreis
 * Stadt Memmingen
 * Stadt Unterschleissheim
@@ -54,7 +56,7 @@ Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 ### 2. Voraussetzungen
 
 - IP-Symcon ab Version 4.x (getestet mit Version 4.1.534 auf RP3)
-- IP-Symvon Version 5.0 Beta
+- IP-Symvon Version 5.0
 
 ### 3. Software-Installation
 
@@ -113,6 +115,10 @@ Beispiel:
 `AWIDO_Update(12345);`
 
 ### 8. Changelog
+
+Version 20180831
+* _NEU_: Landkreis Berchtesgadener Land
+* _NEU_: Pullach im Isartal
 
 Version 20180725
 * _NEU_: Stadt Unterschleissheim
