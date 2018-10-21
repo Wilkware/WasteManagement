@@ -229,7 +229,7 @@ class Awido extends IPSModule
    */
   protected function FormPlaces($cId, $pId)
   {
-    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getPlaces/client=".$cId;
+    $url = "https://awido.cubefour.de/WebServices/Awido.Service.svc/getPlaces/client=".$cId;
 
     if($cId == "null") {
       return '';
@@ -265,7 +265,7 @@ class Awido extends IPSModule
    */
   protected function FormStreet($cId, $pId, $sId)
   {
-    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getGroupedStreets/".$pId."?selectedOTId=null&client=".$cId;
+    $url = "https://awido.cubefour.de/WebServices/Awido.Service.svc/getGroupedStreets/".$pId."?selectedOTId=null&client=".$cId;
 
     if($cId == "null" || $pId == "null") {
       return '';
@@ -302,7 +302,7 @@ class Awido extends IPSModule
    */
   protected function FormAddons($cId, $pId, $sId, $aId)
   {
-    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getStreetAddons/".$sId."?client=".$cId;
+    $url = "https://awido.cubefour.de/WebServices/Awido.Service.svc/getStreetAddons/".$sId."?client=".$cId;
 
     if($cId == "null" || $pId == "null" || $sId == "null") {
       return '';
@@ -340,7 +340,7 @@ class Awido extends IPSModule
    */
   protected function FormFractions($cId, $aId)
   {
-    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=".$cId;
+    $url = "https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=".$cId;
 
     if($cId == "null" || $aId == "null") {
       return '';
@@ -448,7 +448,7 @@ class Awido extends IPSModule
     //}
     
     // create or update all variables (no delete because lost link targets)
-    $url  = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=".$cId;
+    $url  = "https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=".$cId;
     $json = file_get_contents($url);
     $data = json_decode($json);
 
@@ -520,7 +520,7 @@ class Awido extends IPSModule
     }
 
     // rebuild informations
-    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=".$clientId;
+    $url = "https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=".$clientId;
 
     $json = file_get_contents($url);
     $data = json_decode($json);
@@ -533,7 +533,7 @@ class Awido extends IPSModule
     }
 
     // update data
-    $url = "http://awido.cubefour.de/WebServices/Awido.Service.svc/getData/".$addonId."?fractions=".$fractIds."&client=".$clientId;
+    $url = "https://awido.cubefour.de/WebServices/Awido.Service.svc/getData/".$addonId."?fractions=".$fractIds."&client=".$clientId;
     $json = file_get_contents($url);
     $data = json_decode($json);
 
