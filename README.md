@@ -1,7 +1,8 @@
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Version](https://img.shields.io/badge/Symcon%20Version-4.1--5.0-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.0.20181021-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
-[![Version](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Product](https://img.shields.io/badge/Symcon%20Version-4.1--5.1-blue.svg)](https://www.symcon.de/produkt/)
+[![Version](https://img.shields.io/badge/Modul%20Version-1.1.20190312-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![StyleCI](https://github.styleci.io/repos/77854413/shield?style=flat)](https://github.styleci.io/repos/77854413)
 
 # Awido - Abfallwirtschaft
 IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
@@ -15,7 +16,7 @@ IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
 5. [Statusvariablen und Profile](#5-statusvariablen-und-profile)
 6. [WebFront](#6-webfront)
 7. [PHP-Befehlsreferenz](#7-php-befehlsreferenz)
-8. [Changelog](#8-changelog)
+8. [Versionshistorie](#8-versionshistorie)
 
 ### 1. Funktionsumfang
 
@@ -56,7 +57,7 @@ Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 ### 2. Voraussetzungen
 
 - IP-Symcon ab Version 4.x (getestet mit Version 4.1.534 auf RP3)
-- IP-Symvon Version 5.0
+- IP-Symvon Version 5.0+
 
 ### 3. Software-Installation
 
@@ -114,35 +115,38 @@ Die Funktion liefert keinerlei Rückgabewert.
 Beispiel:
 `AWIDO_Update(12345);`
 
-### 8. Changelog
+### 8. Versionshistorie
 
-Version 20181021
+v1.1.20190312
+* _NEU_: Vereinheitlichungen, StyleCI uvm.
+
+v1.0.20181021
 * _FIX_: Umstellung auf https
 
-Version 20180831
+v1.0.20180831
 * _NEU_: Landkreis Berchtesgadener Land
 * _NEU_: Pullach im Isartal
 
-Version 20180725
+v1.0.20180725
 * _NEU_: Stadt Unterschleissheim
 
-Version 20180628
+v1.0.20180628
 * _NEU_: Landkreis Tirschenreuth
 * _NEU_: Landkreis Rosenheim
 
-Version 20180405
+v1.0.20180405
 * _NEU_: Landkreis Kronach
 * _NEU_: Landkreis Tübingen
 
-Version 20170417
+v1.0.20170417
 * _NEU_: Zweckverband München-Südost
 
 ### Entwickler
 * Heiko Wilknitz ([@wilkware](https://github.com/wilkware))
 
-### Copyright
-(c) 2017-2018 Heiko Wilknitz
-
 ### Spenden
-Die Software ist für die nicht kommzerielle Nutzung kostenlos, Schenkungen als Unterstützung für den Entwickler bitte hier:  
+Die Software ist für die nicht kommzerielle Nutzung kostenlos, Schenkungen als Unterstützung für den Entwickler bitte hier:<br />
 <a href="https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8816166" target="_blank"><img src="https://www.paypalobjects.com/de_DE/DE/i/btn/btn_donate_LG.gif" border="0" /></a>
+
+### Lizenz
+[![Licence](https://licensebuttons.net/i/l/by-nc-sa/transparent/00/00/00/88x31-e.png)](https://creativecommons.org/licenses/by-nc-sa/4.0/)

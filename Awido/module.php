@@ -34,7 +34,7 @@ class Awido extends IPSModule
     'memmingen'         => 'Stadt Memmingen',
     'unterschleissheim' => 'Stadt Unterschleissheim',
     'zv-muc-so'         => 'Zweckverband München-Südost',
-    //"???"             => "Landratsamt Aichach-Friedberg"
+    //"???"             => "LandKreis XYZ"
   ];
 
     /**
@@ -131,7 +131,6 @@ class Awido extends IPSModule
         $formfracts = $this->FormFractions($clientId, $addonId);
         $formactive = $this->FormActivate($clientId, $addonId);
         $formaction = $this->FormActions($clientId, $addonId);
-
         $formstatus = $this->FormStatus();
 
         return '{ "elements": ['.$formclient.$formplaces.$formstreet.$formaddons.$formfracts.$formactive.'], '.$formaction.'"status": ['.$formstatus.']}';
@@ -551,6 +550,7 @@ class Awido extends IPSModule
                 }
             }
         }
+
         // execute Script
         if ($scriptId != 0) {
             if (IPS_ScriptExists($scriptId)) {
