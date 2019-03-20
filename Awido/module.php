@@ -63,7 +63,7 @@ class Awido extends IPSModule
         // Script
         $this->RegisterPropertyInteger('scriptID', 0);
         // Update daily timer
-        $this->RegisterTimer("UpdateTimer",0,"AWIDO_Update(\$_IPS['TARGET']);");
+        $this->RegisterTimer('UpdateTimer', 0, "AWIDO_Update(\$_IPS['TARGET']);");
         //$this->RegisterCyclicTimer('UpdateTimer', 0, 10, 0, 'AWIDO_Update('.$this->InstanceID.');');
     }
 
@@ -150,7 +150,7 @@ class Awido extends IPSModule
         $this->SendDebug('ApplyChanges', 'clientID='.$clientId.', placeId='.$placeId.', streetId='.$streetId.', addonId='.$addonId.', fractIds='.$fractIds, 0);
 
         // Safty default
-        $this->SetTimerInterval("UpdateTimer", 0);
+        $this->SetTimerInterval('UpdateTimer', 0);
 
         //$status = 102;
         if ($clientId == 'null') {
@@ -166,7 +166,7 @@ class Awido extends IPSModule
         } elseif ($activate == true) {
             $this->CreateVariables($clientId, $fractIds);
             $status = 102;
-            $this->SetTimerInterval("UpdateTimer", 1000*60*60*24);
+            $this->SetTimerInterval('UpdateTimer', 1000 * 60 * 60 * 24);
             $this->SendDebug('ApplyChanges', 'Timer aktiviert!', 0);
         } else {
             $status = 104;
