@@ -63,8 +63,8 @@ class Awido extends IPSModule
         // Script
         $this->RegisterPropertyInteger('scriptID', 0);
         // Update daily timer
-        //old $this->RegisterTimer("UpdateTimer",0,"AWIDO_Update(\$_IPS['TARGET']);");
-        $this->RegisterCyclicTimer('UpdateTimer', 0, 10, 0, 'AWIDO_Update('.$this->InstanceID.');');
+        $this->RegisterTimer("UpdateTimer",0,"AWIDO_Update(\$_IPS['TARGET']);");
+        //$this->RegisterCyclicTimer('UpdateTimer', 0, 10, 0, 'AWIDO_Update('.$this->InstanceID.');');
     }
 
     /**
@@ -150,9 +150,7 @@ class Awido extends IPSModule
         $this->SendDebug('ApplyChanges', 'clientID='.$clientId.', placeId='.$placeId.', streetId='.$streetId.', addonId='.$addonId.', fractIds='.$fractIds, 0);
 
         // Safty default
-        $eId = $this->GetIDForIdent('UpdateTimer');
-        IPS_SetEventActive($eId, false);
-        //old $this->SetTimerInterval("UpdateTimer", 0);
+        $this->SetTimerInterval("UpdateTimer", 0);
 
         //$status = 102;
         if ($clientId == 'null') {
@@ -168,8 +166,7 @@ class Awido extends IPSModule
         } elseif ($activate == true) {
             $this->CreateVariables($clientId, $fractIds);
             $status = 102;
-            IPS_SetEventActive($eId, true);
-            //old $this->SetTimerInterval("UpdateTimer", 1000*60*60*24);
+            $this->SetTimerInterval("UpdateTimer", 1000*60*60*24);
             $this->SendDebug('ApplyChanges', 'Timer aktiviert!', 0);
         } else {
             $status = 104;
@@ -450,37 +447,6 @@ class Awido extends IPSModule
                 }
             }
         }
-    }
-
-    /**
-     * Create the cyclic Update Timer.
-     *
-     * @param string $ident Name and Ident of the Timer.
-     * @param string $cId   Client ID .
-     */
-    protected function RegisterCyclicTimer($ident, $hour, $minute, $second, $script)
-    {
-        $id = @$this->GetIDForIdent($ident);
-        $name = $ident;
-        if ($id && IPS_GetEvent($id)['EventType'] != 1) {
-            IPS_DeleteEvent($id);
-            $id = 0;
-        }
-        if (!$id) {
-            $id = IPS_CreateEvent(1);
-            IPS_SetParent($id, $this->InstanceID);
-            IPS_SetIdent($id, $ident);
-        }
-        IPS_SetName($id, $name);
-        // IPS_SetInfo($id, "Update AstroTimer");
-        // IPS_SetHidden($id, true);
-        IPS_SetEventScript($id, $script);
-        if (!IPS_EventExists($id)) {
-            throw new Exception("Ident with name $ident is used for wrong object type");
-        }
-        //IPS_SetEventCyclic($id, 0, 0, 0, 0, 0, 0);
-        IPS_SetEventCyclicTimeFrom($id, $hour, $minute, $second);
-        IPS_SetEventActive($id, false);
     }
 
     /**

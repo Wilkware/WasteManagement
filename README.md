@@ -1,6 +1,6 @@
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-4.1--5.1-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.1.20190312-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Version](https://img.shields.io/badge/Modul%20Version-1.2.20190320-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![StyleCI](https://github.styleci.io/repos/77854413/shield?style=flat)](https://github.styleci.io/repos/77854413)
 
@@ -116,6 +116,9 @@ Beispiel:
 `AWIDO_Update(12345);`
 
 ### 8. Versionshistorie
+
+v1.2.20190320
+* _FIX_: Umsetzung Store Richtlinie(6), RegisterTimer wieder verwendet
 
 v1.1.20190312
 * _NEU_: Vereinheitlichungen, StyleCI uvm.
