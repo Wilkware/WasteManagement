@@ -84,7 +84,7 @@ placeGUID          | Ort im Entsorgungsgebiet
 streetGUID         | Ortsteil/Strasse im gewählten Ort
 addonGUID          | Hausnummer (Alle = gesamte Strasse)
 fractionIDs        | Entsorgungs-Ids, d.h. was wird im Gebiet an Entsorgung angeboten
-CreateVariables    | Status, ob für nicht genutzte Entsorgungen auch Variablen angelegt werden sollen (Standard: nein / false)
+createVariables    | Status, ob für nicht genutzte Entsorgungen auch Variablen angelegt werden sollen, standardmäßig nein(false)
 activateAWIDO      | Status, ob das tägliche Update aktiv oder inaktiv ist
 ScriptID           | Script, welches nach dem Update der Termine ausgeführt wird, z.B. für Visualisierung, Sortierung usw.
 
