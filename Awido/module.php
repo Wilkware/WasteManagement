@@ -442,7 +442,7 @@ class Awido extends IPSModule
             if ($fractID == true) {
                 $vid = @$this->GetIDForIdent($fract->snm);
                 if ($vid === false) { // new
-                    $this->RegisterVariableString($fract->snm, $fract->nm, '~String', $fract->id);
+                    $this->RegisterVariableString($fract->snm, $fract->nm, '', $fract->id);
                 } else {  // update
                     IPS_SetName($vid, $fract->nm);
                     IPS_SetPosition($vid, $fract->id);
