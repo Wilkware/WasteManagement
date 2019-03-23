@@ -1,6 +1,6 @@
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Product](https://img.shields.io/badge/Symcon%20Version-4.1--5.1-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.2.20190320-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Product](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-blue.svg)](https://www.symcon.de/produkt/)
+[![Version](https://img.shields.io/badge/Modul%20Version-1.3.20190323-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![StyleCI](https://github.styleci.io/repos/77854413/shield?style=flat)](https://github.styleci.io/repos/77854413)
 
@@ -56,7 +56,6 @@ Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
 ### 2. Voraussetzungen
 
-- IP-Symcon ab Version 4.x (getestet mit Version 4.1.534 auf RP3)
 - IP-Symvon Version 5.0+
 
 ### 3. Software-Installation
@@ -116,6 +115,10 @@ Beispiel:
 `AWIDO_Update(12345);`
 
 ### 8. Versionshistorie
+
+v1.3.20190323
+* _NEU_: Vereinheitlichungen, Umstellung auf Libs
+* _FIX_: RegisterTimer Umstellung wieder verworfen (v1.2)
 
 v1.2.20190320
 * _FIX_: Umsetzung Store Richtlinie(6), RegisterTimer wieder verwendet

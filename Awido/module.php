@@ -1,7 +1,11 @@
 <?php
 
+require_once __DIR__.'/../libs/traits.php';  // Allgemeine Funktionen
+
 class Awido extends IPSModule
 {
+    use TimerHelper, DebugHelper;
+
     /**
      * (bekannte) Client IDs - Array.
      *
@@ -63,8 +67,7 @@ class Awido extends IPSModule
         // Script
         $this->RegisterPropertyInteger('scriptID', 0);
         // Update daily timer
-        $this->RegisterTimer('UpdateTimer', 0, "AWIDO_Update(\$_IPS['TARGET']);");
-        //$this->RegisterCyclicTimer('UpdateTimer', 0, 10, 0, 'AWIDO_Update('.$this->InstanceID.');');
+        $this->RegisterCyclicTimer('UpdateTimer', 0, 10, 0, 'AWIDO_Update('.$this->InstanceID.');');
     }
 
     /**
@@ -81,7 +84,7 @@ class Awido extends IPSModule
         $fractIds = $this->ReadPropertyString('fractionIDs');
         $activate = $this->ReadPropertyBoolean('activateAWIDO');
 
-        $this->SendDebug('GetConfigurationForm', 'clientID='.$clientId.', placeId='.$placeId.', streetId='.$streetId.', addonId='.$addonId.', fractIds='.$fractIds, 0);
+        $this->SendDebug('AWIDO', 'GetConfigurationForm: clientID='.$clientId.', placeId='.$placeId.', streetId='.$streetId.', addonId='.$addonId.', fractIds='.$fractIds);
 
         if ($clientId == 'null') {
             IPS_SetProperty($this->InstanceID, 'placeGUID', 'null');
@@ -147,11 +150,10 @@ class Awido extends IPSModule
         $addonId = $this->ReadPropertyString('addonGUID');
         $fractIds = $this->ReadPropertyString('fractionIDs');
         $activate = $this->ReadPropertyBoolean('activateAWIDO');
-        $this->SendDebug('ApplyChanges', 'clientID='.$clientId.', placeId='.$placeId.', streetId='.$streetId.', addonId='.$addonId.', fractIds='.$fractIds, 0);
-
+        $this->SendDebug('AWIDO', 'ApplyChanges: clientID='.$clientId.', placeId='.$placeId.', streetId='.$streetId.', addonId='.$addonId.', fractIds='.$fractIds);
         // Safty default
-        $this->SetTimerInterval('UpdateTimer', 0);
-
+        $eId = $this->GetIDForIdent('UpdateTimer');
+        IPS_SetEventActive($eId, false);
         //$status = 102;
         if ($clientId == 'null') {
             $status = 201;
@@ -166,8 +168,8 @@ class Awido extends IPSModule
         } elseif ($activate == true) {
             $this->CreateVariables($clientId, $fractIds);
             $status = 102;
-            $this->SetTimerInterval('UpdateTimer', 1000 * 60 * 60 * 24);
-            $this->SendDebug('ApplyChanges', 'Timer aktiviert!', 0);
+            IPS_SetEventActive($eId, true);
+            $this->SendDebug('AWIDO', 'ApplyChanges: Timer aktiviert!');
         } else {
             $status = 104;
         }
@@ -524,7 +526,7 @@ class Awido extends IPSModule
                 $this->SendDebug('Script Execute: Return Value', $rs, 0);
             }
         } else {
-            $this->SendDebug('AWIDO_Update', 'Script #'.$scriptId.' existiert nicht!', 0);
+            $this->SendDebug('AWIDO', 'Update: Script #'.$scriptId.' existiert nicht!');
         }
     }
 }
