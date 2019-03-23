@@ -84,6 +84,7 @@ placeGUID          | Ort im Entsorgungsgebiet
 streetGUID         | Ortsteil/Strasse im gewählten Ort
 addonGUID          | Hausnummer (Alle = gesamte Strasse)
 fractionIDs        | Entsorgungs-Ids, d.h. was wird im Gebiet an Entsorgung angeboten
+CreateVariables    | Status, ob für nicht genutzte Entsorgungen auch Variablen angelegt werden sollen (Standard: nein / false)
 activateAWIDO      | Status, ob das tägliche Update aktiv oder inaktiv ist
 ScriptID           | Script, welches nach dem Update der Termine ausgeführt wird, z.B. für Visualisierung, Sortierung usw.
 
@@ -102,7 +103,7 @@ Es werden keine zusätzlichen Profile benötigt.
 ### 6. WebFront
 
 Man kann die Statusvariaben(Strings) direkt im WF verlinken.
-Aber wie bei der Konfiguration beschrieben, muss man aufpassen wenn die Konfiguration geändert wird. Dann müssen die Links neu eingerichtet werden.
+Aber wie bei der Konfiguration beschrieben, muss man aufpassen wenn die Konfiguration geändert wird. Dann müssen gegebenenfalls die Links neu eingerichtet werden.
 
 
 ### 7. PHP-Befehlsreferenz
@@ -118,6 +119,7 @@ Beispiel:
 
 v1.3.20190323
 * _NEU_: Vereinheitlichungen, Umstellung auf Libs
+* _NEU_: Variablenerstellung kann nun vom Benutzer beeinflusst werden
 * _FIX_: RegisterTimer Umstellung wieder verworfen (v1.2)
 
 v1.2.20190320
