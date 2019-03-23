@@ -443,7 +443,7 @@ class Awido extends IPSModule
         if ($cId == 'null' || $fIds == 'null') {
             return;
         }
-       // create or update all variables
+        // create or update all variables
         $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client='.$cId;
         $json = file_get_contents($url);
         $data = json_decode($json);
@@ -451,7 +451,7 @@ class Awido extends IPSModule
         $variable = $this->ReadPropertyBoolean('createVariables');
         foreach ($data as $fract) {
             $fractID = $this->ReadPropertyBoolean('fractionID'.$fract->id);
-            MaintainVariable ($fract->snm, $fract->nm, 3, '', $fract->id, $fractID || $variable);
+            MaintainVariable($fract->snm, $fract->nm, 3, '', $fract->id, $fractID || $variable);
         }
     }
 
