@@ -62,6 +62,8 @@ class Awido extends IPSModule
         for ($i = 1; $i <= 10; $i++) {
             $this->RegisterPropertyBoolean('fractionID'.$i, false);
         }
+        // Variables
+        $this->RegisterPropertyBoolean('createVariables', false);
         // Activation
         $this->RegisterPropertyBoolean('activateAWIDO', false);
         // Script
@@ -132,11 +134,12 @@ class Awido extends IPSModule
         $formstreet = $this->FormStreet($clientId, $placeId, $streetId);
         $formaddons = $this->FormAddons($clientId, $placeId, $streetId, $addonId);
         $formfracts = $this->FormFractions($clientId, $addonId);
+        $formcrvars = $this->FormVariables($clientId, $addonId);
         $formactive = $this->FormActivate($clientId, $addonId);
         $formaction = $this->FormActions($clientId, $addonId);
         $formstatus = $this->FormStatus();
 
-        return '{ "elements": ['.$formclient.$formplaces.$formstreet.$formaddons.$formfracts.$formactive.'], '.$formaction.'"status": ['.$formstatus.']}';
+        return '{ "elements": ['.$formclient.$formplaces.$formstreet.$formaddons.$formcrvars.$formfracts.$formactive.'], '.$formaction.'"status": ['.$formstatus.']}';
     }
 
     public function ApplyChanges()
@@ -149,6 +152,7 @@ class Awido extends IPSModule
         $streetId = $this->ReadPropertyString('streetGUID');
         $addonId = $this->ReadPropertyString('addonGUID');
         $fractIds = $this->ReadPropertyString('fractionIDs');
+        $variable = $this->ReadPropertyBoolean('createVariables');
         $activate = $this->ReadPropertyBoolean('activateAWIDO');
         $this->SendDebug('AWIDO', 'ApplyChanges: clientID='.$clientId.', placeId='.$placeId.', streetId='.$streetId.', addonId='.$addonId.', fractIds='.$fractIds);
         // Safty default
@@ -348,6 +352,25 @@ class Awido extends IPSModule
     }
 
     /**
+     * Fragt ob für die nicht angebotenen bzw. aktivierten Entsorgungen Variablen erstellt werden sollen.
+     *
+     * @param string $cId Client ID .
+     * @param string $aId Addon GUID .
+     *
+     * @return string Variable  Question Elements.
+     */
+    protected function FormVariables($cId, $aId)
+    {
+        if ($cId == 'null' || $aId == 'null') {
+            return '';
+        }
+        $form = ',{ "type": "Label", "label": "Variable creation:" } ,
+              { "type": "CheckBox", "name": "createVariables", "caption": "Create variables for non-selected disposals?" }';
+
+        return $form.implode(',', $line);
+    }
+
+    /**
      * Check zum Aktivieren des Moduls.
      *
      * @param string $cId Client ID .
@@ -409,7 +432,7 @@ class Awido extends IPSModule
     }
 
     /**
-     * Create the varables for the fractions.
+     * Create the variables for the fractions.
      *
      * @param string $fIds fract ids.
      * @param string $cId  Client ID .
@@ -420,34 +443,15 @@ class Awido extends IPSModule
         if ($cId == 'null' || $fIds == 'null') {
             return;
         }
-
-        // collect existing variables
-        //$variables = array();
-        //$childs = IPS_GetChildrenIDs($this->InstanceID);
-        //foreach($childs as $id) {
-        //  if(IPS_GetName($id) != "UpdateTimer") {
-        //  $ident = IPS_GetObject($id)["ObjectIdent"];
-        //  $variables[] = array("id" => $id, "ident" => IPS_GetObject($id)["ObjectIdent"]);
-        //  IPS_DeleteVariable($object);
-        //  }
-        //}
-
-        // create or update all variables (no delete because lost link targets)
+       // create or update all variables
         $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client='.$cId;
         $json = file_get_contents($url);
         $data = json_decode($json);
-
+        // how to maintain?
+        $variable = $this->ReadPropertyBoolean('createVariables');
         foreach ($data as $fract) {
             $fractID = $this->ReadPropertyBoolean('fractionID'.$fract->id);
-            if ($fractID == true) {
-                $vid = @$this->GetIDForIdent($fract->snm);
-                if ($vid === false) { // new
-                    $this->RegisterVariableString($fract->snm, $fract->nm, '', $fract->id);
-                } else {  // update
-                    IPS_SetName($vid, $fract->nm);
-                    IPS_SetPosition($vid, $fract->id);
-                }
-            }
+            MaintainVariable ($fract->snm, $fract->nm, 3, '', $fract->id, $fractID || $variable);
         }
     }
 
@@ -511,7 +515,7 @@ class Awido extends IPSModule
         // write data to variable
         foreach ($array as $line) {
             if ($line['exist'] == true) {
-                $varId = $this->GetIDForIdent($line['ident']);
+                $varId = @$this->GetIDForIdent($line['ident']);
                 // falls haendich geloescht, dann eben nicht!
                 if ($varId != 0) {
                     SetValueString($varId, $line['value']);

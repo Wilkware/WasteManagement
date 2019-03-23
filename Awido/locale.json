@@ -8,6 +8,8 @@
       "Street number:": "Hausnummer:",
       "All": "Alle",
       "The following disposals are offered:": "Folgende Entsorgungen werden angeboten:",
+      "Variable creation:": "Variablenerstellung:",
+      "Create variables for non-selected disposals?": "Variablen für nicht ausgewählte Entsorgungen erstellen?",
       "The following selection box activates or deactivates the instance:": "Die nachfolgende Auswahlbox aktiviert bzw. deaktiviert die Instanz:",
       "Activate daily update?": "Tägliche Aktualisierung aktivieren?",
       "Call the following scipt after update the dates:": "Nach Aktualisierung der Werte folgendes Script aufrufen:",
