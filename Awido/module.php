@@ -451,7 +451,7 @@ class Awido extends IPSModule
         $variable = $this->ReadPropertyBoolean('createVariables');
         foreach ($data as $fract) {
             $fractID = $this->ReadPropertyBoolean('fractionID'.$fract->id);
-            MaintainVariable($fract->snm, $fract->nm, 3, '', $fract->id, $fractID || $variable);
+            $this->MaintainVariable($fract->snm, $fract->nm, vtString, '', $fract->id, $fractID || $variable);
         }
     }
 
