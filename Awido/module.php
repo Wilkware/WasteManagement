@@ -139,7 +139,7 @@ class Awido extends IPSModule
         $formaction = $this->FormActions($clientId, $addonId);
         $formstatus = $this->FormStatus();
 
-        return '{ "elements": ['.$formclient.$formplaces.$formstreet.$formaddons.$formcrvars.$formfracts.$formactive.'], '.$formaction.'"status": ['.$formstatus.']}';
+        return '{ "elements": ['.$formclient.$formplaces.$formstreet.$formaddons.$formfracts.$formcrvars.$formactive.'], '.$formaction.'"status": ['.$formstatus.']}';
     }
 
     public function ApplyChanges()
@@ -194,13 +194,13 @@ class Awido extends IPSModule
         $line = [];
 
         // Reset key
-        $line[] = '{"label": "Please select ...","value": "null"}';
+        $line[] = '{"caption": "Please select ...","value": "null"}';
 
         foreach (static::$Clients as $Client => $Name) {
             if ($cId == 'null') {
-                $line[] = '{"label": "'.$Name.'","value": "'.$Client.'"}';
+                $line[] = '{"caption": "'.$Name.'","value": "'.$Client.'"}';
             } elseif ($Client == $cId) {
-                $line[] = '{"label": "'.$Name.'","value": "'.$Client.'"}';
+                $line[] = '{"caption": "'.$Name.'","value": "'.$Client.'"}';
             }
         }
 
@@ -229,13 +229,13 @@ class Awido extends IPSModule
         $form = ',{ "type": "Select", "name": "placeGUID", "caption": "Location:", "options": [';
         $line = [];
         // Reset key
-        $line[] = '{"label": "Please select ...","value": "null"}';
+        $line[] = '{"caption": "Please select ...","value": "null"}';
 
         foreach ($data as $place) {
             if ($pId == 'null') {
-                $line[] = '{"label": "'.$place->value.'","value": "'.$place->key.'"}';
+                $line[] = '{"caption": "'.$place->value.'","value": "'.$place->key.'"}';
             } elseif ($pId == $place->key) {
-                $line[] = '{"label": "'.$place->value.'","value": "'.$place->key.'"}';
+                $line[] = '{"caption": "'.$place->value.'","value": "'.$place->key.'"}';
             }
         }
 
@@ -265,13 +265,13 @@ class Awido extends IPSModule
         $form = ',{ "type": "Select", "name": "streetGUID", "caption": "District/Street:", "options": [';
         $line = [];
         // Reset key
-        $line[] = '{"label": "Please select ...","value": "null"}';
+        $line[] = '{"caption": "Please select ...","value": "null"}';
 
         foreach ($data as $street) {
             if ($sId == 'null') {
-                $line[] = '{"label": "'.$street->value.'","value": "'.$street->key.'"}';
+                $line[] = '{"caption": "'.$street->value.'","value": "'.$street->key.'"}';
             } elseif ($sId == $street->key) {
-                $line[] = '{"label": "'.$street->value.'","value": "'.$street->key.'"}';
+                $line[] = '{"caption": "'.$street->value.'","value": "'.$street->key.'"}';
             }
         }
 
@@ -302,16 +302,16 @@ class Awido extends IPSModule
         $form = ',{ "type": "Select", "name": "addonGUID", "caption": "Street number:", "options": [';
         $line = [];
         // Reset key
-        $line[] = '{"label": "Please select ...","value": "null"}';
+        $line[] = '{"caption": "Please select ...","value": "null"}';
 
         foreach ($data as $addon) {
             if ($addon->value == '') {
                 $addon->value = 'All';
             }
             if ($aId == 'null') {
-                $line[] = '{"label": "'.$addon->value.'","value": "'.$addon->key.'"}';
+                $line[] = '{"caption": "'.$addon->value.'","value": "'.$addon->key.'"}';
             } elseif ($aId == $addon->key) {
-                $line[] = '{"label": "'.$addon->value.'","value": "'.$addon->key.'"}';
+                $line[] = '{"caption": "'.$addon->value.'","value": "'.$addon->key.'"}';
             }
         }
 
@@ -337,7 +337,7 @@ class Awido extends IPSModule
         $json = file_get_contents($url);
         $data = json_decode($json);
 
-        $form = ',{ "type": "Label", "label": "The following disposals are offered:" } ,';
+        $form = ',{ "type": "Label", "caption": "The following disposals are offered:" } ,';
         $line = [];
         $ids = [];
 
@@ -364,10 +364,10 @@ class Awido extends IPSModule
         if ($cId == 'null' || $aId == 'null') {
             return '';
         }
-        $form = ',{ "type": "Label", "label": "Variable creation:" } ,
+        $form = ',{ "type": "Label", "caption": "Variable creation:" } ,
               { "type": "CheckBox", "name": "createVariables", "caption": "Create variables for non-selected disposals?" }';
 
-        return $form.implode(',', $line);
+        return $form;
     }
 
     /**
@@ -383,9 +383,9 @@ class Awido extends IPSModule
         if ($cId == 'null' || $aId == 'null') {
             return '';
         }
-        $form = ',{ "type": "Label", "label": "The following selection box activates or deactivates the instance:" } ,
+        $form = ',{ "type": "Label", "caption": "The following selection box activates or deactivates the instance:" } ,
               { "type": "CheckBox", "name": "activateAWIDO", "caption": "Activate daily update?" } ,
-              { "type": "Label", "label": "Call the following scipt after update the dates:" } ,       
+              { "type": "Label", "caption": "Call the following scipt after update the dates:" } ,       
           		{ "type": "SelectScript", "name": "scriptID", "caption": "Script:" }';
 
         return $form;
@@ -406,8 +406,8 @@ class Awido extends IPSModule
         }
 
         $form = '"actions": [
-            { "type": "Label", "label": "Update dates." } ,
-            { "type": "Button", "label": "Update", "onClick": "AWIDO_Update($id);" } ],';
+            { "type": "Label", "caption": "Update dates." } ,
+            { "type": "Button", "caption": "Update", "onClick": "AWIDO_Update($id);" } ],';
 
         return $form;
     }
