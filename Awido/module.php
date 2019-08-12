@@ -70,7 +70,7 @@ class Awido extends IPSModule
         // Script
         $this->RegisterPropertyInteger('scriptID', 0);
         // Register daily update timer
-        $this->RegisterTimer('UpdateTimer', 0, 'AWIDO_Update('.$this->InstanceID.');');   
+        $this->RegisterTimer('UpdateTimer', 0, 'AWIDO_Update('.$this->InstanceID.');');
     }
 
     /**
@@ -156,7 +156,7 @@ class Awido extends IPSModule
         $activate = $this->ReadPropertyBoolean('activateAWIDO');
         $this->SendDebug('AWIDO', 'ApplyChanges: clientID='.$clientId.', placeId='.$placeId.', streetId='.$streetId.', addonId='.$addonId.', fractIds='.$fractIds);
         // Safty default
-        $this->SetTimerInterval("UpdateTimer", 0);
+        $this->SetTimerInterval('UpdateTimer', 0);
         //$status = 102;
         if ($clientId == 'null') {
             $status = 201;
@@ -532,12 +532,11 @@ class Awido extends IPSModule
         } else {
             $this->SendDebug('AWIDO', 'Update: Script #'.$scriptId.' existiert nicht!');
         }
-        
+
         // calculate next update interval
         $activate = $this->ReadPropertyBoolean('activateAWIDO');
         if ($activate == true) {
             $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
         }
-
     }
 }
