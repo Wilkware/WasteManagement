@@ -22,6 +22,7 @@ class Awido extends IPSModule
     'coburg'            => 'Landkreis Coburg',
     'awv-nordschwaben'  => 'Landkreis Dillingen a.d. Donau und Donau-Ries',
     'Erding'            => 'Landkreis Erding',
+    'ffb'               => 'Landkreis Fürstenfeldbruck',
     'kaw-guenzburg'     => 'Landkreis Günzburg',
     'azv-hef-rof'       => 'Landkreis Hersfeld-Rotenburg',
     'kelheim'           => 'Landkreis Kelheim',
@@ -38,7 +39,7 @@ class Awido extends IPSModule
     'memmingen'         => 'Stadt Memmingen',
     'unterschleissheim' => 'Stadt Unterschleissheim',
     'zv-muc-so'         => 'Zweckverband München-Südost',
-    //"???"             => "LandKreis XYZ"
+    // Aktueller Stand = 27
   ];
 
     /**
@@ -68,8 +69,8 @@ class Awido extends IPSModule
         $this->RegisterPropertyBoolean('activateAWIDO', false);
         // Script
         $this->RegisterPropertyInteger('scriptID', 0);
-        // Update daily timer
-        $this->RegisterCyclicTimer('UpdateTimer', 0, 10, 0, 'AWIDO_Update('.$this->InstanceID.');', false);
+        // Register daily update timer
+        $this->RegisterTimer('UpdateTimer', 0, 'AWIDO_Update('.$this->InstanceID.');');   
     }
 
     /**
@@ -152,12 +153,10 @@ class Awido extends IPSModule
         $streetId = $this->ReadPropertyString('streetGUID');
         $addonId = $this->ReadPropertyString('addonGUID');
         $fractIds = $this->ReadPropertyString('fractionIDs');
-        $variable = $this->ReadPropertyBoolean('createVariables');
         $activate = $this->ReadPropertyBoolean('activateAWIDO');
         $this->SendDebug('AWIDO', 'ApplyChanges: clientID='.$clientId.', placeId='.$placeId.', streetId='.$streetId.', addonId='.$addonId.', fractIds='.$fractIds);
         // Safty default
-        $eId = $this->GetIDForIdent('UpdateTimer');
-        IPS_SetEventActive($eId, false);
+        $this->SetTimerInterval("UpdateTimer", 0);
         //$status = 102;
         if ($clientId == 'null') {
             $status = 201;
@@ -172,7 +171,8 @@ class Awido extends IPSModule
         } elseif ($activate == true) {
             $this->CreateVariables($clientId, $fractIds);
             $status = 102;
-            IPS_SetEventActive($eId, true);
+            // Time neu berechnen
+            $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
             $this->SendDebug('AWIDO', 'ApplyChanges: Timer aktiviert!');
         } else {
             $status = 104;
@@ -532,5 +532,12 @@ class Awido extends IPSModule
         } else {
             $this->SendDebug('AWIDO', 'Update: Script #'.$scriptId.' existiert nicht!');
         }
+        
+        // calculate next update interval
+        $activate = $this->ReadPropertyBoolean('activateAWIDO');
+        if ($activate == true) {
+            $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
+        }
+
     }
 }

@@ -376,6 +376,25 @@ trait TimerHelper
         IPS_SetEventCyclicTimeFrom($id, $hour, $minute, $second);
         IPS_SetEventActive($id, $active);
     }
+
+    /**
+     * Update interval for a cyclic timer.
+     *
+     * @param string $ident  Name and ident of the timer.
+     * @param int    $hour   Start hour.
+     * @param int    $minute Start minute.
+     * @param int    $second Start second.
+     */
+    protected function UpdateTimerInterval($ident, $hour, $minute, $second)
+    {
+        $now = new DateTime(); 
+        $target = new DateTime(); 
+        $target->modify('+1 day'); 
+        $target->setTime($hour, $minute, $second); 
+        $diff = $target->getTimestamp() - $now->getTimestamp(); 
+        $interval = $diff * 1000; 
+        $this->SetTimerInterval($ident, $interval);
+    }
 }
 
 /**
