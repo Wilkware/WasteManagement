@@ -39,7 +39,7 @@ class Awido extends IPSModule
     'memmingen'         => 'Stadt Memmingen',
     'unterschleissheim' => 'Stadt Unterschleissheim',
     'zv-muc-so'         => 'Zweckverband München-Südost',
-    // Aktueller Stand = 27
+    // Stand 14.08.2019 = 27 Landkreise
   ];
 
     /**
