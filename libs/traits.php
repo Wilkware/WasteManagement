@@ -343,41 +343,6 @@ trait ProfileHelper
 trait TimerHelper
 {
     /**
-     * Create a cyclic timer.
-     *
-     * @param string $ident  Name and ident of the timer.
-     * @param int    $hour   Start hour.
-     * @param int    $minute Start minute.
-     * @param int    $second Start second.
-     * @param int    $script Script ID.
-     * @param bool   $active True to activate the timer, oterwise false.
-     */
-    protected function RegisterCyclicTimer($ident, $hour, $minute, $second, $script, $active)
-    {
-        $id = @$this->GetIDForIdent($ident);
-        $name = $ident;
-        if ($id && IPS_GetEvent($id)['EventType'] != 1) {
-            IPS_DeleteEvent($id);
-            $id = 0;
-        }
-        if (!$id) {
-            $id = IPS_CreateEvent(1);
-            IPS_SetParent($id, $this->InstanceID);
-            IPS_SetIdent($id, $ident);
-        }
-        IPS_SetName($id, $name);
-        // IPS_SetInfo($id, "Update Timer");
-        // IPS_SetHidden($id, true);
-        IPS_SetEventScript($id, $script);
-        if (!IPS_EventExists($id)) {
-            throw new Exception("Ident with name $ident is used for wrong object type");
-        }
-        //IPS_SetEventCyclic($id, 0, 0, 0, 0, 0, 0);
-        IPS_SetEventCyclicTimeFrom($id, $hour, $minute, $second);
-        IPS_SetEventActive($id, $active);
-    }
-
-    /**
      * Update interval for a cyclic timer.
      *
      * @param string $ident  Name and ident of the timer.
