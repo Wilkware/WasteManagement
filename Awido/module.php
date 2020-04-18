@@ -1,10 +1,13 @@
 <?php
 
-require_once __DIR__.'/../libs/traits.php';  // Allgemeine Funktionen
+declare(strict_types=1);
+
+require_once __DIR__ . '/../libs/traits.php';  // Allgemeine Funktionen
 
 class Awido extends IPSModule
 {
-    use TimerHelper, DebugHelper;
+    use TimerHelper;
+    use DebugHelper;
 
     /**
      * (bekannte) Client IDs - Array.
@@ -12,35 +15,35 @@ class Awido extends IPSModule
      * @var array Key ist die clientID, Value ist der Name
      */
     public static $Clients = [
-    'awld'              => 'Lahn-Dill-Kreis',
-    'aic-fdb'           => 'Landkreis Aichach-Friedberg',
-    'awb-ak'            => 'Landkreis Altenkirchen',
-    'ansbach'           => 'Landkreis Ansbach',
-    'awb-duerkheim'     => 'Landkreis Bad Dürkheim',
-    'wgv'               => 'Landkreis Bad Tölz-Wolfratshausen',
-    'bgl'               => 'Landkreis Berchtesgadener Land',
-    'coburg'            => 'Landkreis Coburg',
-    'awv-nordschwaben'  => 'Landkreis Dillingen a.d. Donau und Donau-Ries',
-    'Erding'            => 'Landkreis Erding',
-    'ffb'               => 'Landkreis Fürstenfeldbruck',
-    'kaw-guenzburg'     => 'Landkreis Günzburg',
-    'azv-hef-rof'       => 'Landkreis Hersfeld-Rotenburg',
-    'kelheim'           => 'Landkreis Kelheim',
-    'kronach'           => 'Landkreis Kronach',
-    'landkreisbetriebe' => 'Landkreis Neuburg-Schrobenhausen',
-    'rosenheim'         => 'Landkreis Rosenheim',
-    'eww-suew'          => 'Landkreis Südliche Weinstraße',
-    'kreis-tir'         => 'Landkreis Tirschenreuth',
-    'tuebingen'         => 'Landkreis Tübingen',
-    'lra-dah'           => 'Landratsamt Dachau',
-    'neustadt'          => 'Neustadt a.d. Waldnaab',
-    'pullach'           => 'Pullach im Isartal',
-    'rmk'               => 'Rems-Murr-Kreis',
-    'memmingen'         => 'Stadt Memmingen',
-    'unterschleissheim' => 'Stadt Unterschleissheim',
-    'zv-muc-so'         => 'Zweckverband München-Südost',
-    // Stand 14.08.2019 = 27 Landkreise
-  ];
+        'awld'              => 'Lahn-Dill-Kreis',
+        'aic-fdb'           => 'Landkreis Aichach-Friedberg',
+        'awb-ak'            => 'Landkreis Altenkirchen',
+        'ansbach'           => 'Landkreis Ansbach',
+        'awb-duerkheim'     => 'Landkreis Bad Dürkheim',
+        'wgv'               => 'Landkreis Bad Tölz-Wolfratshausen',
+        'bgl'               => 'Landkreis Berchtesgadener Land',
+        'coburg'            => 'Landkreis Coburg',
+        'awv-nordschwaben'  => 'Landkreis Dillingen a.d. Donau und Donau-Ries',
+        'Erding'            => 'Landkreis Erding',
+        'ffb'               => 'Landkreis Fürstenfeldbruck',
+        'kaw-guenzburg'     => 'Landkreis Günzburg',
+        'azv-hef-rof'       => 'Landkreis Hersfeld-Rotenburg',
+        'kelheim'           => 'Landkreis Kelheim',
+        'kronach'           => 'Landkreis Kronach',
+        'landkreisbetriebe' => 'Landkreis Neuburg-Schrobenhausen',
+        'rosenheim'         => 'Landkreis Rosenheim',
+        'eww-suew'          => 'Landkreis Südliche Weinstraße',
+        'kreis-tir'         => 'Landkreis Tirschenreuth',
+        'tuebingen'         => 'Landkreis Tübingen',
+        'lra-dah'           => 'Landratsamt Dachau',
+        'neustadt'          => 'Neustadt a.d. Waldnaab',
+        'pullach'           => 'Pullach im Isartal',
+        'rmk'               => 'Rems-Murr-Kreis',
+        'memmingen'         => 'Stadt Memmingen',
+        'unterschleissheim' => 'Stadt Unterschleissheim',
+        'zv-muc-so'         => 'Zweckverband München-Südost',
+        // Stand 14.08.2019 = 27 Landkreise
+    ];
 
     /**
      * Create.
@@ -61,7 +64,7 @@ class Awido extends IPSModule
         $this->RegisterPropertyString('fractionIDs', 'null');
         // Fractions
         for ($i = 1; $i <= 10; $i++) {
-            $this->RegisterPropertyBoolean('fractionID'.$i, false);
+            $this->RegisterPropertyBoolean('fractionID' . $i, false);
         }
         // Variables
         $this->RegisterPropertyBoolean('createVariables', false);
@@ -70,7 +73,7 @@ class Awido extends IPSModule
         // Script
         $this->RegisterPropertyInteger('scriptID', 0);
         // Register daily update timer
-        $this->RegisterTimer('UpdateTimer', 0, 'AWIDO_Update('.$this->InstanceID.');');
+        $this->RegisterTimer('UpdateTimer', 0, 'AWIDO_Update(' . $this->InstanceID . ');');
     }
 
     /**
@@ -87,7 +90,7 @@ class Awido extends IPSModule
         $fractIds = $this->ReadPropertyString('fractionIDs');
         $activate = $this->ReadPropertyBoolean('activateAWIDO');
 
-        $this->SendDebug('AWIDO', 'GetConfigurationForm: clientID='.$clientId.', placeId='.$placeId.', streetId='.$streetId.', addonId='.$addonId.', fractIds='.$fractIds);
+        $this->SendDebug('AWIDO', 'GetConfigurationForm: clientID=' . $clientId . ', placeId=' . $placeId . ', streetId=' . $streetId . ', addonId=' . $addonId . ', fractIds=' . $fractIds);
 
         if ($clientId == 'null') {
             IPS_SetProperty($this->InstanceID, 'placeGUID', 'null');
@@ -95,7 +98,7 @@ class Awido extends IPSModule
             IPS_SetProperty($this->InstanceID, 'addonGUID', 'null');
             IPS_SetProperty($this->InstanceID, 'fractionIDs', 'null');
             for ($i = 1; $i <= 10; $i++) {
-                IPS_SetProperty($this->InstanceID, 'fractionID'.$i, false);
+                IPS_SetProperty($this->InstanceID, 'fractionID' . $i, false);
             }
             IPS_SetProperty($this->InstanceID, 'activateAWIDO', false);
             // zusätzlich da Werte mit IPS_SetProperty nicht sofort übernommen werden
@@ -140,7 +143,7 @@ class Awido extends IPSModule
         $formaction = $this->FormActions($clientId, $addonId);
         $formstatus = $this->FormStatus();
 
-        return '{ "elements": ['.$formclient.$formplaces.$formstreet.$formaddons.$formfracts.$formcrvars.$formactive.'], '.$formaction.'"status": ['.$formstatus.']}';
+        return '{ "elements": [' . $formclient . $formplaces . $formstreet . $formaddons . $formfracts . $formcrvars . $formactive . '], ' . $formaction . '"status": [' . $formstatus . ']}';
     }
 
     public function ApplyChanges()
@@ -154,7 +157,7 @@ class Awido extends IPSModule
         $addonId = $this->ReadPropertyString('addonGUID');
         $fractIds = $this->ReadPropertyString('fractionIDs');
         $activate = $this->ReadPropertyBoolean('activateAWIDO');
-        $this->SendDebug('AWIDO', 'ApplyChanges: clientID='.$clientId.', placeId='.$placeId.', streetId='.$streetId.', addonId='.$addonId.', fractIds='.$fractIds);
+        $this->SendDebug('AWIDO', 'ApplyChanges: clientID=' . $clientId . ', placeId=' . $placeId . ', streetId=' . $streetId . ', addonId=' . $addonId . ', fractIds=' . $fractIds);
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
         //$status = 102;
@@ -182,6 +185,91 @@ class Awido extends IPSModule
     }
 
     /**
+     * This function will be available automatically after the module is imported with the module control.
+     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
+     *
+     * AWIDO_Update($id);
+     */
+    public function Update()
+    {
+        $clientId = $this->ReadPropertyString('clientID');
+        $placeId = $this->ReadPropertyString('placeGUID');
+        $streetId = $this->ReadPropertyString('streetGUID');
+        $addonId = $this->ReadPropertyString('addonGUID');
+        $fractIds = $this->ReadPropertyString('fractionIDs');
+        $scriptId = $this->ReadPropertyInteger('scriptID');
+
+        if ($clientId == 'null' || $placeId == 'null' || $streetId == 'null' || $addonId == 'null' || $fractIds == 'null') {
+            return;
+        }
+
+        // rebuild informations
+        $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=' . $clientId;
+
+        $json = file_get_contents($url);
+        $data = json_decode($json);
+
+        // Fractions mit Kurzzeichen(Short Name)) in Array konvertieren
+        $array = [];
+        foreach ($data as $fract) {
+            $fractID = $this->ReadPropertyBoolean('fractionID' . $fract->id);
+            $array[$fract->snm] = ['ident' => $fract->snm, 'value' => '', 'exist' => $fractID];
+        }
+
+        // update data
+        $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getData/' . $addonId . '?fractions=' . $fractIds . '&client=' . $clientId;
+        $json = file_get_contents($url);
+        $data = json_decode($json);
+
+        // Kalenderdaten durchgehen
+        foreach ($data->calendar as $day) {
+            // nur Abholdaten nehmen, keine Feiertage
+            if ($day->fr == '') {
+                continue;
+            }
+            // Datum in Vergangenheit brauchen wir nicht
+            if ($day->dt < date('Ymd')) {
+                continue;
+            }
+            // YYYYMMDD umwandeln in DD.MM.YYYY
+            $tag = substr($day->dt, 6) . '.' . substr($day->dt, 4, 2) . '.' . substr($day->dt, 0, 4);
+            // Entsorgungsart herausfinden
+            foreach ($day->fr as $snm) {
+                if ($array[$snm]['value'] == '') {
+                    $array[$snm]['value'] = $tag;
+                }
+            }
+        }
+
+        // write data to variable
+        foreach ($array as $line) {
+            if ($line['exist'] == true) {
+                $varId = @$this->GetIDForIdent($line['ident']);
+                // falls haendich geloescht, dann eben nicht!
+                if ($varId != 0) {
+                    SetValueString($varId, $line['value']);
+                }
+            }
+        }
+
+        // execute Script
+        if ($scriptId != 0) {
+            if (IPS_ScriptExists($scriptId)) {
+                $rs = IPS_RunScript($scriptId);
+                $this->SendDebug('Script Execute: Return Value', $rs, 0);
+            }
+        } else {
+            $this->SendDebug('AWIDO', 'Update: Script #' . $scriptId . ' existiert nicht!');
+        }
+
+        // calculate next update interval
+        $activate = $this->ReadPropertyBoolean('activateAWIDO');
+        if ($activate == true) {
+            $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
+        }
+    }
+
+    /**
      * Erstellt ein DropDown-Menü mit den auswählbaren Client IDs (Abfallwirtschaften).
      *
      * @param string $cId Client ID .
@@ -198,13 +286,13 @@ class Awido extends IPSModule
 
         foreach (static::$Clients as $Client => $Name) {
             if ($cId == 'null') {
-                $line[] = '{"caption": "'.$Name.'","value": "'.$Client.'"}';
+                $line[] = '{"caption": "' . $Name . '","value": "' . $Client . '"}';
             } elseif ($Client == $cId) {
-                $line[] = '{"caption": "'.$Name.'","value": "'.$Client.'"}';
+                $line[] = '{"caption": "' . $Name . '","value": "' . $Client . '"}';
             }
         }
 
-        return $form.implode(',', $line).']}';
+        return $form . implode(',', $line) . ']}';
     }
 
     /**
@@ -217,7 +305,7 @@ class Awido extends IPSModule
      */
     protected function FormPlaces($cId, $pId)
     {
-        $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getPlaces/client='.$cId;
+        $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getPlaces/client=' . $cId;
 
         if ($cId == 'null') {
             return '';
@@ -233,13 +321,13 @@ class Awido extends IPSModule
 
         foreach ($data as $place) {
             if ($pId == 'null') {
-                $line[] = '{"caption": "'.$place->value.'","value": "'.$place->key.'"}';
+                $line[] = '{"caption": "' . $place->value . '","value": "' . $place->key . '"}';
             } elseif ($pId == $place->key) {
-                $line[] = '{"caption": "'.$place->value.'","value": "'.$place->key.'"}';
+                $line[] = '{"caption": "' . $place->value . '","value": "' . $place->key . '"}';
             }
         }
 
-        return $form.implode(',', $line).']}';
+        return $form . implode(',', $line) . ']}';
     }
 
     /**
@@ -253,7 +341,7 @@ class Awido extends IPSModule
      */
     protected function FormStreet($cId, $pId, $sId)
     {
-        $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getGroupedStreets/'.$pId.'?selectedOTId=null&client='.$cId;
+        $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getGroupedStreets/' . $pId . '?selectedOTId=null&client=' . $cId;
 
         if ($cId == 'null' || $pId == 'null') {
             return '';
@@ -269,13 +357,13 @@ class Awido extends IPSModule
 
         foreach ($data as $street) {
             if ($sId == 'null') {
-                $line[] = '{"caption": "'.$street->value.'","value": "'.$street->key.'"}';
+                $line[] = '{"caption": "' . $street->value . '","value": "' . $street->key . '"}';
             } elseif ($sId == $street->key) {
-                $line[] = '{"caption": "'.$street->value.'","value": "'.$street->key.'"}';
+                $line[] = '{"caption": "' . $street->value . '","value": "' . $street->key . '"}';
             }
         }
 
-        return $form.implode(',', $line).']}';
+        return $form . implode(',', $line) . ']}';
     }
 
     /**
@@ -290,7 +378,7 @@ class Awido extends IPSModule
      */
     protected function FormAddons($cId, $pId, $sId, $aId)
     {
-        $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getStreetAddons/'.$sId.'?client='.$cId;
+        $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getStreetAddons/' . $sId . '?client=' . $cId;
 
         if ($cId == 'null' || $pId == 'null' || $sId == 'null') {
             return '';
@@ -309,13 +397,13 @@ class Awido extends IPSModule
                 $addon->value = 'All';
             }
             if ($aId == 'null') {
-                $line[] = '{"caption": "'.$addon->value.'","value": "'.$addon->key.'"}';
+                $line[] = '{"caption": "' . $addon->value . '","value": "' . $addon->key . '"}';
             } elseif ($aId == $addon->key) {
-                $line[] = '{"caption": "'.$addon->value.'","value": "'.$addon->key.'"}';
+                $line[] = '{"caption": "' . $addon->value . '","value": "' . $addon->key . '"}';
             }
         }
 
-        return $form.implode(',', $line).']}';
+        return $form . implode(',', $line) . ']}';
     }
 
     /**
@@ -328,7 +416,7 @@ class Awido extends IPSModule
      */
     protected function FormFractions($cId, $aId)
     {
-        $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client='.$cId;
+        $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=' . $cId;
 
         if ($cId == 'null' || $aId == 'null') {
             return '';
@@ -343,12 +431,12 @@ class Awido extends IPSModule
 
         foreach ($data as $fract) {
             $ids[] = $fract->id;
-            IPS_SetProperty($this->InstanceID, 'fractionID'.$fract->id, $fract->vb);
-            $line[] = '{ "type": "CheckBox", "name": "fractionID'.$fract->id.'", "caption": "'.$fract->nm.' ('.$fract->snm.')" }';
+            IPS_SetProperty($this->InstanceID, 'fractionID' . $fract->id, $fract->vb);
+            $line[] = '{ "type": "CheckBox", "name": "fractionID' . $fract->id . '", "caption": "' . $fract->nm . ' (' . $fract->snm . ')" }';
         }
         IPS_SetProperty($this->InstanceID, 'fractionIDs', implode(',', $ids));
 
-        return $form.implode(',', $line);
+        return $form . implode(',', $line);
     }
 
     /**
@@ -444,99 +532,14 @@ class Awido extends IPSModule
             return;
         }
         // create or update all variables
-        $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client='.$cId;
+        $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=' . $cId;
         $json = file_get_contents($url);
         $data = json_decode($json);
         // how to maintain?
         $variable = $this->ReadPropertyBoolean('createVariables');
         foreach ($data as $fract) {
-            $fractID = $this->ReadPropertyBoolean('fractionID'.$fract->id);
+            $fractID = $this->ReadPropertyBoolean('fractionID' . $fract->id);
             $this->MaintainVariable($fract->snm, $fract->nm, vtString, '', $fract->id, $fractID || $variable);
-        }
-    }
-
-    /**
-     * This function will be available automatically after the module is imported with the module control.
-     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
-     *
-     * AWIDO_Update($id);
-     */
-    public function Update()
-    {
-        $clientId = $this->ReadPropertyString('clientID');
-        $placeId = $this->ReadPropertyString('placeGUID');
-        $streetId = $this->ReadPropertyString('streetGUID');
-        $addonId = $this->ReadPropertyString('addonGUID');
-        $fractIds = $this->ReadPropertyString('fractionIDs');
-        $scriptId = $this->ReadPropertyInteger('scriptID');
-
-        if ($clientId == 'null' || $placeId == 'null' || $streetId == 'null' || $addonId == 'null' || $fractIds == 'null') {
-            return;
-        }
-
-        // rebuild informations
-        $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client='.$clientId;
-
-        $json = file_get_contents($url);
-        $data = json_decode($json);
-
-        // Fractions mit Kurzzeichen(Short Name)) in Array konvertieren
-        $array = [];
-        foreach ($data as $fract) {
-            $fractID = $this->ReadPropertyBoolean('fractionID'.$fract->id);
-            $array[$fract->snm] = ['ident' => $fract->snm, 'value' => '', 'exist' => $fractID];
-        }
-
-        // update data
-        $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getData/'.$addonId.'?fractions='.$fractIds.'&client='.$clientId;
-        $json = file_get_contents($url);
-        $data = json_decode($json);
-
-        // Kalenderdaten durchgehen
-        foreach ($data->calendar as $day) {
-            // nur Abholdaten nehmen, keine Feiertage
-            if ($day->fr == '') {
-                continue;
-            }
-            // Datum in Vergangenheit brauchen wir nicht
-            if ($day->dt < date('Ymd')) {
-                continue;
-            }
-            // YYYYMMDD umwandeln in DD.MM.YYYY
-            $tag = substr($day->dt, 6).'.'.substr($day->dt, 4, 2).'.'.substr($day->dt, 0, 4);
-            // Entsorgungsart herausfinden
-            foreach ($day->fr as $snm) {
-                if ($array[$snm]['value'] == '') {
-                    $array[$snm]['value'] = $tag;
-                }
-            }
-        }
-
-        // write data to variable
-        foreach ($array as $line) {
-            if ($line['exist'] == true) {
-                $varId = @$this->GetIDForIdent($line['ident']);
-                // falls haendich geloescht, dann eben nicht!
-                if ($varId != 0) {
-                    SetValueString($varId, $line['value']);
-                }
-            }
-        }
-
-        // execute Script
-        if ($scriptId != 0) {
-            if (IPS_ScriptExists($scriptId)) {
-                $rs = IPS_RunScript($scriptId);
-                $this->SendDebug('Script Execute: Return Value', $rs, 0);
-            }
-        } else {
-            $this->SendDebug('AWIDO', 'Update: Script #'.$scriptId.' existiert nicht!');
-        }
-
-        // calculate next update interval
-        $activate = $this->ReadPropertyBoolean('activateAWIDO');
-        if ($activate == true) {
-            $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
         }
     }
 }
