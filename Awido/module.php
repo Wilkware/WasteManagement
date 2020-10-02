@@ -4,17 +4,18 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/../libs/traits.php';  // Allgemeine Funktionen
 
+// CLASS Awido
 class Awido extends IPSModule
 {
-    use TimerHelper;
+    use EventHelper;
     use DebugHelper;
 
     /**
-     * (bekannte) Client IDs - Array.
-     *
-     * @var array Key ist die clientID, Value ist der Name
+     * Bekannte Client IDs - Array.
+     * Key ist die clientID, Value ist der Name
+     * Stand 01.10.2020 = 32 Landkreise
      */
-    public static $Clients = [
+    private static $CLIENTS = [
         'unterhaching'      => 'Gemeinde Unterhaching',
         'awld'              => 'Lahn-Dill-Kreis',
         'aic-fdb'           => 'Landkreis Aichach-Friedberg',
@@ -47,8 +48,12 @@ class Awido extends IPSModule
         'unterschleissheim' => 'Stadt Unterschleissheim',
         'zv-muc-so'         => 'Zweckverband München-Südost',
         'zaso'              => 'Zweckverband Saale-Orla',
-        // Stand 01.10.2020 = 32 Landkreise
     ];
+
+    /**
+     * Maximale Anzahl an Entsorgungsarten
+     */
+    private static $FRACTIONS = 15;
 
     /**
      * Create.
@@ -68,7 +73,7 @@ class Awido extends IPSModule
         // FractionIDs
         $this->RegisterPropertyString('fractionIDs', 'null');
         // Fractions
-        for ($i = 1; $i <= 15; $i++) {
+        for ($i = 1; $i <= static::$FRACTIONS; $i++) {
             $this->RegisterPropertyBoolean('fractionID' . $i, false);
         }
         // Variables
@@ -102,7 +107,7 @@ class Awido extends IPSModule
             IPS_SetProperty($this->InstanceID, 'streetGUID', 'null');
             IPS_SetProperty($this->InstanceID, 'addonGUID', 'null');
             IPS_SetProperty($this->InstanceID, 'fractionIDs', 'null');
-            for ($i = 1; $i <= 10; $i++) {
+            for ($i = 1; $i <= static::$FRACTIONS; $i++) {
                 IPS_SetProperty($this->InstanceID, 'fractionID' . $i, false);
             }
             IPS_SetProperty($this->InstanceID, 'activateAWIDO', false);
@@ -274,6 +279,14 @@ class Awido extends IPSModule
         }
     }
 
+    public function OnChangeClient($cId)
+    {
+        $clientId = $this->ReadPropertyString('clientID');
+        if($clientId != $cId) {
+            $this->ReloadForm();
+        }
+    }
+
     /**
      * Erstellt ein DropDown-Menü mit den auswählbaren Client IDs (Abfallwirtschaften).
      *
@@ -283,18 +296,14 @@ class Awido extends IPSModule
      */
     protected function FormClient($cId)
     {
-        $form = '{ "type": "Select", "name": "clientID", "caption": "Refuse management:", "options": [';
+        $form = '{ "type": "Select", "name": "clientID", "caption": "Refuse management:", "onChange": "AWIDO_OnChangeClient($id,,$clientID);" ,"options": [';
         $line = [];
 
         // Reset key
         $line[] = '{"caption": "Please select ...","value": "null"}';
 
-        foreach (static::$Clients as $Client => $Name) {
-            if ($cId == 'null') {
-                $line[] = '{"caption": "' . $Name . '","value": "' . $Client . '"}';
-            } elseif ($Client == $cId) {
-                $line[] = '{"caption": "' . $Name . '","value": "' . $Client . '"}';
-            }
+        foreach (static::$CLIENTS as $Client => $Name) {
+            $line[] = '{"caption": "' . $Name . '","value": "' . $Client . '"}';
         }
 
         return $form . implode(',', $line) . ']}';
@@ -447,8 +456,8 @@ class Awido extends IPSModule
     /**
      * Fragt ob für die nicht angebotenen bzw. aktivierten Entsorgungen Variablen erstellt werden sollen.
      *
-     * @param string $cId Client ID .
-     * @param string $aId Addon GUID .
+     * @param string $cId Client ID.
+     * @param string $aId Addon GUID.
      *
      * @return string Variable  Question Elements.
      */
@@ -458,7 +467,7 @@ class Awido extends IPSModule
             return '';
         }
         $form = ',{ "type": "Label", "caption": "Variable creation:" } ,
-              { "type": "CheckBox", "name": "createVariables", "caption": "Create variables for non-selected disposals?" }';
+                  { "type": "CheckBox", "name": "createVariables", "caption": "Create variables for non-selected disposals?" }';
 
         return $form;
     }
@@ -466,8 +475,8 @@ class Awido extends IPSModule
     /**
      * Check zum Aktivieren des Moduls.
      *
-     * @param string $cId Client ID .
-     * @param string $aId Addon GUID .
+     * @param string $cId Client ID.
+     * @param string $aId Addon GUID.
      *
      * @return string Activation Elements.
      */
@@ -476,10 +485,10 @@ class Awido extends IPSModule
         if ($cId == 'null' || $aId == 'null') {
             return '';
         }
-        $form = ',{ "type": "Label", "caption": "The following selection box activates or deactivates the instance:" } ,
-              { "type": "CheckBox", "name": "activateAWIDO", "caption": "Activate daily update?" } ,
-              { "type": "Label", "caption": "Call the following scipt after update the dates:" } ,       
-          		{ "type": "SelectScript", "name": "scriptID", "caption": "Script:" }';
+        $form = ',{ "type": "Label", "caption": "The following selection box activates or deactivates the instance:" },
+                  { "type": "CheckBox", "name": "activateAWIDO", "caption": "Activate daily update?" },
+                  { "type": "Label", "caption": "Call the following scipt after update the dates:" },
+                  { "type": "SelectScript", "name": "scriptID", "caption": "Script:" }';
 
         return $form;
     }
@@ -487,8 +496,8 @@ class Awido extends IPSModule
     /**
      * Action zum Aktiualisieren der Daten.
      *
-     * @param string $cId Client ID .
-     * @param string $aId Addon GUID .
+     * @param string $cId Client ID.
+     * @param string $aId Addon GUID.
      *
      * @return string Action Elements.
      */
@@ -499,8 +508,8 @@ class Awido extends IPSModule
         }
 
         $form = '"actions": [
-            { "type": "Label", "caption": "Update dates." } ,
-            { "type": "Button", "caption": "Update", "onClick": "AWIDO_Update($id);" } ],';
+                    { "type": "Label", "caption": "Update dates." },
+                    { "type": "Button", "caption": "Update", "onClick": "AWIDO_Update($id);" } ],';
 
         return $form;
     }
@@ -527,7 +536,7 @@ class Awido extends IPSModule
     /**
      * Create the variables for the fractions.
      *
-     * @param string $fIds fract ids.
+     * @param string $fIds fraction ids.
      * @param string $cId  Client ID .
      */
     protected function CreateVariables($cId, $fIds)

@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.5.20201002-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Version](https://img.shields.io/badge/Modul%20Version-2.0.20201002-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://github.com/Wilkware/IPSymconAwido/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/IPSymconAwido/actions)
 
@@ -77,24 +77,23 @@ Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
 __Konfigurationsseite__:
 
-Die Konfiguration läuft über mehrere Schritte und bedingt pro Konfigurationsschritt(auswahl) ein 'Übernehmen' der Daten.
-Bis man zum Schluss die Instanz über die Update-Checkbox aktiv setzt.
-Eine Neuauswahl erreicht man durch Auswahl "Bitte wählen ..." an der gewüschten Stelle (immer 'Übernehmen' klicken).
+Entsprechend der gewählten Auswahl verändert sich das Formular dynamisch.
+Eine komplette Neuauswahl erreicht man durch Auswahl "Bitte wählen ..." an der gewüschten Stelle.
 
 VORSTICHT: eine Änderung der Auswahl bedingt ein Update bzw. ein Neuanlegen der Statusvariablen!!!
 Alte Variablen, welche es im anderen Landkreis gab werden nicht gelöscht! Hat man diese in einem WF verlinkt muss man danach
 selber aufräumen. Ich denke aber mal das ein Umzug nicht so häufig vorkommt ;-)
 
-Name               | Beschreibung
------------------- | ---------------------------------
-clientID           | Gebiets-Id (siehe Liste oben)
-placeGUID          | Ort im Entsorgungsgebiet
-streetGUID         | Ortsteil/Strasse im gewählten Ort
-addonGUID          | Hausnummer (Alle = gesamte Strasse)
-fractionIDs        | Entsorgungs-Ids, d.h. was wird im Gebiet an Entsorgung angeboten
-createVariables    | Status, ob für nicht genutzte Entsorgungen auch Variablen angelegt werden sollen, standardmäßig nein(false)
-activateAWIDO      | Status, ob das tägliche Update aktiv oder inaktiv ist
-scriptID           | Script, welches nach dem Update der Termine ausgeführt wird, z.B. für Visualisierung, Sortierung usw.
+Name                    | Beschreibung
+----------------------- | ---------------------------------
+Abfallwirtschaft        | Entsorgungsgebiet (siehe Liste oben)
+Ort                     | Ort im Entsorgungsgebiet (kann identisch zum Gebiet sein)
+Orstteil/Strasse        | Ortsteil/Strasse im gewählten Ort
+Hausnummer              | Hausnummer von-bis, oder Alle = gesamte Strasse
+Entsorgungen            | Entsorgungsarten, d.h. was wird im Gebiet an Entsorgung angeboten
+Variablenerstellung     | Status, ob für nicht genutzte Entsorgungen auch Variablen angelegt werden sollen, standardmäßig nein(false)
+Aktualisierung          | Status, ob das tägliche Update aktiv oder inaktiv ist
+Skript                  | Script, welches nach dem Update der Termine ausgeführt wird, z.B. für Visualisierung, Sortierung usw.
 
 ### 5. Statusvariablen und Profile
 
@@ -102,7 +101,7 @@ Die Statusvariablen/Timer werden automatisch angelegt. Das Löschen einzelner ka
 
 Name                 | Typ       | Beschreibung
 -------------------- | --------- | ----------------
-Entsorgungsart(1-10) | String    | Abhängig vom Entsorgungsgebiet und den angebotenem Service mehrere Variablen, z.B.: Restmüll, Biotonne usw.
+Entsorgungsart(1-15) | String    | Abhängig vom Entsorgungsgebiet und den angebotenem Service mehrere Variablen, z.B.: Restmüll, Biotonne usw.
 
 Es werden keine zusätzlichen Profile benötigt.
 
@@ -122,14 +121,16 @@ Beispiel:
 
 ### 8. Versionshistorie
 
-v1.5.20201002
+v2.0.20201002
 
+* _NEU_: Umstellung des Konfigurationsformulars auf dynamiche Konfiguration
 * _NEU_: Gemeinde Unterhaching
 * _NEU_: Landkreis Gotha
 * _NEU_: Landkreis Schweinfurt
 * _NEU_: Stadt Kaufbeuren
 * _NEU_: Zweckverband Saale-Orla
 * _FIX_: Maximale Anzahl an Entsorgungsarten angepasst
+* _FIX_: Dokumentation überarbeitet
 * _FIX_: Englische Übersetzung korrigiert
 
 v1.4.20190814

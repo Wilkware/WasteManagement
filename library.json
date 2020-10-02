@@ -1,9 +1,12 @@
 {
   "id": "{BE51BF6C-2496-4691-B4F3-027FFF0FD986}",
   "author": "Wilkware (@Pitti)",
+  "compatibility": {
+    "version": "5.2"
+  },
   "name": "Awido",
   "url": "https://github.com/Wilkware/",
-  "version": "1.5",
+  "version": "2.0",
   "build": 20201002,
   "date": 1601596800
 }
