@@ -15,6 +15,7 @@ class Awido extends IPSModule
      * @var array Key ist die clientID, Value ist der Name
      */
     public static $Clients = [
+        'unterhaching'      => 'Gemeinde Unterhaching',
         'awld'              => 'Lahn-Dill-Kreis',
         'aic-fdb'           => 'Landkreis Aichach-Friedberg',
         'awb-ak'            => 'Landkreis Altenkirchen',
@@ -26,12 +27,14 @@ class Awido extends IPSModule
         'awv-nordschwaben'  => 'Landkreis Dillingen a.d. Donau und Donau-Ries',
         'Erding'            => 'Landkreis Erding',
         'ffb'               => 'Landkreis Fürstenfeldbruck',
+        'gotha'             => 'Landkreis Gotha',
         'kaw-guenzburg'     => 'Landkreis Günzburg',
         'azv-hef-rof'       => 'Landkreis Hersfeld-Rotenburg',
         'kelheim'           => 'Landkreis Kelheim',
         'kronach'           => 'Landkreis Kronach',
         'landkreisbetriebe' => 'Landkreis Neuburg-Schrobenhausen',
         'rosenheim'         => 'Landkreis Rosenheim',
+        'lra-schweinfurt'   => 'Landkreis Schweinfurt',
         'eww-suew'          => 'Landkreis Südliche Weinstraße',
         'kreis-tir'         => 'Landkreis Tirschenreuth',
         'tuebingen'         => 'Landkreis Tübingen',
@@ -39,10 +42,12 @@ class Awido extends IPSModule
         'neustadt'          => 'Neustadt a.d. Waldnaab',
         'pullach'           => 'Pullach im Isartal',
         'rmk'               => 'Rems-Murr-Kreis',
+        'kaufbeuren'        => 'Stadt Kaufbeuren',
         'memmingen'         => 'Stadt Memmingen',
         'unterschleissheim' => 'Stadt Unterschleissheim',
         'zv-muc-so'         => 'Zweckverband München-Südost',
-        // Stand 14.08.2019 = 27 Landkreise
+        'zaso'              => 'Zweckverband Saale-Orla',
+        // Stand 01.10.2020 = 32 Landkreise
     ];
 
     /**

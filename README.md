@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.4.20190814-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Version](https://img.shields.io/badge/Modul%20Version-1.4.20201002-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://github.com/Wilkware/IPSymconAwido/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/IPSymconAwido/actions)
 
@@ -26,6 +26,7 @@ der bevorstehenden Entsorgungstermine (Abfallentsorgung).
 
 Derzeit unterstützt das Modul folgende Gebiete:
 
+* Gemeinde Unterhaching
 * Lahn-Dill-Kreis
 * Landkreis Altenkirchen
 * Landkreis Ansbach
@@ -36,12 +37,14 @@ Derzeit unterstützt das Modul folgende Gebiete:
 * Landkreis Dillingen a.d. Donau und Donau-Ries
 * Landkreis Erding
 * Landkreis Fürstenfeldbruck
+* Landkreis Gotha
 * Landkreis Günzburg
 * Landkreis Hersfeld-Rotenburg
 * Landkreis Kelheim
 * Landkreis Kronach
 * Landkreis Neuburg-Schrobenhausen
 * Landkreis Rosenheim
+* Landkreis Schweinfurt
 * Landkreis Südliche Weinstraße
 * Landkreis Tirschenreuth
 * Landkreis Tübingen
@@ -50,9 +53,11 @@ Derzeit unterstützt das Modul folgende Gebiete:
 * Neustadt a.d. Waldnaab
 * Pullach im Isartal
 * Rems-Murr-Kreis
+* Stadt Kaufbeuren
 * Stadt Memmingen
 * Stadt Unterschleissheim
 * Zweckverband München-Südost
+* Zweckverband Saale-Orla
 
 Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
@@ -116,6 +121,14 @@ Beispiel:
 `AWIDO_Update(12345);`
 
 ### 8. Versionshistorie
+
+v1.4.20201002
+
+* _NEU_: Gemeinde Unterhaching
+* _NEU_: Landkreis Gotha
+* _NEU_: Landkreis Schweinfurt
+* _NEU_: Stadt Kaufbeuren
+* _NEU_: Zweckverband Saale-Orla
 
 v1.4.20190814
 
