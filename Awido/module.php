@@ -282,7 +282,7 @@ class Awido extends IPSModule
     public function OnChangeClient($cId)
     {
         $clientId = $this->ReadPropertyString('clientID');
-        if($clientId != $cId) {
+        if ($clientId != $cId) {
             $this->ReloadForm();
         }
     }
