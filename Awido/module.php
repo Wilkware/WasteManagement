@@ -68,7 +68,7 @@ class Awido extends IPSModule
         // FractionIDs
         $this->RegisterPropertyString('fractionIDs', 'null');
         // Fractions
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 15; $i++) {
             $this->RegisterPropertyBoolean('fractionID' . $i, false);
         }
         // Variables
@@ -515,11 +515,11 @@ class Awido extends IPSModule
         $form = '{"code": 101, "icon": "inactive", "caption": "Creating instance."},
               {"code": 102, "icon": "active",   "caption": "AWIDO active."},
               {"code": 104, "icon": "inactive", "caption": "AWIDO inactive."},
-              {"code": 201, "icon": "inactive", "caption": "Select a valid refuse management!"},
-              {"code": 202, "icon": "inactive", "caption": "Select a valid place!"},
-              {"code": 203, "icon": "inactive", "caption": "Select a valid location/street!"},
-              {"code": 204, "icon": "inactive", "caption": "Select a valid street number!"},
-              {"code": 205, "icon": "inactive", "caption": "Select a offered disapsal!"}';
+              {"code": 201, "icon": "inactive", "caption": "Please select a valid refuse management!"},
+              {"code": 202, "icon": "inactive", "caption": "Please select a valid place!"},
+              {"code": 203, "icon": "inactive", "caption": "Please select a valid location/street!"},
+              {"code": 204, "icon": "inactive", "caption": "Please select a valid street number!"},
+              {"code": 205, "icon": "inactive", "caption": "Please select a offered disposals!"}';
 
         return $form;
     }
