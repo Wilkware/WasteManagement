@@ -175,6 +175,12 @@ if (!defined('IS_ACTIVE')) { //Nur wenn Konstanten noch nicht bekannt sind.
     define('IS_EBASE', 200);          //default errorcode
     define('IS_NOTCREATED', IS_EBASE + 1); //instance could not be created
 }
+if (!defined('vtBoolean')) { //Nur wenn Konstanten noch nicht bekannt sind.
+    define('vtBoolean', 0);
+    define('vtInteger', 1);
+    define('vtFloat', 2);
+    define('vtString', 3);
+}
 
 /**
  * Include all helper trait classes.

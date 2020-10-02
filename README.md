@@ -123,7 +123,7 @@ Beispiel:
 
 v2.0.20201002
 
-* _NEU_: Umstellung des Konfigurationsformulars auf dynamiche Konfiguration
+* _NEU_: Umstellung des Konfigurationsformulars auf dynamische Konfiguration
 * _NEU_: Gemeinde Unterhaching
 * _NEU_: Landkreis Gotha
 * _NEU_: Landkreis Schweinfurt
