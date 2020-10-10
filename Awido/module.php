@@ -133,7 +133,7 @@ class Awido extends IPSModule
         $jsonForm['elements'][3]['options'] = $this->GetAddonOptions();
         $data = $this->GetFractionOptions();
         foreach ($data as $fract) {
-            $jsonForm['elements'][$fract['id']+4]['caption'] = $fract['caption'];
+            $jsonForm['elements'][$fract['id'] + 4]['caption'] = $fract['caption'];
         }
         // Elements visible
         $jsonForm['elements'][1]['visible'] = ($clientId != 'null');
@@ -290,8 +290,7 @@ class Awido extends IPSModule
             if (IPS_ScriptExists($scriptId)) {
                 $rs = IPS_RunScript($scriptId);
                 $this->SendDebug('Script Execute: Return Value', $rs, 0);
-            }
-            else {
+            } else {
                 $this->SendDebug('AWIDO', 'Update: Script #' . $scriptId . ' existiert nicht!');
             }
         }
