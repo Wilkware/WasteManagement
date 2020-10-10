@@ -1,8 +1,8 @@
 # Awido - Abfallwirtschaft
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Product](https://img.shields.io/badge/Symcon%20Version-5.0%20%3E-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-2.0.20201002-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Product](https://img.shields.io/badge/Symcon%20Version-5.2-blue.svg)](https://www.symcon.de/produkt/)
+[![Version](https://img.shields.io/badge/Modul%20Version-2.0.20201010-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://github.com/Wilkware/IPSymconAwido/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/IPSymconAwido/actions)
 
@@ -63,7 +63,7 @@ Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
 ### 2. Voraussetzungen
 
-* IP-Symvon ab Version 5.0
+* IP-Symvon ab Version 5.2
 
 ### 3. Installation
 
@@ -99,9 +99,9 @@ Skript                  | Script, welches nach dem Update der Termine ausgeführ
 
 Die Statusvariablen/Timer werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 
-Name                 | Typ       | Beschreibung
--------------------- | --------- | ----------------
-Entsorgungsart(1-15) | String    | Abhängig vom Entsorgungsgebiet und den angebotenem Service mehrere Variablen, z.B.: Restmüll, Biotonne usw.
+Name               | Typ       | Beschreibung
+-------------------| --------- | ----------------
+Entsorgungsart(en) | String    | Abhängig vom Entsorgungsgebiet und den angebotenem Service mehrere Variablen, z.B.: Restmüll, Biotonne usw.
 
 Es werden keine zusätzlichen Profile benötigt.
 
@@ -121,7 +121,7 @@ Beispiel:
 
 ### 8. Versionshistorie
 
-v2.0.20201002
+v2.0.20201010
 
 * _NEU_: Umstellung des Konfigurationsformulars auf dynamische Konfiguration
 * _NEU_: Gemeinde Unterhaching
@@ -131,6 +131,7 @@ v2.0.20201002
 * _NEU_: Zweckverband Saale-Orla
 * _FIX_: Maximale Anzahl an Entsorgungsarten angepasst
 * _FIX_: Dokumentation überarbeitet
+* _FIX_: Debug Meldungen erweitert bzw. korriegiert
 * _FIX_: Englische Übersetzung korrigiert
 
 v1.4.20190814

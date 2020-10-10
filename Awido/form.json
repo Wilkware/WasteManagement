@@ -1,2 +1,63 @@
 {
+    "elements":
+    [
+        { "type": "Select", "name": "clientID", "caption": "Refuse management:", "onChange": "IPS_RequestAction($id,'OnChangeClient',$clientID);",
+            "options": [
+                {"caption": "Please select ...", "value": "null" }
+            ]
+        },
+        { "type": "Select", "name": "placeGUID", "caption": "Location:", "visible": false , "onChange": "IPS_RequestAction($id,'OnChangePlace',$placeGUID);",
+            "options": [
+                {"caption": "Please select ...", "value": "null" }
+            ]
+        },
+        { "type": "Select", "name": "streetGUID", "caption": "District/Street:", "visible": false , "onChange": "IPS_RequestAction($id,'OnChangeStreet',$streetGUID);",
+            "options": [
+                {"caption": "Please select ...", "value": "null" }
+            ]
+        },
+        { "type": "Select", "name": "addonGUID", "caption": "Street number:", "visible": false , "onChange": "IPS_RequestAction($id,'OnChangeAddon',$addonGUID);",
+            "options": [
+                {"caption": "Please select ...", "value": "null" }
+            ]
+        },
+        { "type": "Label", "name": "labelFraction", "caption": "The following disposals are offered:", "visible": false },
+        { "type": "CheckBox", "name": "fractionID1", "visible": false },
+        { "type": "CheckBox", "name": "fractionID2", "visible": false },
+        { "type": "CheckBox", "name": "fractionID3", "visible": false },
+        { "type": "CheckBox", "name": "fractionID4", "visible": false },
+        { "type": "CheckBox", "name": "fractionID5", "visible": false },
+        { "type": "CheckBox", "name": "fractionID6", "visible": false },
+        { "type": "CheckBox", "name": "fractionID7", "visible": false },
+        { "type": "CheckBox", "name": "fractionID8", "visible": false },
+        { "type": "CheckBox", "name": "fractionID9", "visible": false },
+        { "type": "CheckBox", "name": "fractionID10", "visible": false },
+        { "type": "CheckBox", "name": "fractionID11", "visible": false },
+        { "type": "CheckBox", "name": "fractionID12", "visible": false },
+        { "type": "CheckBox", "name": "fractionID13", "visible": false },
+        { "type": "CheckBox", "name": "fractionID14", "visible": false },
+        { "type": "CheckBox", "name": "fractionID15", "visible": false },
+        { "type": "Label", "name": "labelVariables", "caption": "Variable creation:", "visible": false },
+        { "type": "CheckBox", "name": "createVariables", "caption": "Create variables for non-selected disposals?", "visible": false },
+        { "type": "Label", "name": "labelActive", "caption": "The following selection box activates or deactivates the instance:", "visible": false },
+        { "type": "CheckBox", "name": "activateAWIDO", "caption": "Activate daily update?", "visible": false },
+        { "type": "Label", "name": "labelScript", "caption": "Call the following scipt after update the dates:", "visible": false },
+        { "type": "SelectScript", "name": "scriptID", "caption": "Script:", "visible": false }
+    ],
+    "actions":
+    [
+        { "type": "Label", "name": "updateLabel", "caption": "Update dates.", "visible": false  },
+        { "type": "Button", "name": "updateButton", "caption": "Update", "onClick": "AWIDO_Update($id);", "visible": false }
+    ],
+    "status":
+    [
+        { "code": 101, "icon": "inactive", "caption": "Creating instance." },
+        { "code": 102, "icon": "active",   "caption": "AWIDO active." },
+        { "code": 104, "icon": "inactive", "caption": "AWIDO inactive." },
+        { "code": 201, "icon": "inactive", "caption": "Please select a valid refuse management!" },
+        { "code": 202, "icon": "inactive", "caption": "Please select a valid place!" },
+        { "code": 203, "icon": "inactive", "caption": "Please select a valid location/street!" },
+        { "code": 204, "icon": "inactive", "caption": "Please select a valid street number!" },
+        { "code": 205, "icon": "inactive", "caption": "Please select a offered disposals!" }
+    ]
 }
