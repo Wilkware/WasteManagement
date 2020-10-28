@@ -131,7 +131,7 @@ v2.0.20201010
 * _NEU_: Zweckverband Saale-Orla
 * _FIX_: Maximale Anzahl an Entsorgungsarten angepasst
 * _FIX_: Dokumentation überarbeitet
-* _FIX_: Debug Meldungen erweitert bzw. korriegiert
+* _FIX_: Debug Meldungen erweitert bzw. korrigiert
 * _FIX_: Englische Übersetzung korrigiert
 
 v1.4.20190814
