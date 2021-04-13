@@ -1,0 +1,13 @@
+{
+  "translations": {
+    "de": {
+        "\nWaste Management Configurator\n ": "\nAbfallwirtschafts-Konfigurator\n ",
+        "With the help of this configurator, one can select from the list of currently available online services for providing disposal dates and configure an instance for one's own home town.": "Mit Hilfe dieser Konfigurators kann man aus der Liste der aktuell verfügbaren Online-Diensten zur Bereitstellung von Entsorgungsterminen auswählen und eine Instanz für seinen eigenen Heimatort konfigurieren.",
+        "Target Category:": "Zielkategorie:",
+        "Provider:": "Anbieter:",
+        "Short description": "Kurzbeschreibung",
+        "Online service": "Online Dienst",
+        "New disposal calendar": "Neuer Entsorgungskalender"
+    }
+  }
+}
