@@ -23,15 +23,14 @@ trait ServiceHelper
      * Supported Service Provider
      */
     private static $PROVIDERS = [
-        "awido" => [1, "{8A591704-E699-4F78-A728-490210FDE747}", "AWIDO" , "awido-online.de", "Die Web-Anwendung mit alle wichtigen Entsorgungstermine online!" ],
-        "abpio" => [2, "{53922265-6F58-E833-34A1-52D44D1C8D3F}", "Abfall.IO", "abfallplus.de", "Abfall+ ist die Lösung für elektronische Bürgerdienste in der Abfallwirtschaft!"],
+        'awido' => [1, '{8A591704-E699-4F78-A728-490210FDE747}', 'AWIDO', 'awido-online.de', 'Die Web-Anwendung mit alle wichtigen Entsorgungstermine online!'],
+        'abpio' => [2, '{53922265-6F58-E833-34A1-52D44D1C8D3F}', 'Abfall.IO', 'abfallplus.de', 'Abfall+ ist die Lösung für elektronische Bürgerdienste in der Abfallwirtschaft!'],
     ];
-
 
     /**
      * API URL for Client IDs
      */
-    private static $CLIENTS = "https://api.asmium.de/waste/de/";
+    private static $CLIENTS = 'https://api.asmium.de/waste/de/';
 
     /**
      * Maximale Anzahl an Entsorgungsarten
@@ -48,7 +47,7 @@ trait ServiceHelper
         // Options
         $options = [];
         // Build array
-        foreach(static::$PROVIDERS as $key => $value) {
+        foreach (static::$PROVIDERS as $key => $value) {
             $options[] = ['caption' => $value[2] . ' (' . $value[3] . ')', 'value' => $key];
         }
         //$this->SendDebug(__FUNCTION__, $options);

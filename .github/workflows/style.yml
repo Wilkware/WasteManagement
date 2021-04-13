@@ -2,6 +2,11 @@ name: Check Style
 
 on: [push, pull_request]
 
+on:
+  push:
+    paths:
+    - '!libs/ics-parser/**'
+
 jobs:
 
   style:
