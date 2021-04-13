@@ -2,58 +2,22 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/../libs/traits.php';  // Allgemeine Funktionen
+// Generell funktions
+require_once __DIR__ . '/../libs/_traits.php';
 
-// CLASS Awido
+// CLASS Abfall_IO
 class Awido extends IPSModule
 {
     use EventHelper;
     use DebugHelper;
+    use ServiceHelper;
 
-    /**
-     * Bekannte Client IDs - Array.
-     * Key ist die clientID, Value ist der Name
-     * Stand 01.10.2020 = 32 Landkreise
-     */
-    private static $CLIENTS = [
-        'unterhaching'      => 'Gemeinde Unterhaching',
-        'awld'              => 'Lahn-Dill-Kreis',
-        'aic-fdb'           => 'Landkreis Aichach-Friedberg',
-        'awb-ak'            => 'Landkreis Altenkirchen',
-        'ansbach'           => 'Landkreis Ansbach',
-        'awb-duerkheim'     => 'Landkreis Bad Dürkheim',
-        'wgv'               => 'Landkreis Bad Tölz-Wolfratshausen',
-        'bgl'               => 'Landkreis Berchtesgadener Land',
-        'coburg'            => 'Landkreis Coburg',
-        'awv-nordschwaben'  => 'Landkreis Dillingen a.d. Donau und Donau-Ries',
-        'Erding'            => 'Landkreis Erding',
-        'ffb'               => 'Landkreis Fürstenfeldbruck',
-        'gotha'             => 'Landkreis Gotha',
-        'kaw-guenzburg'     => 'Landkreis Günzburg',
-        'azv-hef-rof'       => 'Landkreis Hersfeld-Rotenburg',
-        'kelheim'           => 'Landkreis Kelheim',
-        'kronach'           => 'Landkreis Kronach',
-        'landkreisbetriebe' => 'Landkreis Neuburg-Schrobenhausen',
-        'rosenheim'         => 'Landkreis Rosenheim',
-        'lra-schweinfurt'   => 'Landkreis Schweinfurt',
-        'eww-suew'          => 'Landkreis Südliche Weinstraße',
-        'kreis-tir'         => 'Landkreis Tirschenreuth',
-        'tuebingen'         => 'Landkreis Tübingen',
-        'lra-dah'           => 'Landratsamt Dachau',
-        'neustadt'          => 'Neustadt a.d. Waldnaab',
-        'pullach'           => 'Pullach im Isartal',
-        'rmk'               => 'Rems-Murr-Kreis',
-        'kaufbeuren'        => 'Stadt Kaufbeuren',
-        'memmingen'         => 'Stadt Memmingen',
-        'unterschleissheim' => 'Stadt Unterschleissheim',
-        'zv-muc-so'         => 'Zweckverband München-Südost',
-        'zaso'              => 'Zweckverband Saale-Orla',
-    ];
-
-    /**
-     * Maximale Anzahl an Entsorgungsarten
-     */
-    private static $FRACTIONS = 15;
+    const SERVICE_PROVIDER = 'awido';
+    // Form Elements Positions
+    const ELEM_IMAGE = 0;
+    const ELEM_LABEL = 1;
+    const ELEM_PROVI = 2;
+    const ELEM_AWIDO = 3;
 
     /**
      * Create.
@@ -62,8 +26,9 @@ class Awido extends IPSModule
     {
         //Never delete this line!
         parent::Create();
-
-        // Properties
+        // Service Provider
+        $this->RegisterPropertyString('serviceProvider', self::SERVICE_PROVIDER);
+        // Waste Management 
         $this->RegisterPropertyString('clientID', 'null');
         $this->RegisterPropertyString('placeGUID', 'null');
         $this->RegisterPropertyString('streetGUID', 'null');
@@ -72,16 +37,17 @@ class Awido extends IPSModule
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
             $this->RegisterPropertyBoolean('fractionID' . $i, false);
         }
+        // Advanced Settings
         $this->RegisterPropertyBoolean('createVariables', false);
-        $this->RegisterPropertyBoolean('activateAWIDO', false);
+        $this->RegisterPropertyBoolean('activateAWIDO', true);
         $this->RegisterPropertyInteger('scriptID', 0);
-        // Attributes für dynmaisches Konfigurationsformular (> v2.0)
+        // Attributes for dynamic configuration forms (> v2.0)
         $this->RegisterAttributeString('cID', 'null');
         $this->RegisterAttributeString('pID', 'null');
         $this->RegisterAttributeString('sID', 'null');
         $this->RegisterAttributeString('aID', 'null');
         $this->RegisterAttributeString('fID', 'null');
-        // Register täglichen Update-Timer
+        // Register daily update timer
         $this->RegisterTimer('UpdateTimer', 0, 'AWIDO_Update(' . $this->InstanceID . ');');
     }
 
@@ -100,10 +66,10 @@ class Awido extends IPSModule
         $fractIds = $this->ReadPropertyString('fractionIDs');
         $activate = $this->ReadPropertyBoolean('activateAWIDO');
         // Debug output
-        $this->SendDebug('GetConfigurationForm', 'clientID=' . $clientId . ', placeId=' . $placeId . ', streetId=' . $streetId . ', addonId=' . $addonId . ', fractIds=' . $fractIds);
+        $this->SendDebug(__FUNCTION__, 'clientID=' . $clientId . ', placeId=' . $placeId . ', streetId=' . $streetId . ', addonId=' . $addonId . ', fractIds=' . $fractIds);
 
         // Check properties
-        if ($clientId == 'null') {
+       if ($clientId == 'null') {
             $placeId = 'null';
         }
         if ($placeId == 'null') {
@@ -123,33 +89,31 @@ class Awido extends IPSModule
         $this->WriteAttributeString('sID', $streetId);
         $this->WriteAttributeString('aID', $addonId);
         $this->WriteAttributeString('fID', $fractIds);
+        // Debug output
+        $this->SendDebug(__FUNCTION__, 'cID=' . $clientId . ', pId=' . $placeId . ', sId=' . $streetId . ', aId=' . $addonId . ', fId=' . $fractIds);
 
         // Get Basic Form
         $jsonForm = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
-        // Build Form
-        $jsonForm['elements'][0]['options'] = $this->GetClientOptions();
-        $jsonForm['elements'][1]['options'] = $this->GetPlaceOptions();
-        $jsonForm['elements'][2]['options'] = $this->GetStreetOptions();
-        $jsonForm['elements'][3]['options'] = $this->GetAddonOptions();
+        // Service Provider
+        $jsonForm['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
+        // Waste Management
+        $jsonForm['elements'][self::ELEM_AWIDO]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER);
+        $jsonForm['elements'][self::ELEM_AWIDO]['items'][1]['items'][0]['options'] = $this->GetPlaceOptions();
+        $jsonForm['elements'][self::ELEM_AWIDO]['items'][2]['items'][0]['options'] = $this->GetStreetOptions();
+        $jsonForm['elements'][self::ELEM_AWIDO]['items'][2]['items'][1]['options'] = $this->GetAddonOptions();
         $data = $this->GetFractionOptions();
         foreach ($data as $fract) {
-            $jsonForm['elements'][$fract['id'] + 4]['caption'] = $fract['caption'];
+            $jsonForm['elements'][self::ELEM_AWIDO]['items'][$fract['id'] + 3]['caption'] = $fract['caption'];
         }
-        // Elements visible
-        $jsonForm['elements'][1]['visible'] = ($clientId != 'null');
-        $jsonForm['elements'][2]['visible'] = ($placeId != 'null');
-        $jsonForm['elements'][3]['visible'] = ($streetId != 'null');
-        $jsonForm['elements'][4]['visible'] = ($addonId != 'null');
+        // Elements visible (client always visible)
+        $jsonForm['elements'][self::ELEM_AWIDO]['items'][1]['items'][0]['visible'] = ($clientId != 'null');
+        $jsonForm['elements'][self::ELEM_AWIDO]['items'][2]['items'][0]['visible'] = ($placeId != 'null');
+        $jsonForm['elements'][self::ELEM_AWIDO]['items'][2]['items'][1]['visible'] = ($streetId != 'null');
+        $jsonForm['elements'][self::ELEM_AWIDO]['items'][3]['visible'] = ($addonId != 'null');
         $ids = explode(',', $fractIds);
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
-            $jsonForm['elements'][$i + 4]['visible'] = in_array($i, $ids);
+            $jsonForm['elements'][self::ELEM_AWIDO]['items'][$i + 3]['visible'] = in_array($i, $ids);
         }
-        $jsonForm['elements'][20]['visible'] = ($addonId != 'null');
-        $jsonForm['elements'][21]['visible'] = ($addonId != 'null');
-        $jsonForm['elements'][22]['visible'] = ($addonId != 'null');
-        $jsonForm['elements'][23]['visible'] = ($addonId != 'null');
-        $jsonForm['elements'][24]['visible'] = ($addonId != 'null');
-        $jsonForm['elements'][25]['visible'] = ($addonId != 'null');
         // Actions visible
         $jsonForm['actions'][0]['visible'] = ($addonId != 'null');
         $jsonForm['actions'][1]['visible'] = ($addonId != 'null');
@@ -169,7 +133,7 @@ class Awido extends IPSModule
         $addonId = $this->ReadPropertyString('addonGUID');
         $fractIds = $this->ReadPropertyString('fractionIDs');
         $activate = $this->ReadPropertyBoolean('activateAWIDO');
-        $this->SendDebug('AWIDO', 'ApplyChanges: clientID=' . $clientId . ', placeId=' . $placeId . ', streetId=' . $streetId . ', addonId=' . $addonId . ', fractIds=' . $fractIds);
+        $this->SendDebug(__FUNCTION__, 'clientID=' . $clientId . ', placeId=' . $placeId . ', streetId=' . $streetId . ', addonId=' . $addonId . ', fractIds=' . $fractIds);
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
         //$status = 102;
@@ -188,7 +152,7 @@ class Awido extends IPSModule
             $status = 102;
             // Time neu berechnen
             $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
-            $this->SendDebug('AWIDO', 'ApplyChanges: Timer aktiviert!');
+            $this->SendDebug(__FUNCTION__, 'Timer aktiviert!');
         } else {
             $status = 104;
         }
@@ -196,25 +160,94 @@ class Awido extends IPSModule
         $this->SetStatus($status);
     }
 
+    /**
+     * RequestAction.
+     *
+     *  @param string $ident Ident (function name).
+     *  @param string $value Value.
+     */
     public function RequestAction($ident, $value)
     {
         // Debug output
-        $this->SendDebug('RequestAction', $ident . ' => ' . $value);
-        switch ($ident) {
-            case 'OnChangeClient':
-                $this->OnChangeClient($value);
-            break;
-            case 'OnChangePlace':
-                $this->OnChangePlace($value);
-            break;
-            case 'OnChangeStreet':
-                $this->OnChangeStreet($value);
-            break;
-            case 'OnChangeAddon':
-                $this->OnChangeAddon($value);
-            break;
-        }
+        $this->SendDebug(__FUNCTION__, $ident . ' => ' . $value);
+        eval('$this->' . $ident . '(\'' . $value . '\');');
         return true;
+    }
+
+    /**
+     * User has selected a new waste management.
+     *
+     * @param string $id Client ID .
+     */
+    protected function OnChangeClient($id)
+    {
+        // Update attribute
+        $this->WriteAttributeString('cID', $id);
+        $this->SendDebug(__FUNCTION__, $id);
+        // Places
+        $this->UpdateFormField('placeGUID', 'value', 'null');
+        $this->UpdateFormField('placeGUID', 'options', json_encode($this->GetPlaceOptions()));
+        // Street
+        $this->UpdateFormField('streetGUID', 'value', 'null');
+        // Addon
+        $this->UpdateFormField('addonGUID', 'value', 'null');
+        // Hide or Unhide properties
+        $this->ChangeVisiblity($id != 'null', false, false, false);
+    }
+
+    /**
+     * User has selected a new place.
+     *
+     * @param string $id Place GUID .
+     */
+    protected function OnChangePlace($id)
+    {
+        // Update attribute
+        $this->WriteAttributeString('pID', $id);
+        $this->SendDebug(__FUNCTION__, $id);
+        // Street
+        $this->UpdateFormField('streetGUID', 'value', 'null');
+        $this->UpdateFormField('streetGUID', 'options', json_encode($this->GetStreetOptions()));
+        // Addon
+        $this->UpdateFormField('addonGUID', 'value', 'null');
+        // Hide or Unhide properties
+        $this->ChangeVisiblity(true, $id != 'null', false, false);
+    }
+
+    /**
+     * Benutzer hat eine neue Straße oder Ortsteil ausgewählt.
+     *
+     * @param string $id Street GUID .
+     */
+    protected function OnChangeStreet($id)
+    {
+        // Update attribute
+        $this->WriteAttributeString('sID', $id);
+        $this->SendDebug(__FUNCTION__, $id);
+        // Addon
+        $this->UpdateFormField('addonGUID', 'value', 'null');
+        $this->UpdateFormField('addonGUID', 'options', json_encode($this->GetAddonOptions()));
+        // Hide or Unhide properties
+        $this->ChangeVisiblity(true, true, $id != 'null', false);
+    }
+
+    /**
+     * Benutzer hat eine neue Hausnummer ausgewählt.
+     *
+     * @param string $id Addon GUID .
+     */
+    protected function OnChangeAddon($id)
+    {
+        // Update attribute
+        $this->WriteAttributeString('aID', $id);
+        $this->SendDebug(__FUNCTION__, $id);
+        // Fraction
+        $data = $this->GetFractionOptions();
+        foreach ($data as $fract) {
+            $this->UpdateFormField('fractionID' . $fract['id'], 'caption', $fract['caption']);
+        }
+        // Hide or Unhide properties
+        $this->ChangeVisiblity(true, true, true, $id != 'null');
     }
 
     /**
@@ -289,9 +322,9 @@ class Awido extends IPSModule
         if ($scriptId != 0) {
             if (IPS_ScriptExists($scriptId)) {
                 $rs = IPS_RunScript($scriptId);
-                $this->SendDebug('Script Execute: Return Value', $rs, 0);
+                $this->SendDebug(__FUNCTION__, 'Script Execute (Return Value): ' . $rs, 0);
             } else {
-                $this->SendDebug('AWIDO', 'Update: Script #' . $scriptId . ' existiert nicht!');
+                $this->SendDebug(__FUNCTION__, 'Update: Script #' . $scriptId . ' existiert nicht!');
             }
         }
 
@@ -303,37 +336,20 @@ class Awido extends IPSModule
     }
 
     /**
-     * Liefert für DropDown-Menü die auswählbaren Clients/IDs (Abfallwirtschaften).
+     * Returns for the dropdown menu the selectable locations in the desorking area.
      *
-     * @return array Liste mit Abfallwirtschaften (Clients).
-     */
-    protected function GetClientOptions()
-    {
-        $options = [];
-        // Default key
-        $options[] = ['caption' => 'Please select ...', 'value' => 'null'];
-        // Client List
-        foreach (static::$CLIENTS as $Client => $Name) {
-            $options[] = ['caption' => $Name, 'value'=> $Client];
-        }
-        return $options;
-    }
-
-    /**
-     * Liefert für DropDown-Menü die auswählbaren Orte im Entsorkungsgebiet.
-     *
-     * @return array Liste mit Orten.
+     * @return array List of places.
      */
     protected function GetPlaceOptions()
     {
-        // aktuelle Client ID
+        // Client ID
         $cId = $this->ReadAttributeString('cID');
-        $this->SendDebug('GetPlaceOptions', $cId);
+        $this->SendDebug(__FUNCTION__, $cId);
         // Options
         $options = [];
         // Default key
-        $options[] = ['caption' => 'Please select ...', 'value' => 'null'];
-        // Daten abholen
+        $options[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
+        // Data
         if ($cId != 'null') {
             $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getPlaces/client=' . $cId;
             $json = file_get_contents($url);
@@ -342,54 +358,58 @@ class Awido extends IPSModule
                 $options[] = ['caption' => $place->value, 'value' => $place->key];
             }
         }
+        //$this->SendDebug(__FUNCTION__, $options);
         return $options;
     }
 
     /**
-     * Liefert für DropDown-Menü die auswählbaren OT/Strassen im Entsorkungsgebiet.
+     * Returns for the dropdown menu the selectable streets in the desorking area.
      *
-     * @return array Liste mit Ortsteil/Strasse.
+     * @return array List of streets.
      */
     protected function GetStreetOptions()
     {
-        // aktuelle Client ID
-        $cId = $this->ReadAttributeString('cID');
-        // aktuelle Palces GUID
-        $pId = $this->ReadAttributeString('pID');
-        $this->SendDebug('GetStreetOptions', $pId);
-        // Options
-        $options = [];
-        // Default key
-        $options[] = ['caption' => 'Please select ...', 'value' => 'null'];
-        // Daten abholen
-        if ($cId != 'null' & $pId != 'null') {
-            $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getGroupedStreets/' . $pId . '?selectedOTId=null&client=' . $cId;
-            $json = file_get_contents($url);
-            $data = json_decode($json);
-            foreach ($data as $street) {
-                $options[] = ['caption' => $street->value, 'value' => $street->key];
-            }
-        }
-        return $options;
+       // Client ID
+       $cId = $this->ReadAttributeString('cID');
+       $this->SendDebug(__FUNCTION__, $cId);
+       // Palces GUID
+       $pId = $this->ReadAttributeString('pID');
+       $this->SendDebug(__FUNCTION__, $pId);
+       // Options
+       $options = [];
+       // Default key
+       $options[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
+       // Data
+       if ($cId != 'null' & $pId != 'null') {
+           $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getGroupedStreets/' . $pId . '?selectedOTId=null&client=' . $cId;
+           $json = file_get_contents($url);
+           $data = json_decode($json);
+           foreach ($data as $street) {
+               $options[] = ['caption' => $street->value, 'value' => $street->key];
+           }
+       }
+        //$this->SendDebug(__FUNCTION__, $options);
+        return $options;        
     }
 
     /**
-     * Liefert für DropDown-Menü die auswählbaren Hausnummern im Entsorkungsgebiet.
+     * Returns for the dropdown menu the selectable house numbers in the desorking area.
      *
-     * @return string Liste mit Hausnummern.
+     * @return string List of house numbers.
      */
     protected function GetAddonOptions()
     {
-        // aktuelle Client ID
+        // Client ID
         $cId = $this->ReadAttributeString('cID');
-        // aktuelle Street GUID
+        $this->SendDebug(__FUNCTION__, $cId);
+        // Street GUID
         $sId = $this->ReadAttributeString('sID');
-        $this->SendDebug('GetAddonOptions', $sId);
+        $this->SendDebug(__FUNCTION__, $sId);
         // Options
         $options = [];
         // Default key
-        $options[] = ['caption' => 'Please select ...', 'value' => 'null'];
-        // Daten abholen
+        $options[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
+        // Data
         if ($cId != 'null' & $sId != 'null') {
             $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getStreetAddons/' . $sId . '?client=' . $cId;
             $json = file_get_contents($url);
@@ -401,22 +421,23 @@ class Awido extends IPSModule
                 $options[] = ['caption' => $addon->value, 'value' => $addon->key];
             }
         }
+        //$this->SendDebug(__FUNCTION__, $options);
         return $options;
     }
 
     /**
-     * Liefert die angebotenen Entsorgungen für die ausgewählte Strasse.
+     * Delivers the offered disposals for the selected street.
      */
     protected function GetFractionOptions()
     {
-        // aktuelle Client ID
+        // Client ID
         $cId = $this->ReadAttributeString('cID');
-        $this->SendDebug('GetFractionOptions', $cId);
+        $this->SendDebug(__FUNCTION__, $cId);
         // Options
         $options = [];
         // Active IDs
         $ids = [];
-        // Daten abholen
+        // Data
         if ($cId != 'null') {
             $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=' . $cId;
             $json = file_get_contents($url);
@@ -428,92 +449,17 @@ class Awido extends IPSModule
         }
         IPS_SetProperty($this->InstanceID, 'fractionIDs', implode(',', $ids));
         $this->WriteAttributeString('fID', implode(',', $ids));
-
+        //$this->SendDebug(__FUNCTION__, $options);
         return $options;
-    }
-
-    /**
-     * Benutzer hat einen neues Entsorgungsgebiet ausgewählt.
-     *
-     * @param string $id Client ID .
-     */
-    protected function OnChangeClient($id)
-    {
-        $this->WriteAttributeString('cID', $id);
-        // Places
-        $this->UpdateFormField('placeGUID', 'value', 'null');
-        $this->UpdateFormField('placeGUID', 'options', json_encode($this->GetPlaceOptions()));
-        $this->UpdateFormField('placeGUID', 'visible', $id != 'null');
-        // Street
-        $this->UpdateFormField('streetGUID', 'value', 'null');
-        // Addon
-        $this->UpdateFormField('addonGUID', 'value', 'null');
-
-        // Hide or Unhide properties
-        $this->ChangeVisiblity(true, $id != 'null', false, false, false, false);
-    }
-
-    /**
-     * Benutzer hat einen neues Entsorgungsort ausgewählt.
-     *
-     * @param string $id Place GUID .
-     */
-    protected function OnChangePlace($id)
-    {
-        $this->WriteAttributeString('pID', $id);
-        // Street
-        $this->UpdateFormField('streetGUID', 'value', 'null');
-        $this->UpdateFormField('streetGUID', 'options', json_encode($this->GetStreetOptions()));
-        $this->UpdateFormField('streetGUID', 'visible', $id != 'null');
-        // Addon
-        $this->UpdateFormField('addonGUID', 'value', 'null');
-
-        // Hide or Unhide properties
-        $this->ChangeVisiblity(true, true, $id != 'null', false, false, false);
-    }
-
-    /**
-     * Benutzer hat eine neue Straße oder Ortsteil ausgewählt.
-     *
-     * @param string $id Street GUID .
-     */
-    protected function OnChangeStreet($id)
-    {
-        $this->WriteAttributeString('sID', $id);
-        // Addon
-        $this->UpdateFormField('addonGUID', 'value', 'null');
-        $this->UpdateFormField('addonGUID', 'options', json_encode($this->GetAddonOptions()));
-        $this->UpdateFormField('addonGUID', 'visible', $id != 'null');
-
-        // Hide or Unhide properties
-        $this->ChangeVisiblity(true, true, true, $id != 'null', false, false);
-    }
-
-    /**
-     * Benutzer hat eine neue Hausnummer ausgewählt.
-     *
-     * @param string $id Addon GUID .
-     */
-    protected function OnChangeAddon($id)
-    {
-        $this->WriteAttributeString('aID', $id);
-        // Fraction
-        $data = $this->GetFractionOptions();
-        foreach ($data as $fract) {
-            $this->UpdateFormField('fractionID' . $fract['id'], 'caption', $fract['caption']);
-        }
-        // Hide or Unhide properties
-        $this->ChangeVisiblity(true, true, true, true, $id != 'null', $id != 'null');
     }
 
     /**
      * Hide/unhide form fields.
      *
      */
-    protected function ChangeVisiblity($cl, $pl, $st, $ad, $fr, $op)
+    protected function ChangeVisiblity($pl, $st, $ad, $fr)
     {
         // Select Properties
-        $this->UpdateFormField('clientID', 'visible', $cl);
         $this->UpdateFormField('placeGUID', 'visible', $pl);
         $this->UpdateFormField('streetGUID', 'visible', $st);
         $this->UpdateFormField('addonGUID', 'visible', $ad);
@@ -523,16 +469,9 @@ class Awido extends IPSModule
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
             $this->UpdateFormField('fractionID' . $i, 'visible', $fr && in_array($i, $ids));
         }
-        // Settings Checkpoxes
-        $this->UpdateFormField('labelVariables', 'visible', $op);
-        $this->UpdateFormField('createVariables', 'visible', $op);
-        $this->UpdateFormField('labelActive', 'visible', $op);
-        $this->UpdateFormField('activateAWIDO', 'visible', $op);
-        $this->UpdateFormField('labelScript', 'visible', $op);
-        $this->UpdateFormField('scriptID', 'visible', $op);
         // Action area
-        $this->UpdateFormField('updateLabel', 'visible', $op);
-        $this->UpdateFormField('updateButton', 'visible', $op);
+        $this->UpdateFormField('updateLabel', 'visible', $fr);
+        $this->UpdateFormField('updateButton', 'visible', $fr);
     }
 
     /**

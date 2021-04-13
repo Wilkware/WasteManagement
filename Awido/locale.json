@@ -1,29 +1,34 @@
 {
   "translations": {
     "de": {
-      "Please select ...": "Bitte wählen ...",
-      "Refuse management:": "Abfallwirtschaft:",
-      "Location:": "Ort:",
+      "\nAWIDO – Disposal calendar\n ": "\nAWIDO – Entsorgungskalender\n ",
+      "This module uses the data provided by the AWIDO online service to display upcoming disposal dates.": "Dieses Modul nutzt die vom Online-Dienst AWIDO bereitgestellten Daten zur Darstellung der bevorstehenden Entsorgungstermine.",
+      "Online service ...": "Online Dienst ...",
+      "Provider:": "Anbieter:",
+      "Waste management ...": "Abfallwirtschaft ...",
+      "Please select ...": "Bitte wählen ...",
+      "Disposal area:": "Entsorgungsgebiet:",
+      "Location:": "Stadt/Gemeinde:",
       "District/Street:": "Ortsteil/Strasse:",
-      "Street number:": "Hausnummer:",
+      "Number:": "Hausnummer:",
       "All": "Alle",
       "The following disposals are offered:": "Folgende Entsorgungen werden angeboten:",
-      "Variable creation:": "Variablenerstellung:",
+      "Advanced settings ...": "Erweiterte Einstellungen ...",
       "Create variables for non-selected disposals?": "Variablen für nicht ausgewählte Entsorgungen erstellen?",
-      "The following selection box activates or deactivates the instance:": "Die nachfolgende Auswahlbox aktiviert bzw. deaktiviert die Instanz:",
       "Activate daily update?": "Tägliche Aktualisierung aktivieren?",
-      "Call the following scipt after update the dates:": "Nach Aktualisierung der Werte folgendes Script aufrufen:",
+      "... call the following scipt after update the dates:": "... nach Aktualisierung der Werte folgendes Script aufrufen:",
       "Script:": "Script:",
       "Update dates.": "Werte aktualisieren!",
-      "Update": "Aktualisieren",            
+      "Update": "Aktualisieren",
       "Creating instance.": "Die Instanz wird erstellt.",
-      "AWIDO active.": "Instanz ist aktiv.",
-      "AWIDO inactive.": "Instanz ist inaktiv.",
+      "Instance active.": "Instanz ist aktiv.",
+      "Instance inactive.": "Instanz ist inaktiv.",
       "Please select a valid refuse management!": "Bitte eine Abfallwirtschaft auswählen!",
       "Please select a valid place!": "Bitte eine Ort auswählen!",
       "Please select a valid location/street!": "Bitte einen Ortsteil bzw. Strasse auswählen!",
       "Please select a valid street number!": "Bitte eine Hausnummer auswählen!",
-      "Please select a offered disposals!": "Bitte die angebotenen Entsorgungen auswählen!"
+      "Please select a offered disposals!": "Bitte die angebotenen Entsorgungen auswählen!",
+      "Could not load json data!": "Konnte JSON Daten nicht laden!"
     }
   }
 }

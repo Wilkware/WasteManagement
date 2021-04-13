@@ -1,15 +1,16 @@
 {
-  "id": "{8A591704-E699-4F78-A728-490210FDE747}",
-  "name": "Awido",
-  "type": 3,
-  "vendor": "",
-  "aliases":
-  [
-    "Abfallwirtschaft"
-  ],
-  "url": "https://wilkware.de/ip-symcon-module/abfallwirtschaft/",
-  "parentRequirements": [],
-  "childRequirements": [],
-  "implemented": [],
-  "prefix": "AWIDO"
+    "id": "{8A591704-E699-4F78-A728-490210FDE747}",
+    "name": "Awido",
+    "type": 3,
+    "vendor": "",
+    "aliases":
+    [
+      "Abfallwirtschaft (Awido)",
+      "Entsorgungskalender (Awido)"
+    ],
+    "url": "https://wilkware.de/ip-symcon-module/abfallwirtschaft/",
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "AWIDO"
 }
