@@ -1,0 +1,16 @@
+{
+    "id": "{53922265-6F58-E833-34A1-52D44D1C8D3F}",
+    "name": "Abfall_IO",
+    "type": 3,
+    "vendor": "",
+    "aliases":
+    [
+      "Abfallwirtschaft (Abfall.IO)",
+      "Entsorgungskalender (Abfall.IO)"
+    ],
+    "url": "https://wilkware.de/ip-symcon-module/abfallwirtschaft/",
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "ABPIO"
+}
