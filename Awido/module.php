@@ -28,7 +28,7 @@ class Awido extends IPSModule
         parent::Create();
         // Service Provider
         $this->RegisterPropertyString('serviceProvider', self::SERVICE_PROVIDER);
-        // Waste Management 
+        // Waste Management
         $this->RegisterPropertyString('clientID', 'null');
         $this->RegisterPropertyString('placeGUID', 'null');
         $this->RegisterPropertyString('streetGUID', 'null');
@@ -69,7 +69,7 @@ class Awido extends IPSModule
         $this->SendDebug(__FUNCTION__, 'clientID=' . $clientId . ', placeId=' . $placeId . ', streetId=' . $streetId . ', addonId=' . $addonId . ', fractIds=' . $fractIds);
 
         // Check properties
-       if ($clientId == 'null') {
+        if ($clientId == 'null') {
             $placeId = 'null';
         }
         if ($placeId == 'null') {
@@ -175,82 +175,6 @@ class Awido extends IPSModule
     }
 
     /**
-     * User has selected a new waste management.
-     *
-     * @param string $id Client ID .
-     */
-    protected function OnChangeClient($id)
-    {
-        // Update attribute
-        $this->WriteAttributeString('cID', $id);
-        $this->SendDebug(__FUNCTION__, $id);
-        // Places
-        $this->UpdateFormField('placeGUID', 'value', 'null');
-        $this->UpdateFormField('placeGUID', 'options', json_encode($this->GetPlaceOptions()));
-        // Street
-        $this->UpdateFormField('streetGUID', 'value', 'null');
-        // Addon
-        $this->UpdateFormField('addonGUID', 'value', 'null');
-        // Hide or Unhide properties
-        $this->ChangeVisiblity($id != 'null', false, false, false);
-    }
-
-    /**
-     * User has selected a new place.
-     *
-     * @param string $id Place GUID .
-     */
-    protected function OnChangePlace($id)
-    {
-        // Update attribute
-        $this->WriteAttributeString('pID', $id);
-        $this->SendDebug(__FUNCTION__, $id);
-        // Street
-        $this->UpdateFormField('streetGUID', 'value', 'null');
-        $this->UpdateFormField('streetGUID', 'options', json_encode($this->GetStreetOptions()));
-        // Addon
-        $this->UpdateFormField('addonGUID', 'value', 'null');
-        // Hide or Unhide properties
-        $this->ChangeVisiblity(true, $id != 'null', false, false);
-    }
-
-    /**
-     * Benutzer hat eine neue Straße oder Ortsteil ausgewählt.
-     *
-     * @param string $id Street GUID .
-     */
-    protected function OnChangeStreet($id)
-    {
-        // Update attribute
-        $this->WriteAttributeString('sID', $id);
-        $this->SendDebug(__FUNCTION__, $id);
-        // Addon
-        $this->UpdateFormField('addonGUID', 'value', 'null');
-        $this->UpdateFormField('addonGUID', 'options', json_encode($this->GetAddonOptions()));
-        // Hide or Unhide properties
-        $this->ChangeVisiblity(true, true, $id != 'null', false);
-    }
-
-    /**
-     * Benutzer hat eine neue Hausnummer ausgewählt.
-     *
-     * @param string $id Addon GUID .
-     */
-    protected function OnChangeAddon($id)
-    {
-        // Update attribute
-        $this->WriteAttributeString('aID', $id);
-        $this->SendDebug(__FUNCTION__, $id);
-        // Fraction
-        $data = $this->GetFractionOptions();
-        foreach ($data as $fract) {
-            $this->UpdateFormField('fractionID' . $fract['id'], 'caption', $fract['caption']);
-        }
-        // Hide or Unhide properties
-        $this->ChangeVisiblity(true, true, true, $id != 'null');
-    }
-
-    /**
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
      *
@@ -336,6 +260,82 @@ class Awido extends IPSModule
     }
 
     /**
+     * User has selected a new waste management.
+     *
+     * @param string $id Client ID .
+     */
+    protected function OnChangeClient($id)
+    {
+        // Update attribute
+        $this->WriteAttributeString('cID', $id);
+        $this->SendDebug(__FUNCTION__, $id);
+        // Places
+        $this->UpdateFormField('placeGUID', 'value', 'null');
+        $this->UpdateFormField('placeGUID', 'options', json_encode($this->GetPlaceOptions()));
+        // Street
+        $this->UpdateFormField('streetGUID', 'value', 'null');
+        // Addon
+        $this->UpdateFormField('addonGUID', 'value', 'null');
+        // Hide or Unhide properties
+        $this->ChangeVisiblity($id != 'null', false, false, false);
+    }
+
+    /**
+     * User has selected a new place.
+     *
+     * @param string $id Place GUID .
+     */
+    protected function OnChangePlace($id)
+    {
+        // Update attribute
+        $this->WriteAttributeString('pID', $id);
+        $this->SendDebug(__FUNCTION__, $id);
+        // Street
+        $this->UpdateFormField('streetGUID', 'value', 'null');
+        $this->UpdateFormField('streetGUID', 'options', json_encode($this->GetStreetOptions()));
+        // Addon
+        $this->UpdateFormField('addonGUID', 'value', 'null');
+        // Hide or Unhide properties
+        $this->ChangeVisiblity(true, $id != 'null', false, false);
+    }
+
+    /**
+     * Benutzer hat eine neue Straße oder Ortsteil ausgewählt.
+     *
+     * @param string $id Street GUID .
+     */
+    protected function OnChangeStreet($id)
+    {
+        // Update attribute
+        $this->WriteAttributeString('sID', $id);
+        $this->SendDebug(__FUNCTION__, $id);
+        // Addon
+        $this->UpdateFormField('addonGUID', 'value', 'null');
+        $this->UpdateFormField('addonGUID', 'options', json_encode($this->GetAddonOptions()));
+        // Hide or Unhide properties
+        $this->ChangeVisiblity(true, true, $id != 'null', false);
+    }
+
+    /**
+     * Benutzer hat eine neue Hausnummer ausgewählt.
+     *
+     * @param string $id Addon GUID .
+     */
+    protected function OnChangeAddon($id)
+    {
+        // Update attribute
+        $this->WriteAttributeString('aID', $id);
+        $this->SendDebug(__FUNCTION__, $id);
+        // Fraction
+        $data = $this->GetFractionOptions();
+        foreach ($data as $fract) {
+            $this->UpdateFormField('fractionID' . $fract['id'], 'caption', $fract['caption']);
+        }
+        // Hide or Unhide properties
+        $this->ChangeVisiblity(true, true, true, $id != 'null');
+    }
+
+    /**
      * Returns for the dropdown menu the selectable locations in the desorking area.
      *
      * @return array List of places.
@@ -369,27 +369,27 @@ class Awido extends IPSModule
      */
     protected function GetStreetOptions()
     {
-       // Client ID
-       $cId = $this->ReadAttributeString('cID');
-       $this->SendDebug(__FUNCTION__, $cId);
-       // Palces GUID
-       $pId = $this->ReadAttributeString('pID');
-       $this->SendDebug(__FUNCTION__, $pId);
-       // Options
-       $options = [];
-       // Default key
-       $options[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
-       // Data
-       if ($cId != 'null' & $pId != 'null') {
-           $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getGroupedStreets/' . $pId . '?selectedOTId=null&client=' . $cId;
-           $json = file_get_contents($url);
-           $data = json_decode($json);
-           foreach ($data as $street) {
-               $options[] = ['caption' => $street->value, 'value' => $street->key];
-           }
-       }
+        // Client ID
+        $cId = $this->ReadAttributeString('cID');
+        $this->SendDebug(__FUNCTION__, $cId);
+        // Palces GUID
+        $pId = $this->ReadAttributeString('pID');
+        $this->SendDebug(__FUNCTION__, $pId);
+        // Options
+        $options = [];
+        // Default key
+        $options[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
+        // Data
+        if ($cId != 'null' & $pId != 'null') {
+            $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getGroupedStreets/' . $pId . '?selectedOTId=null&client=' . $cId;
+            $json = file_get_contents($url);
+            $data = json_decode($json);
+            foreach ($data as $street) {
+                $options[] = ['caption' => $street->value, 'value' => $street->key];
+            }
+        }
         //$this->SendDebug(__FUNCTION__, $options);
-        return $options;        
+        return $options;
     }
 
     /**
