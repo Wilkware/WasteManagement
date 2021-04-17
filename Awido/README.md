@@ -1,4 +1,4 @@
-# Awido - Abfallwirtschaft
+# Awido - Entsorgungskalender
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-5.2-blue.svg)](https://www.symcon.de/produkt/)
@@ -26,48 +26,26 @@ der bevorstehenden Entsorgungstermine (Abfallentsorgung).
 
 Derzeit unterstützt das Modul folgende Gebiete:
 
-* Gemeinde Unterhaching
-* Lahn-Dill-Kreis
-* Landkreis Augsburg
-* Landkreis Aichach-Friedberg
-* Landkreis Altenkirchen
-* Landkreis Ansbach
-* Landkreis Bad Dürkheim
-* Landkreis Bad Tölz-Wolfratshausen
-* Landkreis Berchtesgadener Land
-* Landkreis Coburg
-* Landkreis Dillingen a.d. Donau und Donau-Ries
-* Landkreis Erding
-* Landkreis Fürstenfeldbruck
-* Landkreis Gießen
-* Landkreis Gotha
-* Landkreis Günzburg
-* Landkreis Hersfeld-Rotenburg
-* Landkreis Kelheim
-* Landkreis Kronach
-* Landkreis Neuburg-Schrobenhausen
-* Landkreis Mühldorf am Inn
-* Landkreis Rosenheim
-* Landkreis Schweinfurt
-* Landkreis Südliche Weinstraße
-* Landkreis Tirschenreuth
-* Landkreis Tübingen
-* Landratsamt Dachau
-* Neustadt a.d. Waldnaab
-* Pullach im Isartal
-* Rems-Murr-Kreis
-* Stadt Kaufbeuren
-* Stadt Memmingen
-* Stadt Unterschleissheim
-* Zweckverband Isar-Inn
-* Zweckverband München-Südost
-* Zweckverband Saale-Orla
+Entsorgungsgebiet           | Entsorgungsgebiet                             | Entsorgungsgebiet
+----------------------------|-----------------------------------------------|----------------------
+Gemeinde Unterhaching       | Lahn-Dill-Kreis                               | Landkreis Augsburg
+Landkreis Aichach-Friedberg | Landkreis Altenkirchen                        | Landkreis Ansbach
+Landkreis Bad Dürkheim      | Landkreis Bad Tölz-Wolfratshausen             | Landkreis Berchtesgadener Land
+Landkreis Coburg            | Landkreis Dillingen a.d. Donau und Donau-Ries | Landkreis Erding
+Landkreis Fürstenfeldbruck  | Landkreis Gießen                              | Landkreis Gotha
+Landkreis Günzburg          | Landkreis Hersfeld-Rotenburg                  | Landkreis Kelheim
+Landkreis Kronach           | Landkreis Neuburg-Schrobenhausen              | Landkreis Mühldorf am Inn
+Landkreis Rosenheim         | Landkreis Schweinfurt                         | Landkreis Südliche Weinstraße
+Landkreis Tirschenreuth     | Landkreis Tübingen                            | Landratsamt Dachau
+Neustadt a.d. Waldnaab      | Pullach im Isartal                            | Rems-Murr-Kreis
+Stadt Kaufbeuren            | Stadt Memmingen                               | Stadt Unterschleissheim
+Zweckverband Isar-Inn       | Zweckverband München-Südost                   | Zweckverband Saale-Orla
 
 Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
 ### 2. Voraussetzungen
 
-* IP-Symvon ab Version 5.2
+* IP-Symcon ab Version 5.2
 
 ### 3. Installation
 
@@ -82,7 +60,7 @@ Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 __Konfigurationsseite__:
 
 Entsprechend der gewählten Auswahl verändert sich das Formular dynamisch.
-Eine komplette Neuauswahl erreicht man durch Auswahl "Bitte wählen ..." an der gewüschten Stelle.
+Eine komplette Neuauswahl erreicht man durch Auswahl "Bitte wählen ..." an der gewünschten Stelle.
 
 VORSTICHT: eine Änderung der Auswahl bedingt ein Update bzw. ein Neuanlegen der Statusvariablen!!!
 Alte Variablen, welche es im anderen Landkreis gab werden nicht gelöscht! Hat man diese in einem WF verlinkt muss man danach
@@ -112,7 +90,7 @@ Name                                                    | Beschreibung
 ------------------------------------------------------- | ---------------------------------
 Tägliche Aktualisierung aktivieren?                     | Status, ob das tägliche Update aktiv oder inaktiv ist
 Variablen für nicht ausgewählte Entsorgungen erstellen? | Status, ob für nicht genutzte Entsorgungen auch Variablen angelegt werden sollen, standardmäßig nein
-Skript                                                  | Script, welches nach dem Update der Termine ausgeführt wird, z.B. für Sortierung usw.
+Skript                                                  | Skript, welches nach dem Update der Termine ausgeführt wird, z.B. für Sortierung usw.
 
 _Aktionsbereich:_
 
@@ -132,7 +110,7 @@ Es werden keine zusätzlichen Profile benötigt.
 
 ### 6. WebFront
 
-Man kann die Statusvariaben(Strings) direkt im WF verlinken.  
+Man kann die Statusvariablen(Strings) direkt im WF verlinken.  
 Aber wie bei der Konfiguration beschrieben, muss man aufpassen wenn die Konfiguration geändert wird. Dann müssen gegebenenfalls die Links neu eingerichtet werden.
 
 ### 7. PHP-Befehlsreferenz
@@ -149,7 +127,7 @@ Beispiel:
 v3.0.20210405
 
 * _NEU_: Eigener Webservice (JSON-API) für Bereitstellung der unterstützten Gebiete (aktuell 36 Gebiete)
-* _NEU_: Landkreis Augsburg (lose Zuordnungung von verschiedenen Orten)
+* _NEU_: Landkreis Augsburg (lose Zuordnung von verschiedenen Orten)
 * _NEU_: Landkreis Gießen
 * _NEU_: Landkreis Mühldorf am Inn
 * _NEU_: Zweckverband Isar-Inn
@@ -222,7 +200,7 @@ v1.0.20170417
 
 ## Spenden
 
-Die Software ist für die nicht kommzerielle Nutzung kostenlos, Schenkungen als Unterstützung für den Entwickler bitte hier:
+Die Software ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Entwickler bitte hier:
 
 [![License](https://img.shields.io/badge/Einfach%20spenden%20mit-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8816166)
 

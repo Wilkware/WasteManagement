@@ -100,7 +100,7 @@
     {
       "type": "Label",
       "name": "updateLabel",
-      "caption": "Update dates.",
+      "caption": "Disposal data ...",
       "visible": true
     },
     {

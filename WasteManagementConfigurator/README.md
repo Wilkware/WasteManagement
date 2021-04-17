@@ -25,14 +25,14 @@ Mit Hilfe des Konfigurations-Moduls kann man schnell und einfach den zu nutzende
 
 Derzeit unterstützt der Konfigurator folgende Anbieter:
 
-* [AWIDO](awido-online.de) - "Die Web-Anwendung mit alle wichtigen Entsorgungstermine online!"
-* [Abfall+](abfallplus.de) - "Die Gesamtlösung für elektronische Bürgerdienste in der Abfallwirtschaft!"
+* [AWIDO](https://awido-online.de) - "Die Web-Anwendung mit alle wichtigen Entsorgungstermine online!"
+* [Abfall+](https://abfallplus.de) - "Die Gesamtlösung für elektronische Bürgerdienste in der Abfallwirtschaft!"
 
 Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
 ### 2. Voraussetzungen
 
-* IP-Symvon ab Version 5.2
+* IP-Symcon ab Version 5.2
 
 ### 3. Installation
 
@@ -86,7 +86,7 @@ v1.0.20210404
 
 ## Spenden
 
-Die Software ist für die nicht kommzerielle Nutzung kostenlos, Schenkungen als Unterstützung für den Entwickler bitte hier:
+Die Software ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Entwickler bitte hier:
 
 [![License](https://img.shields.io/badge/Einfach%20spenden%20mit-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8816166)
 

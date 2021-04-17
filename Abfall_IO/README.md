@@ -1,4 +1,4 @@
-# Awido - Abfallwirtschaft
+# Abfall.IO - Abfallwirtschaft
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-5.2-blue.svg)](https://www.symcon.de/produkt/)
@@ -26,27 +26,33 @@ der bevorstehenden Entsorgungstermine (Abfallentsorgung).
 
 Derzeit unterstützt das Modul folgende Gebiete:
 
-* Landkreis Böblingen
-* Landkreis Calw
-* Landkreis Freudenstadt
-* Landkreis Göppingen
-* Landkreis Landsberg am Lech
-* Landkreis Landshut
-* Landkreis Kitzingen
-* Landkreis Rotenburg (Wümme)
-* Landkreis Sigmaringen
-* Landkreis Steinfurt
-* Landkreis Unterallgäu
-* Landkreis Würzburg
-* Schoenmackers
-* Stadt Landshut
-* Westerwaldkreis
+Derzeit unterstützt das Modul folgende Gebiete:
+
+Entsorgungsgebiet           | Entsorgungsgebiet                             | Entsorgungsgebiet
+----------------------------|-----------------------------------------------|----------------------
+ Hohenlohekreis             | Landkreis Bad Kissingen                       | Landkreis Bautzen
+ Landkreis Bayreuth         | Landkreis Breisgau-Hochschwarzwald            | Landkreis Böblingen
+ Landkreis Calw             | Landkreis Cloppenburg                         | Landkreis Cuxhaven
+ Landkreis Freudenstadt     | Landkreis Göttingen                           | Landkreis Göppingen
+ Landkreis Kitzingen        | Landkreis Landsberg am Lech                   | Landkreis Landshut
+ Landkreis Leipzig          | Landkreis Lindau (Bodensee)                   | Landkreis Mayen-Koblenz
+ Landkreis Miesbach         | Landkreis Nordsachsen                         | Landkreis Oberallgäu
+ Landkreis Ostallgäu        | Landkreis Osterholz                           | Landkreis Prignitz
+ Landkreis Reutlingen       | Landkreis Rotenburg (Wümme)                   | Landkreis Rottweil
+ Landkreis Sigmaringen      | Landkreis Steinfurt                           | Landkreis Traunstein
+ Landkreis Tuttlingen       | Landkreis Unterallgäu                         | Landkreis Vorpommern-Rügen
+ Landkreis Waldshut         | Landkreis Weißenburg-Gunzenhausen             | Landkreis Würzburg
+ Ortenaukreis               | Rhein-Neckar-Kreis                            | Stadt Bad Kissingen
+ Stadt Duisburg             | Stadt Frankfurt(Oder)                         | Stadt Hagen
+ Stadt Kempten (Allgäu)     | Stadt Landshut                                | Stadt Ludwigshafen
+ Stadt Mannheim             | Stadt Metzingen                               | Stadt Offenbach
+ Schoenmackers              | Schwarzwald-Baar-Kreis                        | Westerwaldkreis
 
 Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
 ### 2. Voraussetzungen
 
-* IP-Symvon ab Version 5.2
+* IP-Symcon ab Version 5.2
 
 ### 3. Installation
 
@@ -61,7 +67,7 @@ Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 __Konfigurationsseite__:
 
 Entsprechend der gewählten Auswahl verändert sich das Formular dynamisch.
-Eine komplette Neuauswahl erreicht man durch Auswahl "Bitte wählen ..." an der gewüschten Stelle.
+Eine komplette Neuauswahl erreicht man durch Auswahl "Bitte wählen ..." an der gewünschten Stelle.
 
 VORSTICHT: eine Änderung der Auswahl bedingt ein Update bzw. ein Neuanlegen der Statusvariablen!!!
 Alte Variablen, welche es im anderen Landkreis gab werden nicht gelöscht! Hat man diese in einem WF verlinkt muss man danach
@@ -92,7 +98,7 @@ Name                                                    | Beschreibung
 ------------------------------------------------------- | ---------------------------------
 Tägliche Aktualisierung aktivieren?                     | Status, ob das tägliche Update aktiv oder inaktiv ist
 Variablen für nicht ausgewählte Entsorgungen erstellen? | Status, ob für nicht genutzte Entsorgungen auch Variablen angelegt werden sollen, standardmäßig nein
-Skript                                                  | Script, welches nach dem Update der Termine ausgeführt wird, z.B. für Sortierung usw.
+Skript                                                  | Skript, welches nach dem Update der Termine ausgeführt wird, z.B. für Sortierung usw.
 
 _Aktionsbereich:_
 
@@ -112,7 +118,7 @@ Es werden keine zusätzlichen Profile benötigt.
 
 ### 6. WebFront
 
-Man kann die Statusvariaben(Strings) direkt im WF verlinken.  
+Man kann die Statusvariablen(Strings) direkt im WF verlinken.  
 Aber wie bei der Konfiguration beschrieben, muss man aufpassen wenn die Konfiguration geändert wird. Dann müssen gegebenenfalls die Links neu eingerichtet werden.
 
 ### 7. PHP-Befehlsreferenz
@@ -136,7 +142,7 @@ v1.0.20210406
 
 ## Spenden
 
-Die Software ist für die nicht kommzerielle Nutzung kostenlos, Schenkungen als Unterstützung für den Entwickler bitte hier:
+Die Software ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Entwickler bitte hier:
 
 [![License](https://img.shields.io/badge/Einfach%20spenden%20mit-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8816166)
 
