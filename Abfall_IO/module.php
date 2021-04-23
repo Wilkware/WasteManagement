@@ -162,7 +162,6 @@ class Abfall_IO extends IPSModule
                     $next = false;
                 }
             } else {
-                $this->SendDebug(__FUNCTION__, 'HIDDEN');
                 $data[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $dId];
                 $jsonForm['elements'][self::ELEM_ABPIO]['items'][1]['items'][1]['options'] = $data;
                 $jsonForm['elements'][self::ELEM_ABPIO]['items'][1]['items'][1]['visible'] = false;
@@ -187,7 +186,6 @@ class Abfall_IO extends IPSModule
                     $next = false;
                 }
             } else {
-                $this->SendDebug(__FUNCTION__, 'HIDDEN');
                 $data[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $sId];
                 $jsonForm['elements'][self::ELEM_ABPIO]['items'][2]['items'][0]['options'] = $data;
                 $jsonForm['elements'][self::ELEM_ABPIO]['items'][2]['items'][0]['visible'] = false;
@@ -212,7 +210,6 @@ class Abfall_IO extends IPSModule
                     $next = false;
                 }
             } else {
-                $this->SendDebug(__FUNCTION__, 'HIDDEN');
                 $data[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $aId];
                 $jsonForm['elements'][self::ELEM_ABPIO]['items'][2]['items'][1]['options'] = $data;
                 $jsonForm['elements'][self::ELEM_ABPIO]['items'][2]['items'][1]['visible'] = false;
@@ -951,7 +948,12 @@ class Abfall_IO extends IPSModule
                 }
                 // was no hidden input than collect it :)
                 if ($io[self::IO_FRACTIONS] == '') {
-                    $io[self::IO_FRACTIONS] = implode(',', $fractions);
+                    $io[self::IO_FRACTIONS] = implode(',', array_unique ($fractions));
+                } 
+                else {
+                    // HotFix for double entries :(
+                    $fractions = explode(',', $io[self::IO_FRACTIONS]);
+                    $io[self::IO_FRACTIONS] = implode(',', array_unique ($fractions));
                 }
                 $io[self::IO_NAMES] = $names;
                 // take over the options
