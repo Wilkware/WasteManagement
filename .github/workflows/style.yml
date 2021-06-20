@@ -4,7 +4,6 @@ on:
   push:
     paths:
     - '!libs/ics-parser/**'
-  pull_request:
 
 jobs:
 
