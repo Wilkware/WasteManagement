@@ -267,10 +267,6 @@ class Abfall_IO extends IPSModule
             }
         }
 
-        // Actions visible
-        //$jsonForm['actions'][0]['visible'] = ($io[self::IO_ADDON] != '');
-        //$jsonForm['actions'][1]['visible'] = ($io[self::IO_ADDON] != '');
-
         // Write IO array
         $this->WriteAttributeString('io', serialize($io));
 
