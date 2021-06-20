@@ -2,8 +2,8 @@ name: Check Style
 
 on:
   push:
-    paths:
-    - '!libs/ics-parser/**'
+    paths-ignore:
+    - 'libs/ics-parser/**'
 
 jobs:
 
