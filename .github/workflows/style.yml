@@ -9,4 +9,4 @@ jobs:
     - name: Checkout module
       uses: actions/checkout@master
     - name: Check style
-      uses: wilkware/action-style@main
+      uses: wilkware/action-ips-style@main
