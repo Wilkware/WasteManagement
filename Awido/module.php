@@ -64,7 +64,7 @@ class Awido extends IPSModule
         $addonId = $this->ReadPropertyString('addonGUID');
         $fractions = [];
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
-            if($this->ReadPropertyBoolean('fractionID' . $i)) {
+            if ($this->ReadPropertyBoolean('fractionID' . $i)) {
                 $fractions[] = $i;
             }
         }
@@ -121,7 +121,7 @@ class Awido extends IPSModule
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
             $jsonForm['elements'][self::ELEM_AWIDO]['items'][$i + 3]['visible'] = in_array($i, $fractions);
         }
-        */
+         */
         // Actions visible
         $jsonForm['actions'][0]['visible'] = ($addonId != 'null');
         $jsonForm['actions'][1]['visible'] = ($addonId != 'null');
@@ -142,7 +142,7 @@ class Awido extends IPSModule
         $activate = $this->ReadPropertyBoolean('activateAWIDO');
         $fractions = [];
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
-            if($this->ReadPropertyBoolean('fractionID' . $i)) {
+            if ($this->ReadPropertyBoolean('fractionID' . $i)) {
                 $fractions[] = $i;
             }
         }
@@ -202,7 +202,7 @@ class Awido extends IPSModule
         $addonId = $this->ReadPropertyString('addonGUID');
         $fractions = [];
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
-            if($this->ReadPropertyBoolean('fractionID' . $i)) {
+            if ($this->ReadPropertyBoolean('fractionID' . $i)) {
                 $fractions[] = $i;
             }
         }
@@ -299,7 +299,7 @@ class Awido extends IPSModule
         $this->UpdateFormField('addonGUID', 'value', 'null');
         // Fraction
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
-            if($this->UpdateFormField('fractionID' . $i, 'value', false)) {
+            if ($this->UpdateFormField('fractionID' . $i, 'value', false)) {
             }
         }
         // Hide or Unhide properties
@@ -323,7 +323,7 @@ class Awido extends IPSModule
         $this->UpdateFormField('addonGUID', 'value', 'null');
         // Fraction
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
-            if($this->UpdateFormField('fractionID' . $i, 'value', false)) {
+            if ($this->UpdateFormField('fractionID' . $i, 'value', false)) {
             }
         }
         // Hide or Unhide properties
@@ -345,7 +345,7 @@ class Awido extends IPSModule
         $this->UpdateFormField('addonGUID', 'options', json_encode($this->GetAddonOptions()));
         // Fraction
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
-            if($this->UpdateFormField('fractionID' . $i, 'value', false)) {
+            if ($this->UpdateFormField('fractionID' . $i, 'value', false)) {
             }
         }
         // Hide or Unhide properties
@@ -364,7 +364,7 @@ class Awido extends IPSModule
         $this->SendDebug(__FUNCTION__, $id);
         // Fraction
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
-            if($this->UpdateFormField('fractionID' . $i, 'value', false)) {
+            if ($this->UpdateFormField('fractionID' . $i, 'value', false)) {
             }
         }
         $data = $this->GetFractionOptions();
