@@ -63,7 +63,6 @@ class Abfall_IO extends IPSModule
         $this->RegisterPropertyString('districtID', 'null');
         $this->RegisterPropertyString('streetID', 'null');
         $this->RegisterPropertyString('addonID', 'null');
-        $this->RegisterPropertyString('fractionIDs', 'null');
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
             $this->RegisterPropertyBoolean('fractionID' . $i, false);
         }
@@ -76,7 +75,7 @@ class Abfall_IO extends IPSModule
         // Register daily update timer
         $this->RegisterTimer('UpdateTimer', 0, 'ABPIO_Update(' . $this->InstanceID . ');');
         // Buffer for ICS data
-        $this->SetBuffer('ics', '');
+        //$this->SetBuffer('ics', '');
     }
 
     /**
@@ -94,9 +93,8 @@ class Abfall_IO extends IPSModule
         $dId = $this->ReadPropertyString('districtID');
         $sId = $this->ReadPropertyString('streetID');
         $aId = $this->ReadPropertyString('addonID');
-        $fId = $this->ReadPropertyString('fractionIDs');
         // Debug output
-        $this->SendDebug(__FUNCTION__, 'clientID=' . $cId . ', placeId=' . $pId . ', districtId=' . $dId . ', streetId=' . $sId . ', addonId=' . $aId . ', fractIds=' . $fId);
+        $this->SendDebug(__FUNCTION__, 'clientID=' . $cId . ', placeId=' . $pId . ', districtId=' . $dId . ', streetId=' . $sId . ', addonId=' . $aId); // . ', fractIds=' . $fId);
 
         // Get Basic Form
         $jsonForm = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
@@ -118,10 +116,12 @@ class Abfall_IO extends IPSModule
             if ($options == null) {
                 $next = false;
             }
+        } else {
+            $this->SendDebug(__FUNCTION__, __LINE__);
+            $next = false;
         }
         // Place
-        if (($pId != 'null') && $next) {
-            $io[self::IO_PLACE] = $pId;
+        if ($next) {
             // Fix or Dynamic
             if ($io[self::IO_ACTION] == self::ACTION_PLACE) {
                 if ($options != null) {
@@ -130,11 +130,19 @@ class Abfall_IO extends IPSModule
                     $jsonForm['elements'][self::ELEM_ABPIO]['items'][1]['items'][0]['options'] = $options;
                     $jsonForm['elements'][self::ELEM_ABPIO]['items'][1]['items'][0]['visible'] = true;
                 } else {
+                    $this->SendDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
-                // than prepeare the next
-                $options = $this->ExecuteAction($io);
-                if ($options == null) {
+                if($pId != 'null') {
+                    $io[self::IO_PLACE] = $pId;
+                    // than prepeare the next
+                    $options = $this->ExecuteAction($io);
+                    if ($options == null) {
+                        $this->SendDebug(__FUNCTION__, __LINE__);
+                        $next = false;
+                    }
+                } else {
+                    $this->SendDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
             } else {
@@ -144,8 +152,7 @@ class Abfall_IO extends IPSModule
             }
         }
         // District
-        if (($dId != 'null') && $next) {
-            $io[self::IO_DISTRICT] = $dId;
+        if ($next) {
             // Fix or Dynamic
             if ($io[self::IO_ACTION] == self::ACTION_DISTRICT) {
                 if ($options != null) {
@@ -154,11 +161,19 @@ class Abfall_IO extends IPSModule
                     $jsonForm['elements'][self::ELEM_ABPIO]['items'][1]['items'][1]['options'] = $options;
                     $jsonForm['elements'][self::ELEM_ABPIO]['items'][1]['items'][1]['visible'] = true;
                 } else {
+                    $this->SendDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
-                // than prepeare the next
-                $options = $this->ExecuteAction($io);
-                if ($options == null) {
+                if($dId != 'null') {
+                    $io[self::IO_DISTRICT] = $dId;
+                    // than prepeare the next
+                    $options = $this->ExecuteAction($io);
+                    if ($options == null) {
+                        $this->SendDebug(__FUNCTION__, __LINE__);
+                        $next = false;
+                    }
+                } else {
+                    $this->SendDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
             } else {
@@ -168,8 +183,7 @@ class Abfall_IO extends IPSModule
             }
         }
         // Street
-        if (($sId != 'null') && $next) {
-            $io[self::IO_STREET] = $sId;
+        if ($next) {
             // Fix or Dynamic
             if ($io[self::IO_ACTION] == self::ACTION_STREET) {
                 if ($options != null) {
@@ -178,11 +192,19 @@ class Abfall_IO extends IPSModule
                     $jsonForm['elements'][self::ELEM_ABPIO]['items'][2]['items'][0]['options'] = $options;
                     $jsonForm['elements'][self::ELEM_ABPIO]['items'][2]['items'][0]['visible'] = true;
                 } else {
+                    $this->SendDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
-                // than prepeare the next
-                $options = $this->ExecuteAction($io);
-                if ($options == null) {
+                if($sId != 'null') {
+                    $io[self::IO_STREET] = $sId;
+                    // than prepeare the next
+                    $options = $this->ExecuteAction($io);
+                    if ($options == null) {
+                        $this->SendDebug(__FUNCTION__, __LINE__);
+                        $next = false;
+                    }
+                } else {
+                    $this->SendDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
             } else {
@@ -192,8 +214,7 @@ class Abfall_IO extends IPSModule
             }
         }
         // Addon
-        if (($aId != 'null') && $next) {
-            $io[self::IO_ADDON] = $aId;
+        if ($next) {
             // Fix or Dynamic
             if ($io[self::IO_ACTION] == self::ACTION_ADDON) {
                 if ($options != null) {
@@ -202,11 +223,19 @@ class Abfall_IO extends IPSModule
                     $jsonForm['elements'][self::ELEM_ABPIO]['items'][2]['items'][1]['options'] = $options;
                     $jsonForm['elements'][self::ELEM_ABPIO]['items'][2]['items'][1]['visible'] = true;
                 } else {
+                    $this->SendDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
-                // than prepeare the next
-                $options = $this->ExecuteAction($io);
-                if ($options == null) {
+                if($aId != 'null') {
+                    $io[self::IO_ADDON] = $aId;
+                    // than prepeare the next
+                    $options = $this->ExecuteAction($io);
+                    if ($options == null) {
+                        $this->SendDebug(__FUNCTION__, __LINE__);
+                        $next = false;
+                    }
+                } else {
+                    $this->SendDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
             } else {
@@ -216,8 +245,8 @@ class Abfall_IO extends IPSModule
             }
         }
         // Fractions
-        if (($fId != 'null') && $next) {
-            $io[self::IO_FRACTIONS] = $fId;
+        if ($next) {
+            //$io[self::IO_FRACTIONS] = $fId;
             if ($io[self::IO_ACTION] == self::ACTION_FRACTIONS) {
                 if ($options != null) {
                     // Label
@@ -229,9 +258,11 @@ class Abfall_IO extends IPSModule
                         $i++;
                     }
                 } else {
+                    $this->SendDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
             } else {
+                $this->SendDebug(__FUNCTION__, __LINE__);
                 $next = false;
             }
         }
@@ -244,10 +275,7 @@ class Abfall_IO extends IPSModule
         $this->WriteAttributeString('io', serialize($io));
 
         // Debug output
-        $this->SendDebug(__FUNCTION__, $next);
-        if (!$next) {
-            $this->SendDebug(__FUNCTION__, $io);
-        }
+        $this->SendDebug(__FUNCTION__, $io);
         // Return Form
         return json_encode($jsonForm);
     }
@@ -256,23 +284,20 @@ class Abfall_IO extends IPSModule
     {
         //Never delete this line!
         parent::ApplyChanges();
-        $clientId = $this->ReadPropertyString('clientID');
-        $placeId = $this->ReadPropertyString('placeID');
-        $districtId = $this->ReadPropertyString('districtID');
-        $streetId = $this->ReadPropertyString('streetID');
-        $addonId = $this->ReadPropertyString('addonID');
-        $fractIds = $this->ReadPropertyString('fractionIDs');
+        $cId = $this->ReadPropertyString('clientID');
+        $pId = $this->ReadPropertyString('placeID');
+        $dId = $this->ReadPropertyString('districtID');
+        $sId = $this->ReadPropertyString('streetID');
+        $aId = $this->ReadPropertyString('addonID');
         $activate = $this->ReadPropertyBoolean('settingsActivate');
-        $this->SendDebug(__FUNCTION__, 'clientID=' . $clientId . ', placeId=' . $placeId . ', districtId=' . $districtId . ', streetId=' . $streetId . ', addonId=' . $addonId . ', fractIds=' . $fractIds);
+        $this->SendDebug(__FUNCTION__, 'clientID=' . $cId . ', placeId=' . $pId . ', districtId=' . $dId . ', streetId=' . $sId . ', addonId=' . $aId);
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
         // Set status
-        if ($clientId == 'null') {
+        if ($cId == 'null') {
             $status = 201;
-        } elseif (($placeId == 'null') && ($streetId == 'null') && ($addonId == 'null')) {
+        } elseif (($pId == 'null') && ($sId == 'null') && ($aId == 'null')) {
             $status = 202;
-        } elseif ($fractIds == 'null') {
-            $status = 203;
         } else {
             $status = 102;
         }
@@ -283,9 +308,11 @@ class Abfall_IO extends IPSModule
                 // Time neu berechnen
                 $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
                 $this->SendDebug(__FUNCTION__, 'Timer aktiviert!');
+            } else {
+                $status = 104;
             }
         }
-        $this->SetBuffer('ics', '');
+        //$this->SetBuffer('ics', '');
         $this->SetStatus($status);
     }
 
@@ -319,8 +346,8 @@ class Abfall_IO extends IPSModule
         $io = unserialize($this->ReadAttributeString('io'));
         $this->SendDebug(__FUNCTION__, $io);
 
-        $ics = $this->GetBuffer('ics');
-        if ($ics == '') {
+        //$ics = $this->GetBuffer('ics');
+        if (true) {
             // Extract Token
             $token = $this->ExecuteInit($io[self::IO_CLIENT]);
             if ($token == null) {
@@ -338,9 +365,17 @@ class Abfall_IO extends IPSModule
                     $params[] = $key . '=' . $entry;
                 }
             }
+            // Add Abfallarten
+            $i = 0;
+            foreach ($io[self::IO_NAMES] as $key => $name) {
+                $params[] = 'f_id_abfalltyp_' . $i++ . '=' . $key;
+            }
+            // Add Abfallarten Max Ids
+            $params[] = 'f_abfallarten_index_max=' . $i;
             // Build Timespan
             $date = date('Y');
             $params[] = 'f_zeitraum=' . $date . '0101-' . $date . '1231';
+            // Build Request
             if (!empty($params)) {
                 $request = implode('&', $params);
             }
@@ -351,7 +386,8 @@ class Abfall_IO extends IPSModule
             $ics = $this->ServiceRequest($url, $request);
             // Store new ICS data
             if ($ics !== false) {
-                $this->SetBuffer('ics', $ics);
+                //$this->SetBuffer('ics', $ics);
+                //$this->SendDebug(__FUNCTION__, $ics);
             } else {
                 $this->SendDebug(__FUNCTION__, 'Service Request failed!');
                 return;
@@ -387,6 +423,7 @@ class Abfall_IO extends IPSModule
         // go throw all events
         $this->SendDebug(__FUNCTION__, 'ICS Events: ' . $ical->eventCount);
         foreach ($events as $event) {
+            //$this->SendDebug(__FUNCTION__, 'Event: ' . $event->summary . ' = ' . $event->dtstart);
             // echo $event->printData('%s: %s'.PHP_EOL);
             if ($event->dtstart < date('Ymd')) {
                 continue;
@@ -611,7 +648,6 @@ class Abfall_IO extends IPSModule
         // Options
         $options = [];
         // $options[] = ['id' => $fract->id, 'caption' => $fract->nm . ' (' . $fract->snm . ')'];
-        // IPS_SetProperty($this->InstanceID, 'fractionIDs', implode(',', $ids));
         return $options;
     }
 
@@ -731,8 +767,6 @@ class Abfall_IO extends IPSModule
                     $this->UpdateFormField('fractionID' . $f, 'caption', $fract['caption']);
                     $f++;
                 }
-                // Sorry, have to write on the hard way
-                IPS_SetProperty($this->InstanceID, 'fractionIDs', $io[self::IO_FRACTIONS]);
                 break;
         }
     }
@@ -744,7 +778,7 @@ class Abfall_IO extends IPSModule
     protected function CreateVariables()
     {
         $io = unserialize($this->ReadAttributeString('io'));
-
+        $this->SendDebug(__FUNCTION__, $io);
         if (empty($io[self::IO_NAMES])) {
             return;
         }
@@ -755,7 +789,7 @@ class Abfall_IO extends IPSModule
         foreach ($ids as $fract) {
             if ($i <= static::$FRACTIONS) {
                 $enabled = $this->ReadPropertyBoolean('fractionID' . $i);
-                $this->MaintainVariable($fract, $io[self::IO_NAMES][$fract], vtString, '', $i, $enabled);
+                $this->MaintainVariable($fract, $io[self::IO_NAMES][$fract], vtString, '', $i, $enabled || $variable);
             }
             $i++;
         }
@@ -946,15 +980,7 @@ class Abfall_IO extends IPSModule
                         $names[$inputs->item(0)->getAttribute('value')] = $labels->item(0)->nodeValue;
                     }
                 }
-                // was no hidden input than collect it :)
-                if ($io[self::IO_FRACTIONS] == '') {
-                    $io[self::IO_FRACTIONS] = implode(',', array_unique ($fractions));
-                } 
-                else {
-                    // HotFix for double entries :(
-                    $fractions = explode(',', $io[self::IO_FRACTIONS]);
-                    $io[self::IO_FRACTIONS] = implode(',', array_unique ($fractions));
-                }
+                $io[self::IO_FRACTIONS] = implode(',', array_unique ($fractions));
                 $io[self::IO_NAMES] = $names;
                 // take over the options
                 $data = $items;

@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-5.2-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.1.20210423-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Version](https://img.shields.io/badge/Modul%20Version-1.2.20210620-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://github.com/Wilkware/IPSymconAwido/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/IPSymconAwido/actions)
 
@@ -131,6 +131,14 @@ Beispiel:
 `ABPIO_Update(12345);`
 
 ### 8. Versionshistorie
+
+v1.2.20210620
+
+* _NEU_: Umstellung auf maximal 30 vewrschiedene Abfallarten
+* _NEU_: Bei Änderung des Standortes werden alle Abfallarten deaktiviert
+* _FIX_: IPS_SetProperty nicht mehr notwendig
+* _FIX_: Status wird jetzt bei nicht aktivierter Aktualisierung auf 'Inaktiv' gesetzt
+* _FIX_: Unter Umständen konnte die Erzeugung der Statusvariablen fehlschlagen
 
 v1.1.20210423
 

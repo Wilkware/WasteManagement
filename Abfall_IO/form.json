@@ -82,7 +82,22 @@
             {"type": "CheckBox", "name": "fractionID12", "visible": false},
             {"type": "CheckBox", "name": "fractionID13", "visible": false},
             {"type": "CheckBox", "name": "fractionID14", "visible": false},
-            {"type": "CheckBox", "name": "fractionID15", "visible": false}
+            {"type": "CheckBox", "name": "fractionID15", "visible": false},
+            {"type": "CheckBox", "name": "fractionID16", "visible": false},
+            {"type": "CheckBox", "name": "fractionID17", "visible": false},
+            {"type": "CheckBox", "name": "fractionID18", "visible": false},
+            {"type": "CheckBox", "name": "fractionID19", "visible": false},
+            {"type": "CheckBox", "name": "fractionID20", "visible": false},
+            {"type": "CheckBox", "name": "fractionID21", "visible": false},
+            {"type": "CheckBox", "name": "fractionID22", "visible": false},
+            {"type": "CheckBox", "name": "fractionID23", "visible": false},
+            {"type": "CheckBox", "name": "fractionID24", "visible": false},
+            {"type": "CheckBox", "name": "fractionID25", "visible": false},
+            {"type": "CheckBox", "name": "fractionID26", "visible": false},
+            {"type": "CheckBox", "name": "fractionID27", "visible": false},
+            {"type": "CheckBox", "name": "fractionID28", "visible": false},
+            {"type": "CheckBox", "name": "fractionID29", "visible": false},
+            {"type": "CheckBox", "name": "fractionID30", "visible": false}
         ]
     },
     {
