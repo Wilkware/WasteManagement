@@ -133,7 +133,7 @@ class Abfall_IO extends IPSModule
                     $this->SendDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
-                if($pId != 'null') {
+                if ($pId != 'null') {
                     $io[self::IO_PLACE] = $pId;
                     // than prepeare the next
                     $options = $this->ExecuteAction($io);
@@ -164,7 +164,7 @@ class Abfall_IO extends IPSModule
                     $this->SendDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
-                if($dId != 'null') {
+                if ($dId != 'null') {
                     $io[self::IO_DISTRICT] = $dId;
                     // than prepeare the next
                     $options = $this->ExecuteAction($io);
@@ -195,7 +195,7 @@ class Abfall_IO extends IPSModule
                     $this->SendDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
-                if($sId != 'null') {
+                if ($sId != 'null') {
                     $io[self::IO_STREET] = $sId;
                     // than prepeare the next
                     $options = $this->ExecuteAction($io);
@@ -226,7 +226,7 @@ class Abfall_IO extends IPSModule
                     $this->SendDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
-                if($aId != 'null') {
+                if ($aId != 'null') {
                     $io[self::IO_ADDON] = $aId;
                     // than prepeare the next
                     $options = $this->ExecuteAction($io);
@@ -444,7 +444,7 @@ class Abfall_IO extends IPSModule
                 SetValueString($varId, $var['date']);
             }
         }
-    
+
         // execute Script
         $script = $this->ReadPropertyInteger('settingsScript');
         if ($script != 0) {
@@ -980,7 +980,7 @@ class Abfall_IO extends IPSModule
                         $names[$inputs->item(0)->getAttribute('value')] = $labels->item(0)->nodeValue;
                     }
                 }
-                $io[self::IO_FRACTIONS] = implode(',', array_unique ($fractions));
+                $io[self::IO_FRACTIONS] = implode(',', array_unique($fractions));
                 $io[self::IO_NAMES] = $names;
                 // take over the options
                 $data = $items;
