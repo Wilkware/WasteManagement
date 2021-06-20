@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-5.2-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.0.20210405-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Version](https://img.shields.io/badge/Modul%20Version-3.1.20210620-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://github.com/Wilkware/IPSymconAwido/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/IPSymconAwido/actions)
 
@@ -123,6 +123,12 @@ Beispiel:
 `AWIDO_Update(12345);`
 
 ### 8. Versionshistorie
+
+v3.1.20210620
+
+* _NEU_: Umstellung auf maximal 30 vewrschiedene Abfallarten
+* _FIX_: IPS_SetProperty nicht mehr notwendig
+* _FIX_: HTML Entities in Namen der Abfallarten werden jetzt dekodiert
 
 v3.0.20210405
 

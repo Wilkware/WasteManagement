@@ -33,7 +33,6 @@ class Awido extends IPSModule
         $this->RegisterPropertyString('placeGUID', 'null');
         $this->RegisterPropertyString('streetGUID', 'null');
         $this->RegisterPropertyString('addonGUID', 'null');
-        $this->RegisterPropertyString('fractionIDs', 'null');
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
             $this->RegisterPropertyBoolean('fractionID' . $i, false);
         }
@@ -63,8 +62,15 @@ class Awido extends IPSModule
         $placeId = $this->ReadPropertyString('placeGUID');
         $streetId = $this->ReadPropertyString('streetGUID');
         $addonId = $this->ReadPropertyString('addonGUID');
-        $fractIds = $this->ReadPropertyString('fractionIDs');
+        $fractions = [];
+        for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+            if($this->ReadPropertyBoolean('fractionID' . $i)) {
+                $fractions[] = $i;
+            }
+        }
+        $fractIds = implode(',', $fractions);
         $activate = $this->ReadPropertyBoolean('activateAWIDO');
+
         // Debug output
         $this->SendDebug(__FUNCTION__, 'clientID=' . $clientId . ', placeId=' . $placeId . ', streetId=' . $streetId . ', addonId=' . $addonId . ', fractIds=' . $fractIds);
 
@@ -104,16 +110,18 @@ class Awido extends IPSModule
         $data = $this->GetFractionOptions();
         foreach ($data as $fract) {
             $jsonForm['elements'][self::ELEM_AWIDO]['items'][$fract['id'] + 3]['caption'] = $fract['caption'];
+            $jsonForm['elements'][self::ELEM_AWIDO]['items'][$fract['id'] + 3]['visible'] = true;
         }
         // Elements visible (client always visible)
         $jsonForm['elements'][self::ELEM_AWIDO]['items'][1]['items'][0]['visible'] = ($clientId != 'null');
         $jsonForm['elements'][self::ELEM_AWIDO]['items'][2]['items'][0]['visible'] = ($placeId != 'null');
         $jsonForm['elements'][self::ELEM_AWIDO]['items'][2]['items'][1]['visible'] = ($streetId != 'null');
         $jsonForm['elements'][self::ELEM_AWIDO]['items'][3]['visible'] = ($addonId != 'null');
-        $ids = explode(',', $fractIds);
+        /*
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
-            $jsonForm['elements'][self::ELEM_AWIDO]['items'][$i + 3]['visible'] = in_array($i, $ids);
+            $jsonForm['elements'][self::ELEM_AWIDO]['items'][$i + 3]['visible'] = in_array($i, $fractions);
         }
+        */
         // Actions visible
         $jsonForm['actions'][0]['visible'] = ($addonId != 'null');
         $jsonForm['actions'][1]['visible'] = ($addonId != 'null');
@@ -131,8 +139,14 @@ class Awido extends IPSModule
         $placeId = $this->ReadPropertyString('placeGUID');
         $streetId = $this->ReadPropertyString('streetGUID');
         $addonId = $this->ReadPropertyString('addonGUID');
-        $fractIds = $this->ReadPropertyString('fractionIDs');
         $activate = $this->ReadPropertyBoolean('activateAWIDO');
+        $fractions = [];
+        for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+            if($this->ReadPropertyBoolean('fractionID' . $i)) {
+                $fractions[] = $i;
+            }
+        }
+        $fractIds = implode(',', $fractions);
         $this->SendDebug(__FUNCTION__, 'clientID=' . $clientId . ', placeId=' . $placeId . ', streetId=' . $streetId . ', addonId=' . $addonId . ', fractIds=' . $fractIds);
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
@@ -186,9 +200,16 @@ class Awido extends IPSModule
         $placeId = $this->ReadPropertyString('placeGUID');
         $streetId = $this->ReadPropertyString('streetGUID');
         $addonId = $this->ReadPropertyString('addonGUID');
-        $fractIds = $this->ReadPropertyString('fractionIDs');
+        $fractions = [];
+        for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+            if($this->ReadPropertyBoolean('fractionID' . $i)) {
+                $fractions[] = $i;
+            }
+        }
+        $fractIds = implode(',', $fractions);
         $scriptId = $this->ReadPropertyInteger('scriptID');
 
+        $this->SendDebug(__FUNCTION__, 'clientID=' . $clientId . ', placeId=' . $placeId . ', streetId=' . $streetId . ', addonId=' . $addonId . ', fractIds=' . $fractIds);
         if ($clientId == 'null' || $placeId == 'null' || $streetId == 'null' || $addonId == 'null' || $fractIds == 'null') {
             return;
         }
@@ -276,6 +297,11 @@ class Awido extends IPSModule
         $this->UpdateFormField('streetGUID', 'value', 'null');
         // Addon
         $this->UpdateFormField('addonGUID', 'value', 'null');
+        // Fraction
+        for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+            if($this->UpdateFormField('fractionID' . $i, 'value', false)) {
+            }
+        }
         // Hide or Unhide properties
         $this->ChangeVisiblity($id != 'null', false, false, false);
     }
@@ -295,6 +321,11 @@ class Awido extends IPSModule
         $this->UpdateFormField('streetGUID', 'options', json_encode($this->GetStreetOptions()));
         // Addon
         $this->UpdateFormField('addonGUID', 'value', 'null');
+        // Fraction
+        for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+            if($this->UpdateFormField('fractionID' . $i, 'value', false)) {
+            }
+        }
         // Hide or Unhide properties
         $this->ChangeVisiblity(true, $id != 'null', false, false);
     }
@@ -312,6 +343,11 @@ class Awido extends IPSModule
         // Addon
         $this->UpdateFormField('addonGUID', 'value', 'null');
         $this->UpdateFormField('addonGUID', 'options', json_encode($this->GetAddonOptions()));
+        // Fraction
+        for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+            if($this->UpdateFormField('fractionID' . $i, 'value', false)) {
+            }
+        }
         // Hide or Unhide properties
         $this->ChangeVisiblity(true, true, $id != 'null', false);
     }
@@ -327,6 +363,10 @@ class Awido extends IPSModule
         $this->WriteAttributeString('aID', $id);
         $this->SendDebug(__FUNCTION__, $id);
         // Fraction
+        for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+            if($this->UpdateFormField('fractionID' . $i, 'value', false)) {
+            }
+        }
         $data = $this->GetFractionOptions();
         foreach ($data as $fract) {
             $this->UpdateFormField('fractionID' . $fract['id'], 'caption', $fract['caption']);
@@ -444,12 +484,11 @@ class Awido extends IPSModule
             $data = json_decode($json);
             foreach ($data as $fract) {
                 $ids[] = $fract->id;
-                $options[] = ['id' => $fract->id, 'caption' => $fract->nm . ' (' . $fract->snm . ')'];
+                $options[] = ['id' => $fract->id, 'caption' => html_entity_decode($fract->nm) . ' (' . $fract->snm . ')'];
             }
         }
-        IPS_SetProperty($this->InstanceID, 'fractionIDs', implode(',', $ids));
         $this->WriteAttributeString('fID', implode(',', $ids));
-        //$this->SendDebug(__FUNCTION__, $options);
+        $this->SendDebug(__FUNCTION__, $options);
         return $options;
     }
 
@@ -494,7 +533,7 @@ class Awido extends IPSModule
         $variable = $this->ReadPropertyBoolean('createVariables');
         foreach ($data as $fract) {
             $fractID = $this->ReadPropertyBoolean('fractionID' . $fract->id);
-            $this->MaintainVariable($fract->snm, $fract->nm, vtString, '', $fract->id, $fractID || $variable);
+            $this->MaintainVariable($fract->snm, html_entity_decode($fract->nm), vtString, '', $fract->id, $fractID || $variable);
         }
     }
 }
