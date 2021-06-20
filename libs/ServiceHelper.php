@@ -74,6 +74,7 @@ trait ServiceHelper
                 $options[] = ['caption' => $client['name'], 'value' => $client['client']];
             }
         }
+        //$this->SendDebug(__FUNCTION__, $options);
         return $options;
     }
 
