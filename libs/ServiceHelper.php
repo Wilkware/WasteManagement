@@ -35,7 +35,7 @@ trait ServiceHelper
     /**
      * Maximale Anzahl an Entsorgungsarten
      */
-    private static $FRACTIONS = 15;
+    private static $FRACTIONS = 30;
 
     /**
      * Returns the supported service provider for the dropdown menu.
