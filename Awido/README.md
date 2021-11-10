@@ -115,12 +115,14 @@ Aber wie bei der Konfiguration beschrieben, muss man aufpassen wenn die Konfigur
 
 ### 7. PHP-Befehlsreferenz
 
-`void AWIDO_Update(int $InstanzID);`
+```php
+void AWIDO_Update(int $InstanzID);
+```
+
 Holt die nächsten anstehenden Entsorgungstermine für die gewählten Entsorgungsarten.  
 Die Funktion liefert keinerlei Rückgabewert.
 
-Beispiel:
-`AWIDO_Update(12345);`
+__Beispiel__: `AWIDO_Update(12345);`
 
 ### 8. Versionshistorie
 
@@ -202,13 +204,15 @@ v1.0.20170417
 
 ## Entwickler
 
-* Heiko Wilknitz ([@wilkware](https://github.com/wilkware))
+Seit nunmehr über 10 Jahren fasziniert mich das Thema Haussteuerung. In den letzten Jahren betätige ich mich auch intensiv in der IP-Symcon Community und steuere dort verschiedenste Skript und Module bei. Ihr findet mich dort unter dem Namen @pitti ;-)
+
+[![GitHub](https://img.shields.io/badge/GitHub-@wilkware-blueviolet.svg?logo=github)](https://wilkware.github.io/)
 
 ## Spenden
 
-Die Software ist für die nicht kommerzielle Nutzung kostenlos, Schenkungen als Unterstützung für den Entwickler bitte hier:
+Die Software ist für die nicht kommzerielle Nutzung kostenlos, über eine Spende bei Gefallen des Moduls würde ich mich freuen.
 
-[![License](https://img.shields.io/badge/Einfach%20spenden%20mit-PayPal-blue.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8816166)
+[![PayPal](https://img.shields.io/badge/PayPal-spenden-blue.svg?logo=paypal)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8816166)
 
 ## Lizenz
 
