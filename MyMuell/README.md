@@ -1,8 +1,8 @@
-# Abfall.IO - Abfallwirtschaft
+# MyMüll.de - Entsorgungskalender
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-5.2-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.2.20210620-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Version](https://img.shields.io/badge/Modul%20Version-1.0.20211109-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://github.com/Wilkware/IPSymconAwido/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/IPSymconAwido/actions)
 
@@ -21,31 +21,10 @@ IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
 
 ### 1. Funktionsumfang
 
-Das Modul nutzt die von Abfall+ (www.abfallplus.de) bereitgestellten Daten zur Berechnung
+Das Modul nutzt die von MyMüll.de (www.mymuell.de) bereitgestellten Daten zur Berechnung
 der bevorstehenden Entsorgungstermine (Abfallentsorgung).
 
-Derzeit unterstützt das Modul folgende Gebiete:
-
-Entsorgungsgebiet                  | Entsorgungsgebiet             | Entsorgungsgebiet
------------------------------------|-------------------------------|----------------------
- Hohenlohekreis                    | Freiburg im Breisgau          | Landkreis Bad Kissingen
- Landkreis Bautzen                 | Landkreis Bayreuth            | Landkreis Breisgau-Hochschwarzwald
- Landkreis Böblingen               | Landkreis Calw                | Landkreis Cloppenburg
- Landkreis Cuxhaven                | Landkreis Freudenstadt        | Landkreis Göttingen
- Landkreis Göppingen               | Landkreis Kitzingen           | Landkreis Landsberg am Lech
- Landkreis Landshut                | Landkreis Leipzig             | Landkreis Lindau (Bodensee)
- Landkreis Mayen-Koblenz           | Landkreis Miesbach            | Landkreis Nordsachsen
- Landkreis Oberallgäu              | Landkreis Ostallgäu           | Landkreis Osterholz
- Landkreis Prignitz                | Landkreis Rastatt             | Landkreis Reutlingen
- Landkreis Rotenburg (Wümme)       | Landkreis Rottweil            | Landkreis Sigmaringen
- Landkreis Steinfurt               | Landkreis Traunstein          | Landkreis Tuttlingen
- Landkreis Unterallgäu             | Landkreis Vorpommern-Rügen    | Landkreis Waldshut
- Landkreis Weißenburg-Gunzenhausen | Landkreis Würzburg            | Ortenaukreis
- Rhein-Neckar-Kreis                | Stadt Bad Kissingen           | Stadt Essen
- Stadt Duisburg                    | Stadt Frankfurt(Oder)         | Stadt Hagen
- Stadt Kempten (Allgäu)            | Stadt Landshut                | Stadt Ludwigshafen
- Stadt Mannheim                    | Stadt Metzingen               | Stadt Offenbach
- Schoenmackers                     | Schwarzwald-Baar-Kreis        | Westerwaldkreis
+Derzeit unterstützt das Modul 404 verschiedene Gebiete.
 
 Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
@@ -61,7 +40,7 @@ Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
 ### 4. Einrichten der Instanzen in IP-Symcon
 
-* Unter "Instanz hinzufügen" ist das *'Abfall_IO'*-Modul (Alias: *'Abfallwirtschaft (Abfall_IO)'* oder *'Entsorgungskalender (Abfall_IO)'*)  unter dem Hersteller _'(Geräte)'_ aufgeführt.
+* Unter "Instanz hinzufügen" ist das *'MyMuell'*-Modul (Alias: *'Abfallwirtschaft (MyMüll.de)'* oder *'Entsorgungskalender (MyMüll.de)'*)  unter dem Hersteller _'(Geräte)'_ aufgeführt.
 
 __Konfigurationsseite__:
 
@@ -78,17 +57,14 @@ _Einstellungsbereich:_
 
 Name                    | Beschreibung
 ----------------------- | ----------------------------------
-Anbieter                | 'Abfall.IO (abfallplus.de)'
+Anbieter                | 'MyMüll.de (mymuell.de)'
 
 > Abfallwirtschaft ...
 
 Name                    | Beschreibung
 ----------------------- | ---------------------------------
-Entsorgungsgebiet       | Liste der verfügbaren Gebiete (siehe oben)
-Stadt/Gemeinde          | Ort im Entsorgungsgebiet (kann identisch zum Gebiet sein)
-Stadt-/Ortsteil         | In einigen Gegend zusätzliche Gebietseinschränkung
-Straße/Abfuhrbezirk     | Strasse bzw. Abfuhrbezirk im gewählten Ort
-Hausnummer              | Hausnummer von-bis, oder Alle = gesamte Strasse
+Entsorgungsgebiet       | Liste der verfügbaren Gebiete
+Straße/Abfuhrbezirk     | Strasse bzw. Abfuhrbezirk im gewählten Gebiet
 Entsorgungen            | Entsorgungsarten, d.h. was wird im Gebiet an Entsorgung angeboten
 
 > Erweiterte Einstellungen ...
@@ -122,28 +98,16 @@ Aber wie bei der Konfiguration beschrieben, muss man aufpassen wenn die Konfigur
 
 ### 7. PHP-Befehlsreferenz
 
-`void ABPIO_Update(int $InstanzID);`
+`void MYMDE_Update(int $InstanzID);`
 Holt die nächsten anstehenden Entsorgungstermine für die gewählten Entsorgungsarten.  
 Die Funktion liefert keinerlei Rückgabewert.
 
 Beispiel:
-`ABPIO_Update(12345);`
+`MYMDE_Update(12345);`
 
 ### 8. Versionshistorie
 
-v1.2.20210620
-
-* _NEU_: Umstellung auf maximal 30 vewrschiedene Abfallarten
-* _NEU_: Bei Änderung des Standortes werden alle Abfallarten deaktiviert
-* _FIX_: IPS_SetProperty nicht mehr notwendig
-* _FIX_: Status wird jetzt bei nicht aktivierter Aktualisierung auf 'Inaktiv' gesetzt
-* _FIX_: Unter Umständen konnte die Erzeugung der Statusvariablen fehlschlagen
-
-v1.1.20210423
-
-* _FIX_: HotFix für doppelte Abfallarten (fehlerhafte Datenlieferung)
-
-v1.0.20210406
+v1.0.20211109
 
 * _NEU_: Initialversion
 

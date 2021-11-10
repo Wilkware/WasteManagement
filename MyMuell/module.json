@@ -1,0 +1,16 @@
+{
+    "id": "{BCB84068-9194-754C-436F-F10BDD8E51BE}",
+    "name": "MyMuell",
+    "type": 3,
+    "vendor": "",
+    "aliases":
+    [
+      "Abfallwirtschaft (MyMüll.de)",
+      "Entsorgungskalender (MyMüll.de)"
+    ],
+    "url": "https://wilkware.de/ip-symcon-module/abfallwirtschaft/",
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "MYMDE"
+}

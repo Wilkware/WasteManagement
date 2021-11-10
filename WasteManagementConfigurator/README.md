@@ -27,6 +27,7 @@ Derzeit unterstützt der Konfigurator folgende Anbieter:
 
 * [AWIDO](https://awido-online.de) - "Die Web-Anwendung mit alle wichtigen Entsorgungstermine online!"
 * [Abfall+](https://abfallplus.de) - "Die Gesamtlösung für elektronische Bürgerdienste in der Abfallwirtschaft!"
+* [MyMüll.de](https://mymuell.de) - "Abfall und Wertstoffe sauber organisiert!"
 
 Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 

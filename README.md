@@ -18,8 +18,12 @@ Folgende Module beinhaltet diese Bibliothek:
 - __Abfall_IO__ ([Dokumentation](Abfall_IO))  
 	Abfall+ ist die Lösung für elektronische Bürgerdienste in der Abfallwirtschaft.
 
+- __MyMuell__ ([Dokumentation](MyMuell))  
+	MyMüll.de für die saubere Organisierung von Abfall und Wertstoffe.
+
 ## Historie
 
+- 2021-11-09: Modul MyMuell (MyMüll.de)
 - 2021-04-06: Modul Abfall_IO (Abfall+)
 - 2021-04-04: Modul Abfallwirtschaft Konfigurator (Waste Management Configurator)
 - 2017-01-03: Modul Awido

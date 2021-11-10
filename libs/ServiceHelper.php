@@ -25,6 +25,7 @@ trait ServiceHelper
     private static $PROVIDERS = [
         'awido' => [1, '{8A591704-E699-4F78-A728-490210FDE747}', 'AWIDO', 'awido-online.de', 'Die Web-Anwendung mit alle wichtigen Entsorgungstermine online!'],
         'abpio' => [2, '{53922265-6F58-E833-34A1-52D44D1C8D3F}', 'Abfall.IO', 'abfallplus.de', 'Abfall+ ist die Lösung für elektronische Bürgerdienste in der Abfallwirtschaft!'],
+        'mymde' => [3, '{BCB84068-9194-754C-436F-F10BDD8E51BE}', 'MyMüll', 'mymuell.de', 'Abfall und Wertstoffe sauber organisiert!'],
     ];
 
     /**
