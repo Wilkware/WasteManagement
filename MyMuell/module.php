@@ -175,13 +175,12 @@ class MyMuell extends IPSModule
         // Collect DATA
         if ($json !== false) {
             $data = json_decode($json, true);
-            foreach($data as $entry) {
-                if(!isset($waste[$entry['trash_name']])) {
+            foreach ($data as $entry) {
+                if (!isset($waste[$entry['trash_name']])) {
                     $waste[$entry['trash_name']] = ['title' => $entry['title'], 'date' => strtotime($entry['day'])];
                 }
             }
-        }
-        else {
+        } else {
             $this->LogMessage($this->Translate('Could not load json data!'), KL_ERROR);
             $this->SendDebug(__FUNCTION__, 'Error: Could not load json data!');
             return;
@@ -233,8 +232,7 @@ class MyMuell extends IPSModule
             $this->UpdateFormField('areaID', 'options', json_encode($options));
             $this->UpdateFormField('areaID', 'visible', true);
             $this->UpdateFormField('areaID', 'value', 'null');
-        }
-        else {
+        } else {
             $options = [];
             // Only add the selection prompt
             array_unshift($options, $prompt);
@@ -282,8 +280,7 @@ class MyMuell extends IPSModule
                 $this->UpdateFormField('fractionID' . $r, 'visible', false);
                 $this->UpdateFormField('fractionID' . $r, 'value', false);
             }
-        }
-        else {
+        } else {
             $this->UpdateFormField('fractionLabel', 'visible', false);
             for ($i = 1; $i <= static::$FRACTIONS; $i++) {
                 $this->UpdateFormField('fractionID' . $i, 'visible', false);
@@ -359,15 +356,13 @@ class MyMuell extends IPSModule
         // Collect DATA
         if ($res !== false) {
             $json = json_decode($res, true);
-            if(empty($json)) {
+            if (empty($json)) {
                 $data[] = ['caption' => $this->Translate('All'), 'value' => $city];
-            }
-            else {
-                foreach($json as $area) {
-                    if($area['street_comment'] != "" ) {
+            } else {
+                foreach ($json as $area) {
+                    if ($area['street_comment'] != "") {
                         $data[] = ['caption' => $area['name'] . ' (' . $area['street_comment'] . ')', 'value' => $area['area_id']];
-                    }
-                    else {
+                    } else {
                         $data[] = ['caption' => $area['name'], 'value' => $area['area_id']];
                     }
                 }
@@ -395,16 +390,15 @@ class MyMuell extends IPSModule
         if ($res !== false) {
             $json = json_decode($res, true);
             $waste = [];
-            foreach($json as $fract) {
-                if(!isset($waste[$fract['name']])) {
+            foreach ($json as $fract) {
+                if (!isset($waste[$fract['name']])) {
                     $waste[$fract['name']] = $fract['title'];
                 }
             }
-            foreach($waste as $key => $value) {
+            foreach ($waste as $key => $value) {
                 $data[] = ['caption' => $value, 'value' => $key];
             }
         }
         return $data;
     }
-
 }
