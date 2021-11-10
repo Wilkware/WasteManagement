@@ -360,7 +360,7 @@ class MyMuell extends IPSModule
                 $data[] = ['caption' => $this->Translate('All'), 'value' => $city];
             } else {
                 foreach ($json as $area) {
-                    if ($area['street_comment'] != "") {
+                    if ($area['street_comment'] != '') {
                         $data[] = ['caption' => $area['name'] . ' (' . $area['street_comment'] . ')', 'value' => $area['area_id']];
                     } else {
                         $data[] = ['caption' => $area['name'], 'value' => $area['area_id']];
