@@ -327,6 +327,24 @@ class Abfall_IO extends IPSModule
     }
 
     /**
+     * Fix waste name.
+     *
+     *  @param string $from Old waste name.
+     *  @param string $to New waste name.
+     */
+    public function FixWasteName($from, $to)
+    {
+        $io = unserialize($this->ReadAttributeString('io'));
+        foreach ($io[self::IO_NAMES] as $ident => $name) {
+            if ($name === $from) {
+                $io[self::IO_NAMES][$ident] = $to;
+            }
+        }
+        $this->SendDebug(__FUNCTION__, $io);
+        $this->WriteAttributeString('io', serialize($io));
+    }
+
+    /**
      * This function will be available automatically after the module is imported with the module control.
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
      *
@@ -402,7 +420,7 @@ class Abfall_IO extends IPSModule
                 'skipRecurrence'              => false, // Default value
             ]);
             $ical->initString($ics);
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->SendDebug(__FUNCTION__, 'initICS: ' . $e);
             return;
         }
@@ -427,7 +445,7 @@ class Abfall_IO extends IPSModule
             // YYYYMMDD umwandeln in DD.MM.YYYY
             $day = substr($event->dtstart, 6) . '.' . substr($event->dtstart, 4, 2) . '.' . substr($event->dtstart, 0, 4);
             // Update fraction
-            if ($vars[$event->summary]['date'] == '') {
+            if (isset($vars[$event->summary]) && $vars[$event->summary]['date'] == '') {
                 $vars[$event->summary]['date'] = $day;
                 $this->SendDebug(__FUNCTION__, 'Fraction date: ' . $event->summary . ' = ' . $event->dtstart);
             }
