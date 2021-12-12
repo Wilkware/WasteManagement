@@ -40,7 +40,7 @@ class Abfall_IO extends IPSModule
     const ACTION_STREET = 'auswahl_strasse_set';
     const ACTION_ADDON = 'auswahl_hnr_set';
     const ACTION_FRACTIONS = 'auswahl_fraktionen_set';
-    const ACTION_EXPORT = 'export_ics';
+    const ACTION_EXPORT = 'export_';
 
     // Form Elements Positions
     const ELEM_IMAGE = 0;
@@ -70,12 +70,13 @@ class Abfall_IO extends IPSModule
         $this->RegisterPropertyBoolean('settingsActivate', true);
         $this->RegisterPropertyBoolean('settingsVariables', false);
         $this->RegisterPropertyInteger('settingsScript', 0);
+        $this->RegisterPropertyString('settingsFormat', 'ics');
         // Attributes for dynamic configuration forms (> v3.0)
         $this->RegisterAttributeString('io', serialize($this->PrepareIO()));
         // Register daily update timer
         $this->RegisterTimer('UpdateTimer', 0, 'ABPIO_Update(' . $this->InstanceID . ');');
-        // Buffer for ICS data
-        //$this->SetBuffer('ics', '');
+        // Buffer for ICS/CSV data
+        //$this->SetBuffer('ics_csv', '');
     }
 
     /**
@@ -308,7 +309,7 @@ class Abfall_IO extends IPSModule
                 $status = 104;
             }
         }
-        //$this->SetBuffer('ics', '');
+        //$this->SetBuffer('ics_csv', '');
         $this->SetStatus($status);
     }
 
@@ -332,7 +333,7 @@ class Abfall_IO extends IPSModule
      *  @param string $from Old waste name.
      *  @param string $to New waste name.
      */
-    public function FixWasteName($from, $to)
+    public function FixWasteName(string $from, string $to)
     {
         $io = unserialize($this->ReadAttributeString('io'));
         foreach ($io[self::IO_NAMES] as $ident => $name) {
@@ -359,8 +360,10 @@ class Abfall_IO extends IPSModule
         }
         $io = unserialize($this->ReadAttributeString('io'));
         $this->SendDebug(__FUNCTION__, $io);
+        $fmt = $this->ReadPropertyString('settingsFormat');
+        $this->SendDebug(__FUNCTION__, 'Formnat: ' . $fmt);
 
-        //$ics = $this->GetBuffer('ics');
+        //$res = $this->GetBuffer('ics_csv');
         if (true) {
             // Extract Token
             $token = $this->ExecuteInit($io[self::IO_CLIENT]);
@@ -388,66 +391,99 @@ class Abfall_IO extends IPSModule
             $params[] = 'f_abfallarten_index_max=' . $i;
             // Build Timespan
             $date = date('Y');
-            $params[] = 'f_zeitraum=' . $date . '0101-' . $date . '1231';
+            $params[] = 'f_zeitraum=' . $date . '0101-' . ($date + 1) . '1231';
             // Build Request
             if (!empty($params)) {
                 $request = implode('&', $params);
             }
             $this->SendDebug(__FUNCTION__, $request);
             // Build URL data
-            $url = $this->BuildURL($io['key'], self::ACTION_EXPORT);
+            $url = $this->BuildURL($io['key'], self::ACTION_EXPORT . $fmt);
             // Send Export request
-            $ics = $this->ServiceRequest($url, $request);
-            // Store new ICS data
-            if ($ics !== false) {
-                //$this->SetBuffer('ics', $ics);
-                //$this->SendDebug(__FUNCTION__, $ics);
+            $res = $this->ServiceRequest($url, $request);
+            // Store new ICS/CSV data
+            if ($res !== false) {
+                //$this->SetBuffer('ics_csv', $res);
+                //$this->SendDebug(__FUNCTION__, $res);
             } else {
                 $this->SendDebug(__FUNCTION__, 'Service Request failed!');
                 return;
             }
         }
 
-        // ICS
-        try {
-            $ical = new ICal(false, [
-                'defaultSpan'                 => 2,     // Default value
-                'defaultTimeZone'             => 'UTC',
-                'defaultWeekStart'            => 'MO',  // Default value
-                'disableCharacterReplacement' => false, // Default value
-                'filterDaysAfter'             => null,  // Default value
-                'filterDaysBefore'            => null,  // Default value
-                'skipRecurrence'              => false, // Default value
-            ]);
-            $ical->initString($ics);
-        } catch (Exception $e) {
-            $this->SendDebug(__FUNCTION__, 'initICS: ' . $e);
-            return;
-        }
-
-        // get all events
-        $events = $ical->events();
-
         // fractions convert to name => ident
         $vars = [];
         foreach ($io[self::IO_NAMES] as $ident => $name) {
+            $this->SendDebug(__FUNCTION__, 'Fraction ident: ' . $ident . ', Name: ' . $name);
             $vars[$name] = ['ident' => $ident, 'date' => ''];
         }
 
-        // go throw all events
-        $this->SendDebug(__FUNCTION__, 'ICS Events: ' . $ical->eventCount);
-        foreach ($events as $event) {
-            //$this->SendDebug(__FUNCTION__, 'Event: ' . $event->summary . ' = ' . $event->dtstart);
-            // echo $event->printData('%s: %s'.PHP_EOL);
-            if ($event->dtstart < date('Ymd')) {
-                continue;
+        // ICS format
+        if ($fmt == 'ics') {
+            try {
+                $ical = new ICal(false, [
+                    'defaultSpan'                 => 2,     // Default value
+                    'defaultTimeZone'             => 'UTC',
+                    'defaultWeekStart'            => 'MO',  // Default value
+                    'disableCharacterReplacement' => false, // Default value
+                    'filterDaysAfter'             => null,  // Default value
+                    'filterDaysBefore'            => null,  // Default value
+                    'skipRecurrence'              => false, // Default value
+                ]);
+                $ical->initString($res);
+            } catch (Exception $e) {
+                $this->SendDebug(__FUNCTION__, 'initICS: ' . $e);
+                return;
             }
-            // YYYYMMDD umwandeln in DD.MM.YYYY
-            $day = substr($event->dtstart, 6) . '.' . substr($event->dtstart, 4, 2) . '.' . substr($event->dtstart, 0, 4);
-            // Update fraction
-            if (isset($vars[$event->summary]) && $vars[$event->summary]['date'] == '') {
-                $vars[$event->summary]['date'] = $day;
-                $this->SendDebug(__FUNCTION__, 'Fraction date: ' . $event->summary . ' = ' . $event->dtstart);
+
+            // get all events
+            $events = $ical->events();
+
+            // go throw all events
+            $this->SendDebug(__FUNCTION__, 'ICS Events: ' . $ical->eventCount);
+            foreach ($events as $event) {
+                //$this->SendDebug(__FUNCTION__, 'Event: ' . $event->summary . ' = ' . $event->dtstart);
+                // echo $event->printData('%s: %s'.PHP_EOL);
+                if ($event->dtstart < date('Ymd')) {
+                    continue;
+                }
+                // YYYYMMDD umwandeln in DD.MM.YYYY
+                $day = substr($event->dtstart, 6) . '.' . substr($event->dtstart, 4, 2) . '.' . substr($event->dtstart, 0, 4);
+                // Update fraction
+                if (isset($vars[$event->summary]) && $vars[$event->summary]['date'] == '') {
+                    $vars[$event->summary]['date'] = $day;
+                    $this->SendDebug(__FUNCTION__, 'Fraction date: ' . $event->summary . ' = ' . $event->dtstart);
+                }
+            }
+        }
+        // CSV format
+        else {
+            $csv = array_map(function ($v)
+            {
+                $data = str_getcsv($v, ';');
+                return $data;
+            }, explode("\n", $res));
+            $csv = array_map(null, ...$csv);
+            $now = date('Ymd');
+            // each events
+            foreach ($csv as $waste) {
+                $count = count($waste);
+                $name = utf8_encode($waste[0]);
+                $this->SendDebug(__FUNCTION__, 'Fraction name: ' . $name);
+                for ($i = 1; $i < $count; $i++) {
+                    if (empty($waste[$i])) {
+                        continue;
+                    }
+                    $day = substr($waste[$i], 6) . substr($waste[$i], 3, 2) . substr($waste[$i], 0, 2);
+                    if ($day < $now) {
+                        continue;
+                    }
+                    // Update fraction
+                    if (isset($vars[$name]) && $vars[$name]['date'] == '') {
+                        $vars[$name]['date'] = $waste[$i];
+                        $this->SendDebug(__FUNCTION__, 'Fraction date: ' . $name . ' = ' . $waste[$i]);
+                    }
+                }
             }
         }
 

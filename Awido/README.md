@@ -1,8 +1,8 @@
 # Awido - Entsorgungskalender
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Product](https://img.shields.io/badge/Symcon%20Version-5.2-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.1.20210620-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Product](https://img.shields.io/badge/Symcon%20Version-6.0-blue.svg)](https://www.symcon.de/produkt/)
+[![Version](https://img.shields.io/badge/Modul%20Version-3.2.20211212-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://github.com/Wilkware/IPSymconAwido/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/IPSymconAwido/actions)
 
@@ -45,7 +45,7 @@ Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
 ### 2. Voraussetzungen
 
-* IP-Symcon ab Version 5.2
+* IP-Symcon ab Version 6.0
 
 ### 3. Installation
 
@@ -125,6 +125,11 @@ Die Funktion liefert keinerlei Rückgabewert.
 __Beispiel__: `AWIDO_Update(12345);`
 
 ### 8. Versionshistorie
+
+v3.2.20211212
+
+* _NEU_: Kompatibilität auf IPS 6.0 hoch gesetzt
+* _NEU_: Konfigurationsformular an die neuen Möglichkeiten der 6.0 angepasst
 
 v3.1.20210620
 
