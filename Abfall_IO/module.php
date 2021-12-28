@@ -901,7 +901,7 @@ class Abfall_IO extends IPSModule
      * @param string $action new form action
      * @param string $id new selected form value
      */
-    protected function UpdateIO(&$io, $action, $id)
+    protected function UpdateIO(& $io, $action, $id)
     {
         $this->SendDebug(__FUNCTION__, $action);
         $this->SendDebug(__FUNCTION__, $id);
@@ -1006,7 +1006,7 @@ class Abfall_IO extends IPSModule
      * @param $io IO forms array
      * @return array New selecteable options or null.
      */
-    protected function ExecuteAction(&$io)
+    protected function ExecuteAction(& $io)
     {
         $this->SendDebug(__FUNCTION__, $io);
         // Build URL data
