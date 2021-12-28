@@ -13,14 +13,14 @@ class MyMuell extends IPSModule
     use ServiceHelper;
 
     // Service Provider
-    const SERVICE_PROVIDER = 'mymde';
-    const SERVICE_BASEURL = 'https://mymuell.jumomind.com/mmapp/api.php';
+    private const SERVICE_PROVIDER = 'mymde';
+    private const SERVICE_BASEURL = 'https://mymuell.jumomind.com/mmapp/api.php';
 
     // Form Elements Positions
-    const ELEM_IMAGE = 0;
-    const ELEM_LABEL = 1;
-    const ELEM_PROVI = 2;
-    const ELEM_MYMDE = 3;
+    private const ELEM_IMAGE = 0;
+    private const ELEM_LABEL = 1;
+    private const ELEM_PROVI = 2;
+    private const ELEM_MYMDE = 3;
 
     /**
      * Create.

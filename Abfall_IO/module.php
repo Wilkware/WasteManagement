@@ -18,35 +18,35 @@ class Abfall_IO extends IPSModule
     use ServiceHelper;
 
     // Service Provider
-    const SERVICE_PROVIDER = 'abpio';
-    const SERVICE_USERAGENT = "'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36";
-    const SERVICE_MODUSKEY = 'd6c5855a62cf32a4dadbc2831f0f295f';
-    const SERVICE_BASEURL = 'https://api.abfall.io/';
+    private const SERVICE_PROVIDER = 'abpio';
+    private const SERVICE_USERAGENT = "'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36";
+    private const SERVICE_MODUSKEY = 'd6c5855a62cf32a4dadbc2831f0f295f';
+    private const SERVICE_BASEURL = 'https://api.abfall.io/';
 
     // IO keys
-    const IO_ACTION = 'action';
-    const IO_CLIENT = 'key';
-    const IO_NAMES = 'names';
-    const IO_PLACE = 'f_id_kommune';
-    const IO_DISTRICT = 'f_id_bezirk';
-    const IO_STREET = 'f_id_strasse';
-    const IO_ADDON = 'f_id_strasse_hnr';
-    const IO_FRACTIONS = 'f_abfallarten';
+    private const IO_ACTION = 'action';
+    private const IO_CLIENT = 'key';
+    private const IO_NAMES = 'names';
+    private const IO_PLACE = 'f_id_kommune';
+    private const IO_DISTRICT = 'f_id_bezirk';
+    private const IO_STREET = 'f_id_strasse';
+    private const IO_ADDON = 'f_id_strasse_hnr';
+    private const IO_FRACTIONS = 'f_abfallarten';
 
     // ACTION Keys
-    const ACTION_CLIENT = 'init';
-    const ACTION_PLACE = 'auswahl_kommune_set';
-    const ACTION_DISTRICT = 'auswahl_bezirk_set';
-    const ACTION_STREET = 'auswahl_strasse_set';
-    const ACTION_ADDON = 'auswahl_hnr_set';
-    const ACTION_FRACTIONS = 'auswahl_fraktionen_set';
-    const ACTION_EXPORT = 'export_';
+    private const ACTION_CLIENT = 'init';
+    private const ACTION_PLACE = 'auswahl_kommune_set';
+    private const ACTION_DISTRICT = 'auswahl_bezirk_set';
+    private const ACTION_STREET = 'auswahl_strasse_set';
+    private const ACTION_ADDON = 'auswahl_hnr_set';
+    private const ACTION_FRACTIONS = 'auswahl_fraktionen_set';
+    private const ACTION_EXPORT = 'export_';
 
     // Form Elements Positions
-    const ELEM_IMAGE = 0;
-    const ELEM_LABEL = 1;
-    const ELEM_PROVI = 2;
-    const ELEM_ABPIO = 3;
+    private const ELEM_IMAGE = 0;
+    private const ELEM_LABEL = 1;
+    private const ELEM_PROVI = 2;
+    private const ELEM_ABPIO = 3;
 
     /**
      * Create.
@@ -901,7 +901,7 @@ class Abfall_IO extends IPSModule
      * @param string $action new form action
      * @param string $id new selected form value
      */
-    protected function UpdateIO(& $io, $action, $id)
+    protected function UpdateIO(&$io, $action, $id)
     {
         $this->SendDebug(__FUNCTION__, $action);
         $this->SendDebug(__FUNCTION__, $id);
@@ -1006,7 +1006,7 @@ class Abfall_IO extends IPSModule
      * @param $io IO forms array
      * @return array New selecteable options or null.
      */
-    protected function ExecuteAction(& $io)
+    protected function ExecuteAction(&$io)
     {
         $this->SendDebug(__FUNCTION__, $io);
         // Build URL data

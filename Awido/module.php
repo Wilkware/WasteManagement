@@ -12,12 +12,12 @@ class Awido extends IPSModule
     use DebugHelper;
     use ServiceHelper;
 
-    const SERVICE_PROVIDER = 'awido';
+    private const SERVICE_PROVIDER = 'awido';
     // Form Elements Positions
-    const ELEM_IMAGE = 0;
-    const ELEM_LABEL = 1;
-    const ELEM_PROVI = 2;
-    const ELEM_AWIDO = 3;
+    private const ELEM_IMAGE = 0;
+    private const ELEM_LABEL = 1;
+    private const ELEM_PROVI = 2;
+    private const ELEM_AWIDO = 3;
 
     /**
      * Create.
