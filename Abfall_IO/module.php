@@ -69,6 +69,7 @@ class Abfall_IO extends IPSModule
         // Advanced Settings
         $this->RegisterPropertyBoolean('settingsActivate', true);
         $this->RegisterPropertyBoolean('settingsVariables', false);
+        $this->RegisterPropertyBoolean('settingsStartsWith', false);
         $this->RegisterPropertyInteger('settingsScript', 0);
         $this->RegisterPropertyString('settingsFormat', 'ics');
         // Attributes for dynamic configuration forms (> v3.0)
@@ -362,6 +363,8 @@ class Abfall_IO extends IPSModule
         $this->SendDebug(__FUNCTION__, $io);
         $fmt = $this->ReadPropertyString('settingsFormat');
         $this->SendDebug(__FUNCTION__, 'Formnat: ' . $fmt);
+        $ssw = $this->ReadPropertyBoolean('settingsStartsWith');
+        $this->SendDebug(__FUNCTION__, 'StartsWith: ' . $ssw);
 
         //$res = $this->GetBuffer('ics_csv');
         if (true) {
@@ -450,9 +453,19 @@ class Abfall_IO extends IPSModule
                 // YYYYMMDD umwandeln in DD.MM.YYYY
                 $day = substr($event->dtstart, 6) . '.' . substr($event->dtstart, 4, 2) . '.' . substr($event->dtstart, 0, 4);
                 // Update fraction
-                if (isset($vars[$event->summary]) && $vars[$event->summary]['date'] == '') {
-                    $vars[$event->summary]['date'] = $day;
-                    $this->SendDebug(__FUNCTION__, 'Fraction date: ' . $event->summary . ' = ' . $event->dtstart);
+                $name = $event->summary;
+                if ($ssw == true) {
+                    foreach ($vars as $key => $var) {
+                        if ($this->StartsWith($name, $key)) {
+                            $this->SendDebug(__FUNCTION__, 'StartWith: ' . $name . ' = ' . $key);
+                            $name = $key;
+                            break;
+                        }
+                    }
+                }
+                if (isset($vars[$name]) && $vars[$name]['date'] == '') {
+                    $vars[$name]['date'] = $day;
+                    $this->SendDebug(__FUNCTION__, 'Fraction date: ' . $name . ' = ' . $day);
                 }
             }
         }
@@ -469,16 +482,26 @@ class Abfall_IO extends IPSModule
             foreach ($csv as $waste) {
                 $count = count($waste);
                 $name = utf8_encode($waste[0]);
-                $this->SendDebug(__FUNCTION__, 'Fraction name: ' . $name);
+                $this->SendDebug(__FUNCTION__, 'Fraction name: ' . $name . ', count:' . $count);
                 for ($i = 1; $i < $count; $i++) {
                     if (empty($waste[$i])) {
                         continue;
                     }
                     $day = substr($waste[$i], 6) . substr($waste[$i], 3, 2) . substr($waste[$i], 0, 2);
                     if ($day < $now) {
+                        $this->SendDebug(__FUNCTION__, 'Fraction day: ' . $day);
                         continue;
                     }
                     // Update fraction
+                    if ($ssw == true) {
+                        foreach ($vars as $key => $var) {
+                            if ($this->StartsWith($name, $key)) {
+                                $this->SendDebug(__FUNCTION__, 'StartWith: ' . $name . ' = ' . $key);
+                                $name = $key;
+                                break;
+                            }
+                        }
+                    }
                     if (isset($vars[$name]) && $vars[$name]['date'] == '') {
                         $vars[$name]['date'] = $waste[$i];
                         $this->SendDebug(__FUNCTION__, 'Fraction date: ' . $name . ' = ' . $waste[$i]);

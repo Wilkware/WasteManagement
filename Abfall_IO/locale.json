@@ -17,6 +17,7 @@
       "Advanced settings ...": "Erweiterte Einstellungen ...",
       "Create variables for non-selected disposals?": "Variablen für nicht ausgewählte Entsorgungen erstellen?",
       "Activate daily update?": "Tägliche Aktualisierung aktivieren?",
+      "Try to detect differences between configuration data and live data (experimental)": "Unterschiede zwischen Konfigurationsdaten und Live-Daten versuchen zu erkennen (experimentell)?",
       "... call the following scipt after update the dates:": "... nach Aktualisierung der Werte folgendes Script aufrufen:",
       "Format in which the data is collected:": "Format, in welchem die Daten abgeholt werden:",
       "iCalendar file (ICS)": "iCalendar Datei (ICS)",

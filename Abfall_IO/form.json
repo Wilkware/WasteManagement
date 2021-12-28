@@ -106,6 +106,7 @@
         "items": [
             {"type": "CheckBox", "name": "settingsActivate", "caption": "Activate daily update?"},
             {"type": "CheckBox", "name": "settingsVariables", "caption": "Create variables for non-selected disposals?"},
+            {"type": "CheckBox", "name": "settingsStartsWith", "caption": "Try to detect differences between configuration data and live data (experimental)"},
             {"type": "Select", "name": "settingsFormat", "caption": "Format, in welchem die Daten abgeholt werden:", "width": "450px",
                 "options": [
                     {"label": "iCalendar file (ICS)", "value": "ics" },

@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-6.0-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.3.20211212-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Version](https://img.shields.io/badge/Modul%20Version-1.3.20211228-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://github.com/Wilkware/IPSymconAwido/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/IPSymconAwido/actions)
 
@@ -142,12 +142,13 @@ __Beispiel__: `ABPIO_FixWasteName(12345, 'Hausmüll', 'Hausmüll (2 wöchentlich
 
 ### 8. Versionshistorie
 
-v1.3.20211212
+v1.3.20211228
 
 * _NEU_: Kompatibilität auf IPS 6.0 hoch gesetzt
 * _NEU_: Konfigurationsformular an die neuen Möglichkeiten der 6.0 angepasst
 * _NEU_: Funktion 'FixWasteName' zur Korrektur von Dateninkonsistenzen eines Anbieters
 * _NEU_: Erweiterte Einstellung zur Auswahl des Formates bei der Datenabholung (ICS oder CSV)
+* _NEU_: Schalter zum automatischen Match der Namen von Abfallarten (experimentell)
 * _FIX_: Daten werden jetzt auch über die Jahresgrenze hinaus aktualisiert
 
 v1.2.20210620
