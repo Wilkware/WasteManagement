@@ -10,3 +10,5 @@ jobs:
       uses: actions/checkout@master
     - name: Check style
       uses: wilkware/action-ips-style@main
+      with:
+        php-version: 7.4
