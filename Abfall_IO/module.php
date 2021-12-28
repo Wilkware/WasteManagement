@@ -471,7 +471,8 @@ class Abfall_IO extends IPSModule
         }
         // CSV format
         else {
-            $csv = array_map(function ($v) {
+            $csv = array_map(function ($v)
+            {
                 $data = str_getcsv($v, ';');
                 return $data;
             }, explode("\n", $res));
