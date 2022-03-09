@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-6.0-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.1.20211212-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Version](https://img.shields.io/badge/Modul%20Version-1.2.20220309-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://github.com/Wilkware/IPSymconAwido/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/IPSymconAwido/actions)
 
@@ -109,6 +109,12 @@ __Beispiel__: `MYMDE_Update(12345);`
 
 ### 8. Versionshistorie
 
+v1.2.20220309
+
+* _NEU_: Unterstützung mehrere Domains
+* _NEU_: Konfigurationsformular optimiert
+* _FIX_: Bugfix für Strassenkomentare
+
 v1.1.20211109
 
 * _NEU_: Kompatibilität auf IPS 6.0 hoch gesetzt
@@ -123,6 +129,7 @@ v1.0.20211109
 Ich möchte mich für die Unterstützung bei der Entwicklung dieses Moduls bedanken bei ...
 
 * _HendrikD_ : für den Hinweis auf die API und das Testen :-)
+* _powerderk_ : für den Hinweis auf die ZAC Domain
 
 Vielen Dank!
 

@@ -72,7 +72,11 @@ trait ServiceHelper
             $link = static::$CLIENTS . $provider;
             $data = $this->ExtractClients($link);
             foreach ($data as $client) {
-                $options[] = ['caption' => $client['name'], 'value' => $client['client']];
+                $value = $client['client'];
+                if (isset($client['domain'])) {
+                    $value = $value . ':' . $client['domain'];
+                }
+                $options[] = ['caption' => $client['name'], 'value' => $value];
             }
         }
         //$this->SendDebug(__FUNCTION__, $options);

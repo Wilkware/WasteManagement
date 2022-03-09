@@ -22,6 +22,7 @@
       "Format in which the data is collected:": "Format, in welchem die Daten abgeholt werden:",
       "iCalendar file (ICS)": "iCalendar Datei (ICS)",
       "Comma Separated Values file (CSV)": "Trennzeichengetrennte Datei (CSV)",
+      "Subsequent execution of a script:": "Anschließendes Ausführen eines Skriptes:",
       "Script:": "Script:",
       "Disposal data ...": "Entsorgungsdaten ...",
       "Update": "Aktualisieren",
@@ -31,7 +32,9 @@
       "Please select a valid refuse management!": "Bitte eine Abfallwirtschaft auswählen!",
       "Please select a correct configuration!": "Bitte wählen Sie ein korrekte Konfiguration aus!",
       "Please select a offered disposals!": "Bitte die angebotenen Entsorgungen auswählen!",
-      "Could not load json data!": "Konnte JSON Daten nicht laden!"
+      "Could not load json data!": "Konnte JSON Daten nicht laden!",
+      "Source code, donation and licence ...": "Quellcode, Spende und Lizenz ...",
+      "The software is free of charge for non-commercial use, I would appreciate a donation if you like the module.": "Die Software ist für die nicht kommzerielle Nutzung kostenlos, über eine Spende bei Gefallen des Moduls würde ich mich sehr freuen."
     }
   }
 }
