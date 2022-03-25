@@ -10,16 +10,16 @@ Die Bibliothek nutzt verschieden Online-Dienste um bevorstehende Entsorgungsterm
 Folgende Module beinhaltet diese Bibliothek:
 
 - __Abfallwirtschaft Konfigurator__ ([Dokumentation](WasteManagementConfigurator))  
-	Konfiguration aller verfügbaren Instanzen pro Online Dienst.
+    Konfiguration aller verfügbaren Instanzen pro Online Dienst.
 
 - __Awido__ ([Dokumentation](Awido))  
-	Der AWIDO (Alle wichtigen Daten online) - Service.
+    Der AWIDO (Alle wichtigen Daten online) - Service.
 
 - __Abfall_IO__ ([Dokumentation](Abfall_IO))  
-	Abfall+ ist die Lösung für elektronische Bürgerdienste in der Abfallwirtschaft.
+    Abfall+ ist die Lösung für elektronische Bürgerdienste in der Abfallwirtschaft.
 
 - __MyMuell__ ([Dokumentation](MyMuell))  
-	MyMüll.de für die saubere Organisierung von Abfall und Wertstoffe.
+    MyMüll.de für die saubere Organisierung von Abfall und Wertstoffe.
 
 ## Historie
 

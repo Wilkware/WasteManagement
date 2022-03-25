@@ -61,7 +61,7 @@ Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
 ### 4. Einrichten der Instanzen in IP-Symcon
 
-* Unter "Instanz hinzufügen" ist das *'Abfall_IO'*-Modul (Alias: *'Abfallwirtschaft (Abfall_IO)'* oder *'Entsorgungskalender (Abfall_IO)'*)  unter dem Hersteller _'(Geräte)'_ aufgeführt.
+* Unter "Instanz hinzufügen" ist das _'Abfall_IO'_-Modul (Alias: _'Abfallwirtschaft (Abfall_IO)'_ oder _'Entsorgungskalender (Abfall_IO)'_)  unter dem Hersteller _'(Geräte)'_ aufgeführt.
 
 __Konfigurationsseite__:
 
