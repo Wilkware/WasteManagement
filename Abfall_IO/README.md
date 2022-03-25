@@ -21,33 +21,9 @@ IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
 
 ### 1. Funktionsumfang
 
-Das Modul nutzt die von Abfall+ (www.abfallplus.de) bereitgestellten Daten zur Berechnung
-der bevorstehenden Entsorgungstermine (Abfallentsorgung).
+Das Modul nutzt die von Abfall+ (www.abfallplus.de) bereitgestellten Daten zur Berechnung der bevorstehenden Entsorgungstermine (Abfallentsorgung).
 
-Derzeit unterstützt das Modul folgende Gebiete:
-
-Entsorgungsgebiet                  | Entsorgungsgebiet             | Entsorgungsgebiet
------------------------------------|-------------------------------|----------------------
- Hohenlohekreis                    | Freiburg im Breisgau          | Landkreis Bad Kissingen
- Landkreis Bautzen                 | Landkreis Bayreuth            | Landkreis Breisgau-Hochschwarzwald
- Landkreis Böblingen               | Landkreis Calw                | Landkreis Cloppenburg
- Landkreis Cuxhaven                | Landkreis Freudenstadt        | Landkreis Göttingen
- Landkreis Göppingen               | Landkreis Kitzingen           | Landkreis Landsberg am Lech
- Landkreis Landshut                | Landkreis Leipzig             | Landkreis Lindau (Bodensee)
- Landkreis Mayen-Koblenz           | Landkreis Miesbach            | Landkreis Nordsachsen
- Landkreis Oberallgäu              | Landkreis Ostallgäu           | Landkreis Osterholz
- Landkreis Prignitz                | Landkreis Rastatt             | Landkreis Reutlingen
- Landkreis Rotenburg (Wümme)       | Landkreis Rottweil            | Landkreis Sigmaringen
- Landkreis Steinfurt               | Landkreis Traunstein          | Landkreis Tuttlingen
- Landkreis Unterallgäu             | Landkreis Vorpommern-Rügen    | Landkreis Waldshut
- Landkreis Weißenburg-Gunzenhausen | Landkreis Würzburg            | Ortenaukreis
- Rhein-Neckar-Kreis                | Stadt Bad Kissingen           | Stadt Essen
- Stadt Duisburg                    | Stadt Frankfurt(Oder)         | Stadt Hagen
- Stadt Kempten (Allgäu)            | Stadt Landshut                | Stadt Ludwigshafen
- Stadt Mannheim                    | Stadt Metzingen               | Stadt Offenbach
- Schoenmackers                     | Schwarzwald-Baar-Kreis        | Westerwaldkreis
-
-Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
+Derzeit unterstützt das Modul über 60 verschiedene Landkreise und Großstädte. Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
 ### 2. Voraussetzungen
 

@@ -21,8 +21,7 @@ IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
 
 ### 1. Funktionsumfang
 
-Das Modul nutzt die von MyMüll.de (www.mymuell.de) bereitgestellten Daten zur Berechnung
-der bevorstehenden Entsorgungstermine (Abfallentsorgung).
+Das Modul nutzt die von MyMüll.de (www.mymuell.de) bereitgestellten Daten zur Berechnung der bevorstehenden Entsorgungstermine (Abfallentsorgung).
 
 Derzeit unterstützt das Modul über 400 verschiedene Gebiete. Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 

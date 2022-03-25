@@ -4,7 +4,7 @@
 [![Product](https://img.shields.io/badge/Symcon%20Version-6.0-blue.svg)](https://www.symcon.de/produkt/)
 [![Licence](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-IP-Symcon Modulbibliothek für die Visualisierung von Entsorgungsterminen.
+IP-Symcon Modulbibliothek für die Visualisierung von Entsorgungsterminen.  
 Die Bibliothek nutzt verschieden Online-Dienste um bevorstehende Entsorgungstermine (Entsorgungskalender) in IPS zu integrieren.
 
 Folgende Module beinhaltet diese Bibliothek:
