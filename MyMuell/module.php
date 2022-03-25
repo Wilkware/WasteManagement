@@ -14,7 +14,10 @@ class MyMuell extends IPSModule
 
     // Service Provider
     private const SERVICE_PROVIDER = 'mymde';
-    private const SERVICE_BASEURL = 'https://mymuell.jumomind.com/mmapp/api.php';
+    private const SERVICE_DOMAIN = [
+        'mymuell' => 'https://mymuell.jumomind.com/mmapp/api.php',
+        'zac'     => 'https://zac.jumomind.com/mmapp/api.php',
+    ];
 
     // Form Elements Positions
     private const ELEM_IMAGE = 0;
@@ -324,12 +327,15 @@ class MyMuell extends IPSModule
      */
     protected function BuildURL($type, $city, $area = null)
     {
-        $url = self::SERVICE_BASEURL . '?';
-
+        // Get domain & id
+        $va = explode(':', $city);
+        $id = $va[0];
+        $domain = isset($va[1]) ? $va[1] : 'mymuell';
+        $url = self::SERVICE_DOMAIN[$domain] . '?';
         // Type
         $url = $url . 'r=' . $type;
         // City
-        $url = $url . '&city_id=' . $city;
+        $url = $url . '&city_id=' . $id;
         // Area
         if ($area != null) {
             $url = $url . '&area_id=' . $area;
@@ -360,7 +366,7 @@ class MyMuell extends IPSModule
                 $data[] = ['caption' => $this->Translate('All'), 'value' => $city];
             } else {
                 foreach ($json as $area) {
-                    if ($area['street_comment'] != '') {
+                    if (isset($area['street_comment']) && $area['street_comment'] != '') {
                         $data[] = ['caption' => $area['name'] . ' (' . $area['street_comment'] . ')', 'value' => $area['area_id']];
                     } else {
                         $data[] = ['caption' => $area['name'], 'value' => $area['area_id']];

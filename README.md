@@ -23,6 +23,7 @@ Folgende Module beinhaltet diese Bibliothek:
 
 ## Historie
 
+- 2022-03-09: Modul MyMuell Multi-Domain-Fähigkeit
 - 2021-11-09: Modul MyMuell (MyMüll.de)
 - 2021-04-06: Modul Abfall_IO (Abfall+)
 - 2021-04-04: Modul Abfallwirtschaft Konfigurator (Waste Management Configurator)
