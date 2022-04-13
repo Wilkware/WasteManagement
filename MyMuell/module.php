@@ -14,10 +14,7 @@ class MyMuell extends IPSModule
 
     // Service Provider
     private const SERVICE_PROVIDER = 'mymde';
-    private const SERVICE_DOMAIN = [
-        'mymuell' => 'https://mymuell.jumomind.com/mmapp/api.php',
-        'zac'     => 'https://zac.jumomind.com/mmapp/api.php',
-    ];
+    private const SERVICE_APIURL = '.jumomind.com/mmapp/api.php?';
 
     // Form Elements Positions
     private const ELEM_IMAGE = 0;
@@ -331,7 +328,7 @@ class MyMuell extends IPSModule
         $va = explode(':', $city);
         $id = $va[0];
         $domain = isset($va[1]) ? $va[1] : 'mymuell';
-        $url = self::SERVICE_DOMAIN[$domain] . '?';
+        $url = 'https://' . $domain . self::SERVICE_APIURL;
         // Type
         $url = $url . 'r=' . $type;
         // City
