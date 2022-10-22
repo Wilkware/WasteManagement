@@ -12,17 +12,21 @@ Folgende Module beinhaltet diese Bibliothek:
 - __Abfallwirtschaft Konfigurator__ ([Dokumentation](WasteManagementConfigurator))  
     Konfiguration aller verfügbaren Instanzen pro Online Dienst.
 
-- __Awido__ ([Dokumentation](Awido))  
-    Der AWIDO (Alle wichtigen Daten online) - Service.
-
 - __Abfall_IO__ ([Dokumentation](Abfall_IO))  
     Abfall+ ist die Lösung für elektronische Bürgerdienste in der Abfallwirtschaft.
+
+- __AbfallNavi__ ([Dokumentation](AbfallNavi))  
+    MyMüll.de für die saubere Organisierung von Abfall und Wertstoffe.
+
+- __Awido__ ([Dokumentation](Awido))  
+    Der AWIDO (Alle wichtigen Daten online) - Service.
 
 - __MyMuell__ ([Dokumentation](MyMuell))  
     MyMüll.de für die saubere Organisierung von Abfall und Wertstoffe.
 
 ## Historie
 
+- 2022-10-20: Modul AbfallNavi (Regio IT)
 - 2022-03-09: Modul MyMuell Multi-Domain-Fähigkeit
 - 2021-11-09: Modul MyMuell (MyMüll.de)
 - 2021-04-06: Modul Abfall_IO (Abfall+)

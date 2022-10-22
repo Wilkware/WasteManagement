@@ -1,0 +1,35 @@
+{
+  "translations": {
+    "de": {
+      "\nAbfallNavi – Disposal calendar\n ": "\nAbfallNavi – Entsorgungskalender\n ",
+      "This module uses the data provided by the Regio IT online service to display upcoming disposal dates.": "Dieses Modul nutzt die vom Online-Dienst Regio IT bereitgestellten Daten zur Darstellung der bevorstehenden Entsorgungstermine.",
+      "Online service ...": "Online Dienst ...",
+      "Provider:": "Anbieter:",
+      "Waste management ...": "Abfallwirtschaft ...",
+      "Please select ...": "Bitte wählen ...",
+      "Disposal area:": "Entsorgungsgebiet:",
+      "Location:": "Stadt:",
+      "Street:": "Straße:",
+      "Number:": "Hausnummer:",
+      "All": "Alle",
+      "The following disposals are offered:": "Folgende Entsorgungen werden angeboten:",
+      "Advanced settings ...": "Erweiterte Einstellungen ...",
+      "Create variables for non-selected disposals?": "Variablen für nicht ausgewählte Entsorgungen erstellen?",
+      "Activate daily update?": "Tägliche Aktualisierung aktivieren?",
+      "... call the following scipt after update the dates:": "... nach Aktualisierung der Werte folgendes Script aufrufen:",
+      "Subsequent execution of a script:": "Anschließendes Ausführen eines Skriptes:",
+      "Script:": "Script:",
+      "Disposal data ...": "Entsorgungsdaten ...",
+      "Update": "Aktualisieren",
+      "Creating instance.": "Die Instanz wird erstellt.",
+      "Instance active.": "Instanz ist aktiv.",
+      "Instance inactive.": "Instanz ist inaktiv.",
+      "Please select a valid refuse management!": "Bitte eine Abfallwirtschaft auswählen!",
+      "Please select a correct configuration!": "Bitte wählen Sie ein korrekte Konfiguration aus!",
+      "Please select a offered disposals!": "Bitte die angebotenen Entsorgungen auswählen!",
+      "Could not load json data!": "Konnte JSON Daten nicht laden!",
+      "Source code, donation and licence ...": "Quellcode, Spende und Lizenz ...",
+      "The software is free of charge for non-commercial use, I would appreciate a donation if you like the module.": "Die Software ist für die nicht kommzerielle Nutzung kostenlos, über eine Spende bei Gefallen des Moduls würde ich mich sehr freuen."
+    }
+  }
+}

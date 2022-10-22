@@ -1,8 +1,8 @@
-# Abfall.IO - Abfallwirtschaft
+# MyMüll.de - Entsorgungskalender
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-6.0-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.5.20221020-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Version](https://img.shields.io/badge/Modul%20Version-1.0.20221020-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://github.com/Wilkware/IPSymconAwido/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/IPSymconAwido/actions)
 
@@ -21,9 +21,9 @@ IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
 
 ### 1. Funktionsumfang
 
-Das Modul nutzt die von Abfall+ (www.abfallplus.de) bereitgestellten Daten zur Berechnung der bevorstehenden Entsorgungstermine (Abfallentsorgung).
+Das Modul nutzt die von Regio IT (www.regioit.de) bereitgestellten Daten zur Berechnung der bevorstehenden Entsorgungstermine (Abfallentsorgung).
 
-Derzeit unterstützt das Modul über 60 verschiedene Landkreise und Großstädte. Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
+Derzeit unterstützt das Modul rund 20 verschiedene Regionen. Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
 ### 2. Voraussetzungen
 
@@ -37,7 +37,7 @@ Derzeit unterstützt das Modul über 60 verschiedene Landkreise und Großstädte
 
 ### 4. Einrichten der Instanzen in IP-Symcon
 
-* Unter "Instanz hinzufügen" ist das _'Abfall_IO'_-Modul (Alias: _'Abfallwirtschaft (Abfall_IO)'_ oder _'Entsorgungskalender (Abfall_IO)'_)  unter dem Hersteller _'(Geräte)'_ aufgeführt.
+* Unter "Instanz hinzufügen" ist das _'AbfallNavi'_-Modul (Alias: _'Abfallwirtschaft (AbfallNavi)'_ oder _'Entsorgungskalender (AbfallNavi)'_)  unter dem Hersteller _'(Geräte)'_ aufgeführt.
 
 __Konfigurationsseite__:
 
@@ -54,17 +54,16 @@ _Einstellungsbereich:_
 
 Name                    | Beschreibung
 ----------------------- | ----------------------------------
-Anbieter                | 'Abfall.IO (abfallplus.de)'
+Anbieter                | 'AbfallNavi (regioit.de)'
 
 > Abfallwirtschaft ...
 
 Name                    | Beschreibung
 ----------------------- | ---------------------------------
-Entsorgungsgebiet       | Liste der verfügbaren Gebiete (siehe oben)
-Stadt/Gemeinde          | Ort im Entsorgungsgebiet (kann identisch zum Gebiet sein)
-Stadt-/Ortsteil         | In einigen Gegend zusätzliche Gebietseinschränkung
-Straße/Abfuhrbezirk     | Strasse bzw. Abfuhrbezirk im gewählten Ort
-Hausnummer              | Hausnummer von-bis, oder Alle = gesamte Strasse
+Entsorgungsgebiet       | Liste der verfügbaren Gebiete/Regionen
+Stadt                   | Stadt im gewählten Gebiet
+Straße                  | Strasse im gewählten Ort
+Hausnummer              | Hausnummer (exakt/von-bis), oder Alle = gesamte Strasse
 Entsorgungen            | Entsorgungsarten, d.h. was wird im Gebiet an Entsorgung angeboten
 
 > Erweiterte Einstellungen ...
@@ -99,57 +98,27 @@ Aber wie bei der Konfiguration beschrieben, muss man aufpassen wenn die Konfigur
 ### 7. PHP-Befehlsreferenz
 
 ```php
-void ABPIO_Update(int $InstanzID);
+void REGIO_Update(int $InstanzID);
 ```
 
 Holt die nächsten anstehenden Entsorgungstermine für die gewählten Entsorgungsarten.  
 Die Funktion liefert keinerlei Rückgabewert.
 
-__Beispiel__: `ABPIO_Update(12345);`
-
-```php
-void ABPIO_FixWasteName(int $InstanzID, string $from, string $to);
-```
-
-Ändert den in der Konfiguration definierten Namen für eine Abfallart. Die Änderung ist nicht persitent und muss nach Konfigurationsänderungen neu ausgeführt werden.
-Die Funktion liefert keinerlei Rückgabewert.
-
-__Beispiel__: `ABPIO_FixWasteName(12345, 'Hausmüll', 'Hausmüll (2 wöchentlich)');`
+__Beispiel__: `REGIO_Update(12345);`
 
 ### 8. Versionshistorie
 
-v1.5.20221020
-
-* _FIX_: Code bereinigt (ungenutzte Funktionen entfernt)
-
-v1.4.20220309
-
-* _NEU_: Konfigurationsformular angepasst
-
-v1.3.20211228
-
-* _NEU_: Kompatibilität auf IPS 6.0 hoch gesetzt
-* _NEU_: Konfigurationsformular an die neuen Möglichkeiten der 6.0 angepasst
-* _NEU_: Funktion 'FixWasteName' zur Korrektur von Dateninkonsistenzen eines Anbieters
-* _NEU_: Erweiterte Einstellung zur Auswahl des Formates bei der Datenabholung (ICS oder CSV)
-* _NEU_: Schalter zum automatischen Match der Namen von Abfallarten (experimentell)
-* _FIX_: Daten werden jetzt auch über die Jahresgrenze hinaus aktualisiert
-
-v1.2.20210620
-
-* _NEU_: Umstellung auf maximal 30 vewrschiedene Abfallarten
-* _NEU_: Bei Änderung des Standortes werden alle Abfallarten deaktiviert
-* _FIX_: IPS_SetProperty nicht mehr notwendig
-* _FIX_: Status wird jetzt bei nicht aktivierter Aktualisierung auf 'Inaktiv' gesetzt
-* _FIX_: Unter Umständen konnte die Erzeugung der Statusvariablen fehlschlagen
-
-v1.1.20210423
-
-* _FIX_: HotFix für doppelte Abfallarten (fehlerhafte Datenlieferung)
-
-v1.0.20210406
+v1.0.20221020
 
 * _NEU_: Initialversion
+
+## Danksagung
+
+Ich möchte mich für die Unterstützung bei der Entwicklung dieses Moduls bedanken bei ...
+
+* _dixi00_ : für den Hinweis auf die API und das Testen :-)
+
+Vielen Dank!
 
 ## Entwickler
 

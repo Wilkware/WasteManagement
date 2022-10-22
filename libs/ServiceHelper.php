@@ -26,6 +26,7 @@ trait ServiceHelper
         'awido' => [1, '{8A591704-E699-4F78-A728-490210FDE747}', 'AWIDO', 'awido-online.de', 'Die Web-Anwendung mit alle wichtigen Entsorgungstermine online!'],
         'abpio' => [2, '{53922265-6F58-E833-34A1-52D44D1C8D3F}', 'Abfall.IO', 'abfallplus.de', 'Abfall+ ist die Lösung für elektronische Bürgerdienste in der Abfallwirtschaft!'],
         'mymde' => [3, '{BCB84068-9194-754C-436F-F10BDD8E51BE}', 'MyMüll', 'mymuell.de', 'Abfall und Wertstoffe sauber organisiert!'],
+        'regio' => [4, '{085BA8B2-118B-208D-3664-3C230C55952E}', 'AbfallNavi', 'regioit.de', 'Der digitale Abfallkalender der regio IT für die Abfallentsorgung.'],
     ];
 
     /**
@@ -92,13 +93,13 @@ trait ServiceHelper
     private function ExtractClients(string $url): array
     {
         // Debug output
-        $this->SendDebug(__FUNCTION__, 'LINK: ' . $url, 0);
+        $this->SendDebug(__FUNCTION__, 'LINK: ' . $url);
         // read API URL
         $json = @file_get_contents($url);
         // error handling
         if ($json === false) {
             $this->LogMessage($this->Translate('Could not load json data!'), KL_ERROR);
-            $this->SendDebug(__FUNCTION__, 'ERROR LOAD DATA', 0);
+            $this->SendDebug(__FUNCTION__, 'ERROR LOAD DATA');
             return [];
         }
         // json decode
