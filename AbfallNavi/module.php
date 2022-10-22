@@ -334,7 +334,7 @@ class AbfallNavi extends IPSModule
         $this->SendDebug(__FUNCTION__, $vars);
         // write data to variable
         foreach ($vars as $key => $time) {
-            $this->SetValueString((string)$key, $time);
+            $this->SetValueString((string) $key, $time);
         }
 
         // execute Script

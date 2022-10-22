@@ -689,7 +689,7 @@ class Abfall_IO extends IPSModule
                     $this->UpdateFormField('fractionID' . $i, 'value', false);
                 }
                 break;
-            // Location selected
+                // Location selected
             case self::ACTION_PLACE:
                 $this->UpdateFormField('placeID', 'visible', true);
                 $this->UpdateFormField('placeID', 'value', 'null');
@@ -710,7 +710,7 @@ class Abfall_IO extends IPSModule
                     $this->UpdateFormField('fractionID' . $i, 'value', false);
                 }
                 break;
-            // District selected
+                // District selected
             case self::ACTION_DISTRICT:
                 $this->UpdateFormField('districtID', 'visible', true);
                 $this->UpdateFormField('districtID', 'value', 'null');
@@ -729,7 +729,7 @@ class Abfall_IO extends IPSModule
                     $this->UpdateFormField('fractionID' . $i, 'value', false);
                 }
                 break;
-            // Street selected
+                // Street selected
             case self::ACTION_STREET:
                 if ($io[self::IO_DISTRICT] == '') {
                     $this->UpdateFormField('districtID', 'visible', false);
@@ -750,7 +750,7 @@ class Abfall_IO extends IPSModule
                     $this->UpdateFormField('fractionID' . $i, 'value', false);
                 }
                 break;
-            // Addon number selected
+                // Addon number selected
             case self::ACTION_ADDON:
                 $this->UpdateFormField('addonID', 'visible', true);
                 $this->UpdateFormField('addonID', 'value', 'null');
@@ -765,7 +765,7 @@ class Abfall_IO extends IPSModule
                     $this->UpdateFormField('fractionID' . $i, 'value', false);
                 }
                 break;
-            // Fractions selected
+                // Fractions selected
             case self::ACTION_FRACTIONS:
                 $this->UpdateFormField('labelFraction', 'visible', true);
                 $f = 1;
