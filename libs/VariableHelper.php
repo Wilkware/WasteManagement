@@ -27,7 +27,7 @@ trait VariableHelper
      */
     protected function SetValueBoolean(string $ident, bool $value)
     {
-        $id = $this->GetIDForIdent($ident);
+        $id = @$this->GetIDForIdent($ident);
         if ($id !== false) {
             SetValueBoolean($id, $value);
         }
@@ -41,7 +41,7 @@ trait VariableHelper
      */
     protected function SetValueString(string $ident, string $value)
     {
-        $id = $this->GetIDForIdent($ident);
+        $id = @$this->GetIDForIdent($ident);
         if ($id !== false) {
             SetValueString($id, $value);
         }
@@ -55,7 +55,7 @@ trait VariableHelper
      */
     protected function SetValueInteger(string $ident, int $value)
     {
-        $id = $this->GetIDForIdent($ident);
+        $id = @$this->GetIDForIdent($ident);
         if ($id !== false) {
             SetValueInteger($id, $value);
         }

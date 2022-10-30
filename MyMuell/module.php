@@ -11,6 +11,7 @@ class MyMuell extends IPSModule
     use EventHelper;
     use DebugHelper;
     use ServiceHelper;
+    use VariableHelper;
 
     // Service Provider
     private const SERVICE_PROVIDER = 'mymde';
@@ -188,10 +189,7 @@ class MyMuell extends IPSModule
 
         // write data to variable
         foreach ($waste as $key => $var) {
-            $varId = @$this->GetIDForIdent($key);
-            if ($varId != 0) {
-                SetValueString($varId, date('d.m.Y', $var['date']));
-            }
+            $this->SetValueString((string)$key, date('d.m.Y', $var['date']));
         }
 
         // execute Script

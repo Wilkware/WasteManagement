@@ -16,6 +16,7 @@ class Abfall_IO extends IPSModule
     use EventHelper;
     use DebugHelper;
     use ServiceHelper;
+    use VariableHelper;
 
     // Service Provider
     private const SERVICE_PROVIDER = 'abpio';
@@ -512,10 +513,7 @@ class Abfall_IO extends IPSModule
 
         // write data to variable
         foreach ($vars as $key => $var) {
-            $varId = @$this->GetIDForIdent($var['ident']);
-            if ($varId != 0) {
-                SetValueString($varId, $var['date']);
-            }
+            $this->SetValueString((string)$var['ident'], $var['date']);
         }
 
         // execute Script

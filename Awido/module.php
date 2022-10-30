@@ -11,6 +11,7 @@ class Awido extends IPSModule
     use EventHelper;
     use DebugHelper;
     use ServiceHelper;
+    use VariableHelper;
 
     // Service Provider
     private const SERVICE_PROVIDER = 'awido';
@@ -257,11 +258,8 @@ class Awido extends IPSModule
         // write data to variable
         foreach ($array as $line) {
             if ($line['exist'] == true) {
-                $varId = @$this->GetIDForIdent($line['ident']);
                 // falls haendich geloescht, dann eben nicht!
-                if ($varId != 0) {
-                    SetValueString($varId, $line['value']);
-                }
+                $this->SetValueString((string)$line['ident'], $line['value']);
             }
         }
 
