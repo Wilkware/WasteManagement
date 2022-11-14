@@ -513,7 +513,7 @@ class Abfall_IO extends IPSModule
 
         // write data to variable
         foreach ($vars as $key => $var) {
-            $this->SetValueString((string)$var['ident'], $var['date']);
+            $this->SetValueString((string) $var['ident'], $var['date']);
         }
 
         // execute Script

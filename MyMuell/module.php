@@ -189,7 +189,7 @@ class MyMuell extends IPSModule
 
         // write data to variable
         foreach ($waste as $key => $var) {
-            $this->SetValueString((string)$key, date('d.m.Y', $var['date']));
+            $this->SetValueString((string) $key, date('d.m.Y', $var['date']));
         }
 
         // execute Script

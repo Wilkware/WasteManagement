@@ -259,7 +259,7 @@ class Awido extends IPSModule
         foreach ($array as $line) {
             if ($line['exist'] == true) {
                 // falls haendich geloescht, dann eben nicht!
-                $this->SetValueString((string)$line['ident'], $line['value']);
+                $this->SetValueString((string) $line['ident'], $line['value']);
             }
         }
 
