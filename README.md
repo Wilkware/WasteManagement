@@ -16,7 +16,7 @@ Folgende Module beinhaltet diese Bibliothek:
     Abfall+ ist die Lösung für elektronische Bürgerdienste in der Abfallwirtschaft.
 
 - __AbfallNavi__ ([Dokumentation](AbfallNavi))  
-    MyMüll.de für die saubere Organisierung von Abfall und Wertstoffe.
+    Der digitale Abfallkalender der regio IT für die Abfallentsorgung.
 
 - __Awido__ ([Dokumentation](Awido))  
     Der AWIDO (Alle wichtigen Daten online) - Service.
