@@ -36,6 +36,11 @@ class AbfallNavi extends IPSModule
     private const IO_FRACTIONS = 'fractions';
     private const IO_NAMES = 'names';
 
+    // Buffer keys
+    private const SB_PLACE = 'place';
+    private const SB_STREET = 'street';
+    private const SB_ADDON = 'addon';
+
     // ACTION Keys
     private const ACTION_CLIENT = 'client';
     private const ACTION_PLACE = 'places';
@@ -75,6 +80,10 @@ class AbfallNavi extends IPSModule
         $this->RegisterAttributeString('io', serialize($this->PrepareIO()));
         // Register daily update timer
         $this->RegisterTimer('UpdateTimer', 0, 'REGIO_Update(' . $this->InstanceID . ');');
+
+        $this->SetBuffer(self::SB_PLACE, '');
+        $this->SetBuffer(self::SB_STREET, '');
+        $this->SetBuffer(self::SB_ADDON, '');
     }
 
     /**
@@ -103,7 +112,7 @@ class AbfallNavi extends IPSModule
 
         // Prompt
         $prompt = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
-        // go throw thw whole way
+        // go throw the whole way
         $next = true;
         // Build io array
         $io = $this->PrepareIO();
@@ -132,7 +141,13 @@ class AbfallNavi extends IPSModule
                     $next = false;
                 }
                 if ($pId != 'null') {
-                    $io[self::IO_PLACE] = $pId;
+                    $json = unserialize($this->GetBuffer(self::SB_PLACE));
+                    foreach ($json as $city) {
+                        if ($city[0] == $pId) {
+                            $io[self::IO_PLACE] = (string) $city[1];
+                            break;
+                        }
+                    }
                     // than prepeare the next
                     $options = $this->ExecuteAction($io);
                     if ($options == null) {
@@ -163,7 +178,13 @@ class AbfallNavi extends IPSModule
                     $next = false;
                 }
                 if ($sId != 'null') {
-                    $io[self::IO_STREET] = $sId;
+                    $json = unserialize($this->GetBuffer(self::SB_STREET));
+                    foreach ($json as $street) {
+                        if ($street[0] == $sId) {
+                            $io[self::IO_STREET] = (string) $street[1];
+                            break;
+                        }
+                    }
                     // than prepeare the next
                     $options = $this->ExecuteAction($io);
                     if ($options == null) {
@@ -193,7 +214,13 @@ class AbfallNavi extends IPSModule
                     $jsonForm['elements'][self::ELEM_REGIO]['items'][2]['items'][1]['visible'] = true;
                 }
                 if ($aId != 'null') {
-                    $io[self::IO_ADDON] = $aId;
+                    $json = unserialize($this->GetBuffer(self::SB_ADDON));
+                    foreach ($json as $addon) {
+                        if ($addon[0] == $aId) {
+                            $io[self::IO_ADDON] = (string) $addon[1];
+                            break;
+                        }
+                    }
                 }
                 if (($aId != 'null') || (($io[self::IO_ADDON] == '') && ($options == null))) {
                     // than prepeare the next
@@ -224,10 +251,8 @@ class AbfallNavi extends IPSModule
                 }
             }
         }
-
         // Write IO array
         $this->WriteAttributeString('io', serialize($io));
-
         // Debug output
         $this->SendDebug(__FUNCTION__, $io);
         // Return Form
@@ -297,6 +322,9 @@ class AbfallNavi extends IPSModule
             $this->SendDebug(__FUNCTION__, 'Status: Instance is not active.');
             return;
         }
+        // Resync IDs :(
+        $this->GetConfigurationForm();
+        // Read data
         $io = unserialize($this->ReadAttributeString('io'));
         $this->SendDebug(__FUNCTION__, $io);
         // Get data
@@ -416,7 +444,7 @@ class AbfallNavi extends IPSModule
         if ($io[self::IO_ACTION] == self::ACTION_FRACTIONS) {
             $this->SendDebug(__FUNCTION__, 'No Addons!!!');
             // Set AddOn = ''
-            $this->UpdateIO($io, self::ACTION_ADDON, null);
+            $this->UpdateIO($io, self::ACTION_ADDON, 'null');
             // Jump over to fractions
             $io[self::IO_ACTION] = self::ACTION_FRACTIONS;
             $data = $this->ExecuteAction($io);
@@ -604,7 +632,17 @@ class AbfallNavi extends IPSModule
         $io[self::IO_ACTION] = $action;
 
         if ($action == self::ACTION_ADDON) {
-            $io[self::IO_ADDON] = ($id != 'null') ? $id : '';
+            if ($id != 'null') {
+                $json = unserialize($this->GetBuffer(self::SB_ADDON));
+                foreach ($json as $addon) {
+                    if ($addon[0] == $id) {
+                        $io[self::IO_ADDON] = (string) $addon[1];
+                        break;
+                    }
+                }
+            } else {
+                $io[self::IO_ADDON] = '';
+            }
             return;
         } else {
             $io[self::IO_ADDON] = '';
@@ -613,14 +651,34 @@ class AbfallNavi extends IPSModule
         }
 
         if ($action == self::ACTION_STREET) {
-            $io[self::IO_STREET] = ($id != 'null') ? $id : '';
+            if ($id != 'null') {
+                $json = unserialize($this->GetBuffer(self::SB_STREET));
+                foreach ($json as $street) {
+                    if ($street[0] == $id) {
+                        $io[self::IO_STREET] = (string) $street[1];
+                        break;
+                    }
+                }
+            } else {
+                $io[self::IO_STREET] = '';
+            }
             return;
         } else {
             $io[self::IO_STREET] = '';
         }
 
         if ($action == self::ACTION_PLACE) {
-            $io[self::IO_PLACE] = ($id != 'null') ? $id : '';
+            if ($id != 'null') {
+                $json = unserialize($this->GetBuffer(self::SB_PLACE));
+                foreach ($json as $city) {
+                    if ($city[0] == $id) {
+                        $io[self::IO_PLACE] = (string) $city[1];
+                        break;
+                    }
+                }
+            } else {
+                $io[self::IO_PLACE] = '';
+            }
             return;
         } else {
             $io[self::IO_PLACE] = '';
@@ -706,6 +764,7 @@ class AbfallNavi extends IPSModule
         $this->SendDebug(__FUNCTION__, $io);
 
         $data = null;
+        $buffer = null;
         switch ($io[self::IO_ACTION]) {
             case self::ACTION_CLIENT:
                 // Build URL data
@@ -716,8 +775,10 @@ class AbfallNavi extends IPSModule
                 if ($res !== false) {
                     $json = json_decode($res, true);
                     foreach ($json as $city) {
-                        $data[] = ['caption' => $city['name'], 'value' => (string) $city['id']];
+                        $data[] = ['caption' => $city['name'], 'value' => (string) $city['name']];
+                        $buffer[] = [$city['name'], $city['id']];
                     }
+                    $this->SetBuffer(self::SB_PLACE, serialize($buffer));
                     $io[self::IO_ACTION] = self::ACTION_PLACE;
                 }
                 break;
@@ -730,8 +791,10 @@ class AbfallNavi extends IPSModule
                 if ($res !== false) {
                     $json = json_decode($res, true);
                     foreach ($json as $street) {
-                        $data[] = ['caption' => $street['name'], 'value' => (string) $street['id']];
+                        $data[] = ['caption' => $street['name'], 'value' => (string) $street['name']];
+                        $buffer[] = [$street['name'], $street['id']];
                     }
+                    $this->SetBuffer(self::SB_STREET, serialize($buffer));
                     $io[self::IO_ACTION] = self::ACTION_STREET;
                 }
                 break;
@@ -747,10 +810,12 @@ class AbfallNavi extends IPSModule
                         if ($street['id'] == $io[self::IO_STREET]) {
                             foreach ($street['hausNrList'] as $number) {
                                 $name = ($number['nr'] == '' ? $this->Translate('All') : $number['nr']);
-                                $data[] = ['caption' => $name, 'value' => (string) $number['id']];
+                                $data[] = ['caption' => $name, 'value' => (string) $number['nr']];
+                                $buffer[] = [$number['nr'], $number['id']];
                             }
                         }
                     }
+                    $this->SetBuffer(self::SB_ADDON, serialize($buffer));
                     $io[self::IO_ACTION] = (empty($data)) ? self::ACTION_FRACTIONS : self::ACTION_ADDON;
                 }
                 break;
