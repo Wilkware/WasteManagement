@@ -3,10 +3,9 @@
     "name": "AbfallNavi",
     "type": 3,
     "vendor": "",
-    "aliases":
-    [
-      "Abfallwirtschaft (AbfallNavi)",
-      "Entsorgungskalender (AbfallNavi)"
+    "aliases": [
+        "Abfallwirtschaft (AbfallNavi)",
+        "Entsorgungskalender (AbfallNavi)"
     ],
     "url": "https://wilkware.de/ip-symcon-module/abfallwirtschaft/",
     "parentRequirements": [],

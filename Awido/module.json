@@ -3,10 +3,9 @@
     "name": "Awido",
     "type": 3,
     "vendor": "",
-    "aliases":
-    [
-      "Abfallwirtschaft (Awido)",
-      "Entsorgungskalender (Awido)"
+    "aliases": [
+        "Abfallwirtschaft (Awido)",
+        "Entsorgungskalender (Awido)"
     ],
     "url": "https://wilkware.de/ip-symcon-module/abfallwirtschaft/",
     "parentRequirements": [],

@@ -3,10 +3,9 @@
     "name": "MyMuell",
     "type": 3,
     "vendor": "",
-    "aliases":
-    [
-      "Abfallwirtschaft (MyMüll.de)",
-      "Entsorgungskalender (MyMüll.de)"
+    "aliases": [
+        "Abfallwirtschaft (MyMüll.de)",
+        "Entsorgungskalender (MyMüll.de)"
     ],
     "url": "https://wilkware.de/ip-symcon-module/abfallwirtschaft/",
     "parentRequirements": [],

@@ -1,12 +1,12 @@
 {
-  "id": "{BE51BF6C-2496-4691-B4F3-027FFF0FD986}",
-  "author": "Wilkware (@Pitti)",
-  "url": "https://wilkware.de",
-  "compatibility": {
-    "version": "6.0"
-  },
-  "name": "Abfallwirtschaft",
-  "version": "3.6",
-  "build": 20230102,
-  "date": 1672657200
+    "id": "{BE51BF6C-2496-4691-B4F3-027FFF0FD986}",
+    "author": "Wilkware (@Pitti)",
+    "url": "https://wilkware.de",
+    "compatibility": {
+        "version": "6.0"
+    },
+    "name": "Abfallwirtschaft",
+    "version": "3.6",
+    "build": 20230102,
+    "date": 1672657200
 }

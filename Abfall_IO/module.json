@@ -3,10 +3,9 @@
     "name": "Abfall_IO",
     "type": 3,
     "vendor": "",
-    "aliases":
-    [
-      "Abfallwirtschaft (Abfall.IO)",
-      "Entsorgungskalender (Abfall.IO)"
+    "aliases": [
+        "Abfallwirtschaft (Abfall.IO)",
+        "Entsorgungskalender (Abfall.IO)"
     ],
     "url": "https://wilkware.de/ip-symcon-module/abfallwirtschaft/",
     "parentRequirements": [],
