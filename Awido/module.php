@@ -42,7 +42,7 @@ class Awido extends IPSModule
         // Advanced Settings
         $this->RegisterPropertyBoolean('createVariables', false);
         $this->RegisterPropertyBoolean('activateAWIDO', true);
-        $this->RegisterPropertyInteger('scriptID', 0);
+        $this->RegisterPropertyInteger('settingsScript', 0);
         // Attributes for dynamic configuration forms (> v2.0)
         $this->RegisterAttributeString('cID', 'null');
         $this->RegisterAttributeString('pID', 'null');
@@ -210,7 +210,7 @@ class Awido extends IPSModule
             }
         }
         $fractIds = implode(',', $fractions);
-        $scriptId = $this->ReadPropertyInteger('scriptID');
+        $scriptId = $this->ReadPropertyInteger('settingsScript');
 
         $this->SendDebug(__FUNCTION__, 'clientID=' . $clientId . ', placeId=' . $placeId . ', streetId=' . $streetId . ', addonId=' . $addonId . ', fractIds=' . $fractIds);
         if ($clientId == 'null' || $placeId == 'null' || $streetId == 'null' || $addonId == 'null' || $fractIds == 'null') {
