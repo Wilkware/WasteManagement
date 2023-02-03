@@ -26,6 +26,7 @@ Folgende Module beinhaltet diese Bibliothek:
 
 ## Historie
 
+- 2023-01-24: Modul Awido (Script-Fix)
 - 2022-10-20: Modul AbfallNavi (Regio IT)
 - 2022-03-09: Modul MyMuell Multi-Domain-Fähigkeit
 - 2021-11-09: Modul MyMuell (MyMüll.de)
