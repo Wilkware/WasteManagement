@@ -3,10 +3,10 @@
     "author": "Wilkware (@Pitti)",
     "url": "https://wilkware.de",
     "compatibility": {
-        "version": "6.0"
+        "version": "6.4"
     },
     "name": "Abfallwirtschaft",
-    "version": "3.6",
-    "build": 20230102,
-    "date": 1672657200
+    "version": "4.0",
+    "build": 20231119,
+    "date": 1700391600
 }

@@ -1,14 +1,14 @@
 {
     "translations": {
         "de": {
-            "\nAbfallNavi – Disposal calendar\n ": "\nAbfallNavi – Entsorgungskalender\n ",
-            "This module uses the data provided by the Regio IT online service to display upcoming disposal dates.": "Dieses Modul nutzt die vom Online-Dienst Regio IT bereitgestellten Daten zur Darstellung der bevorstehenden Entsorgungstermine.",
+            "\nMuellMax – Disposal calendar\n ": "\nMüllMax – Entsorgungskalender\n ",
+            "This module uses the data provided by the MuellMax online service to display upcoming disposal dates.": "Dieses Modul nutzt die vom Online-Dienst MüllMax bereitgestellten Daten zur Darstellung der bevorstehenden Entsorgungstermine.",
             "Online service ...": "Online Dienst ...",
             "Provider:": "Anbieter:",
             "Waste management ...": "Abfallwirtschaft ...",
             "Please select ...": "Bitte wählen ...",
             "Disposal area:": "Entsorgungsgebiet:",
-            "Location:": "Stadt:",
+            "City:": "Stadt:",
             "Street:": "Straße:",
             "Number:": "Hausnummer:",
             "All": "Alle",

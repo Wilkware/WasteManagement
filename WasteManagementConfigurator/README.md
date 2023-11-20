@@ -1,10 +1,10 @@
 # Abfallwirtschafts-Konfigurator (Waste Management Configutrator)
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Product](https://img.shields.io/badge/Symcon%20Version-6.0-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.3.20220309-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg)](https://www.symcon.de/produkt/)
+[![Version](https://img.shields.io/badge/Modul%20Version-2.0.20231119-orange.svg)](https://github.com/Wilkware/WasteManagement)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-[![Actions](https://github.com/Wilkware/IPSymconAwido/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/IPSymconAwido/actions)
+[![Actions](https://github.com/Wilkware/WasteManagement/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/WasteManagement/actions)
 
 IP-Symcon Modul für die Verwaltung von Online Diensten zur Bestimmung von Entsorgungsterminen.
 
@@ -29,18 +29,21 @@ Derzeit unterstützt der Konfigurator folgende Anbieter:
 * [Abfall+](https://abfallplus.de) - "Die Gesamtlösung für elektronische Bürgerdienste in der Abfallwirtschaft!"
 * [MyMüll.de](https://mymuell.de) - "Abfall und Wertstoffe sauber organisiert!"
 * [AbfallNavi](https://regioit.de) - "Der digitale Abfallkalender der regio IT für die Abfallentsorgung!"
+* [MyMuell](https://muellmax.de) - Müllmax Abfallkalender – barrierefrei online und gedruckt.
+
+__HINWEIS:__ Über diese [Suchseite](https://asmium.de) kann man ganz schnell herausfinden ob die eigene Stadt/Gemeinde von einem der aufgelisteten Dienste unterstützt wird! :+1:
 
 Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
 ### 2. Voraussetzungen
 
-* IP-Symcon ab Version 6.0
+* IP-Symcon ab Version 6.4
 
 ### 3. Installation
 
 * Über den Modul Store das Modul Abfallwirtschaft (ehem. Awido) installieren.
 * Alternativ Über das Modul-Control folgende URL hinzufügen.  
-`https://github.com/Wilkware/IPSymconAwido` oder `git://github.com/Wilkware/IPSymconAwido.git`
+`https://github.com/Wilkware/WasteManagement` oder `git://github.com/Wilkware/WasteManagement.git`
 
 ### 4. Einrichten der Instanzen in IP-Symcon
 
@@ -56,7 +59,7 @@ _Einstellungsbereich:_
 
 Name                    | Beschreibung
 ----------------------- | ---------------------------------
-Zielkategorie           | Kategorie unter welcher neue Instanzen erzeugt werden (keine Auswahl im Root)
+Zielkategorie           | Kategorie unter welcher neue Instanzen erzeugt werden (keine Auswahl im Root). Nur bis Version 7!
 
 _Aktionsbereich:_
 
@@ -77,6 +80,11 @@ Es ist keine weitere Steuerung oder gesonderte Darstellung integriert.
 Das Modul bietet keine direkten Funktionsaufrufe.
 
 ### 8. Versionshistorie
+
+v2.0.20231119
+
+* _NEU_: Onlinedienst MuellMax (muellmax.de) hinzugefügt
+* _NEU_: Unterstützung für neuen Konfigurator der Version 7
 
 v1.3.20220309
 

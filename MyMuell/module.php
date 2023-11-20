@@ -12,6 +12,7 @@ class MyMuell extends IPSModule
     use DebugHelper;
     use ServiceHelper;
     use VariableHelper;
+    use VisualisationHelper;
 
     // Service Provider
     private const SERVICE_PROVIDER = 'mymde';
@@ -42,6 +43,8 @@ class MyMuell extends IPSModule
         $this->RegisterPropertyBoolean('settingsActivate', true);
         $this->RegisterPropertyBoolean('settingsVariables', false);
         $this->RegisterPropertyInteger('settingsScript', 0);
+        $this->RegisterPropertyBoolean('settingsTileVisu', false);
+        $this->RegisterPropertyString('settingsTileSkin', 'dark');
         // Register daily update timer
         $this->RegisterTimer('UpdateTimer', 0, 'MYMDE_Update(' . $this->InstanceID . ');');
     }
@@ -113,9 +116,12 @@ class MyMuell extends IPSModule
         $cId = $this->ReadPropertyString('cityID');
         $aId = $this->ReadPropertyString('areaID');
         $activate = $this->ReadPropertyBoolean('settingsActivate');
+        $tilevisu = $this->ReadPropertyBoolean('settingsTileVisu');
         $this->SendDebug(__FUNCTION__, 'cityID=' . ', areaID=' . $aId);
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
+        // Support for Tile Viso (v7.x)
+        $this->MaintainVariable('Widget', $this->Translate('Pickup'), vtString, '~HTMLBox', 0, $tilevisu);
         // Set status
         if ($cId == 'null') {
             $status = 201;
@@ -178,7 +184,7 @@ class MyMuell extends IPSModule
             $data = json_decode($json, true);
             foreach ($data as $entry) {
                 if (!isset($waste[$entry['trash_name']])) {
-                    $waste[$entry['trash_name']] = ['title' => $entry['title'], 'date' => strtotime($entry['day'])];
+                    $waste[$entry['trash_name']] = ['ident' => $entry['trash_name'], 'date' => date('d.m.Y', strtotime($entry['day'])), 'title' => $entry['title']];
                 }
             }
         } else {
@@ -189,7 +195,15 @@ class MyMuell extends IPSModule
 
         // write data to variable
         foreach ($waste as $key => $var) {
-            $this->SetValueString((string) $key, date('d.m.Y', $var['date']));
+            $this->SetValueString((string) $key, $var['date']);
+        }
+
+        // build tile widget
+        $btw = $this->ReadPropertyBoolean('settingsTileVisu');
+        $skin = $this->ReadPropertyString('settingsTileSkin');
+        $this->SendDebug(__FUNCTION__, 'TileVisu: ' . $btw . '(' . $skin . ')');
+        if ($btw == true) {
+            $this->BuildWidget($waste, $skin);
         }
 
         // execute Script

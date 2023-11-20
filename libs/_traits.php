@@ -190,3 +190,4 @@ require_once __DIR__ . '/../libs/EventHelper.php';
 require_once __DIR__ . '/../libs/ProfileHelper.php';
 require_once __DIR__ . '/../libs/ServiceHelper.php';
 require_once __DIR__ . '/../libs/VariableHelper.php';
+require_once __DIR__ . '/../libs/VisualisationHelper.php';

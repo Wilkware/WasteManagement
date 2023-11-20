@@ -255,6 +255,27 @@
                     "caption": "Create variables for non-selected disposals?"
                 },
                 {
+                    "type": "CheckBox",
+                    "name": "settingsTileVisu",
+                    "caption": "Activate support for Tile Visu?"
+                },
+                {
+                    "type": "Select",
+                    "name": "settingsTileSkin",
+                    "caption": "Theme to be used (design):",
+                    "width": "450px",
+                    "options": [
+                        {
+                            "label": "Light Skin",
+                            "value": "light"
+                        },
+                        {
+                            "label": "Dark Skin",
+                            "value": "dark"
+                        }
+                    ]
+                },
+                {
                     "type": "SelectScript",
                     "name": "settingsScript",
                     "caption": "Subsequent execution of a script:",

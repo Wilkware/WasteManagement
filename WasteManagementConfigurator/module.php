@@ -40,8 +40,14 @@ class WasteManagementConfigurator extends IPSModule
     public function GetConfigurationForm()
     {
         $form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        // Version check
+        $version = (float) IPS_GetKernelVersion();
         // Save location
         $location = $this->GetPathOfCategory($this->ReadPropertyInteger('TargetCategory'));
+        // Enable or disable "TargetCategory" for 6.x
+        if ($version < 7) {
+            $form['elements'][2]['visible'] = true;
+        }
         // Build configuration list values
         foreach (static::$PROVIDERS as $key => $value) {
             $values[] = [
@@ -66,7 +72,7 @@ class WasteManagementConfigurator extends IPSModule
                         [
                             'moduleID'      => $value[1],
                             'configuration' => ['serviceProvider' => $key],
-                            'location'      => $location,
+                            'location'      => ($version < 7) ? $location : [],
                         ],
                     ],
                 ];
@@ -81,7 +87,7 @@ class WasteManagementConfigurator extends IPSModule
                     [
                         'moduleID'      => $value[1],
                         'configuration' => ['serviceProvider' => $key],
-                        'location'      => $location,
+                        'location'      => ($version < 7) ? $location : [],
                     ],
                 ],
             ];

@@ -1,7 +1,7 @@
 # Abfallwirtschaft
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Bibliothek-purple.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Product](https://img.shields.io/badge/Symcon%20Version-6.0-blue.svg)](https://www.symcon.de/produkt/)
+[![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg)](https://www.symcon.de/produkt/)
 [![Licence](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 IP-Symcon Modulbibliothek für die Visualisierung von Entsorgungsterminen.  
@@ -21,15 +21,21 @@ Folgende Module beinhaltet diese Bibliothek:
 - __Awido__ ([Dokumentation](Awido))  
     Der AWIDO (Alle wichtigen Daten online) - Service.
 
+- __MuellMax__ ([Dokumentation](MuellMax))  
+    Müllmax Abfallkalender – barrierefrei online und gedruckt.
+
 - __MyMuell__ ([Dokumentation](MyMuell))  
     MyMüll.de für die saubere Organisierung von Abfall und Wertstoffe.
 
+__HINWEIS:__ Über diese [Suchseite](https://asmium.de) kann man ganz schnell herausfinden ob die eigene Stadt/Gemeinde von einem der aufgelisteten Dienste unterstützt wird! :+1:
+
 ## Historie
 
+- 2023-11-19: Modul MuellMax (MüllMax DE)
 - 2023-01-24: Modul Awido (Script-Fix)
 - 2022-10-20: Modul AbfallNavi (Regio IT)
 - 2022-03-09: Modul MyMuell Multi-Domain-Fähigkeit
-- 2021-11-09: Modul MyMuell (MyMüll.de)
+- 2021-11-09: Modul MyMuell (mymüll.de)
 - 2021-04-06: Modul Abfall_IO (Abfall+)
 - 2021-04-04: Modul Abfallwirtschaft Konfigurator (Waste Management Configurator)
 - 2017-01-03: Modul Awido

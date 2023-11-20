@@ -27,6 +27,7 @@ trait ServiceHelper
         'abpio' => [2, '{53922265-6F58-E833-34A1-52D44D1C8D3F}', 'Abfall.IO', 'abfallplus.de', 'Abfall+ ist die Lösung für elektronische Bürgerdienste in der Abfallwirtschaft!'],
         'mymde' => [3, '{BCB84068-9194-754C-436F-F10BDD8E51BE}', 'MyMüll', 'mymuell.de', 'Abfall und Wertstoffe sauber organisiert!'],
         'regio' => [4, '{085BA8B2-118B-208D-3664-3C230C55952E}', 'AbfallNavi', 'regioit.de', 'Der digitale Abfallkalender der regio IT für die Abfallentsorgung.'],
+        'maxde' => [5, '{2EC7DFA0-62D9-2E92-ADB1-6B8201D142FA}', 'MüllMax', 'muellmax.de', 'Abfallkalender – barrierefrei online und gedruckt!'],
     ];
 
     /**
@@ -106,5 +107,43 @@ trait ServiceHelper
         $data = json_decode($json, true);
         // return the events
         return $data['data']['clients'];
+    }
+
+    /**
+     * Order assoziate array data
+     *
+     * @param array $arr
+     * @param string|null $key
+     * @param string $direction
+     */
+    private function OrderData(array $arr, string $key = null, string $direction = 'ASC')
+    {
+        // Check "order by key"
+        if (!is_string($key) && !is_array($key)) {
+            throw new InvalidArgumentException('Order() expects the first parameter to be a valid key or array');
+        }
+        // Build order-by clausel
+        $props = [];
+        if (is_string($key)) {
+            $props[$key] = strtolower($direction) == 'asc' ? 1 : -1;
+        } else {
+            $i = count($key);
+            foreach ($key as $k => $dir) {
+                $props[$k] = strtolower($dir) == 'asc' ? $i : -($i);
+                $i--;
+            }
+        }
+        // Sort by passed keys
+        usort($arr, function ($a, $b) use ($props) {
+            foreach ($props as $key => $val) {
+                if ($a[$key] == $b[$key]) {
+                    continue;
+                }
+                return $a[$key] > $b[$key] ? $val : -($val);
+            }
+            return 0;
+        });
+        // Return sorted array
+        return $arr;
     }
 }

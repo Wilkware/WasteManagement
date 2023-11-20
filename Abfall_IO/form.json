@@ -303,13 +303,34 @@
                 },
                 {
                     "type": "CheckBox",
+                    "name": "settingsTileVisu",
+                    "caption": "Activate support for Tile Visu?"
+                },
+                {
+                    "type": "Select",
+                    "name": "settingsTileSkin",
+                    "caption": "Theme to be used (design):",
+                    "width": "450px",
+                    "options": [
+                        {
+                            "label": "Light Skin",
+                            "value": "light"
+                        },
+                        {
+                            "label": "Dark Skin",
+                            "value": "dark"
+                        }
+                    ]
+                },
+                {
+                    "type": "CheckBox",
                     "name": "settingsStartsWith",
                     "caption": "Try to detect differences between configuration data and live data (experimental)"
                 },
                 {
                     "type": "Select",
                     "name": "settingsFormat",
-                    "caption": "Format, in welchem die Daten abgeholt werden:",
+                    "caption": "Format in which the data is collected:",
                     "width": "450px",
                     "options": [
                         {

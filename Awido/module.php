@@ -12,6 +12,7 @@ class Awido extends IPSModule
     use DebugHelper;
     use ServiceHelper;
     use VariableHelper;
+    use VisualisationHelper;
 
     // Service Provider
     private const SERVICE_PROVIDER = 'awido';
@@ -43,6 +44,8 @@ class Awido extends IPSModule
         $this->RegisterPropertyBoolean('createVariables', false);
         $this->RegisterPropertyBoolean('activateAWIDO', true);
         $this->RegisterPropertyInteger('settingsScript', 0);
+        $this->RegisterPropertyBoolean('settingsTileVisu', false);
+        $this->RegisterPropertyString('settingsTileSkin', 'dark');
         // Attributes for dynamic configuration forms (> v2.0)
         $this->RegisterAttributeString('cID', 'null');
         $this->RegisterAttributeString('pID', 'null');
@@ -143,6 +146,7 @@ class Awido extends IPSModule
         $streetId = $this->ReadPropertyString('streetGUID');
         $addonId = $this->ReadPropertyString('addonGUID');
         $activate = $this->ReadPropertyBoolean('activateAWIDO');
+        $tilevisu = $this->ReadPropertyBoolean('settingsTileVisu');
         $fractions = [];
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
             if ($this->ReadPropertyBoolean('fractionID' . $i)) {
@@ -153,6 +157,8 @@ class Awido extends IPSModule
         $this->SendDebug(__FUNCTION__, 'clientID=' . $clientId . ', placeId=' . $placeId . ', streetId=' . $streetId . ', addonId=' . $addonId . ', fractIds=' . $fractIds);
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
+        // Support for Tile Viso (v7.x)
+        $this->MaintainVariable('Widget', $this->Translate('Pickup'), vtString, '~HTMLBox', 0, $tilevisu);
         //$status = 102;
         if ($clientId == 'null') {
             $status = 201;
@@ -224,10 +230,10 @@ class Awido extends IPSModule
         $data = json_decode($json);
 
         // Fractions mit Kurzzeichen(Short Name)) in Array konvertieren
-        $array = [];
+        $waste = [];
         foreach ($data as $fract) {
             $fractID = $this->ReadPropertyBoolean('fractionID' . $fract->id);
-            $array[$fract->snm] = ['ident' => $fract->snm, 'value' => '', 'exist' => $fractID];
+            $waste[$fract->snm] = ['ident' => $fract->snm, 'date' => '', 'exist' => $fractID];
         }
 
         // update data
@@ -249,18 +255,25 @@ class Awido extends IPSModule
             $tag = substr($day->dt, 6) . '.' . substr($day->dt, 4, 2) . '.' . substr($day->dt, 0, 4);
             // Entsorgungsart herausfinden
             foreach ($day->fr as $snm) {
-                if ($array[$snm]['value'] == '') {
-                    $array[$snm]['value'] = $tag;
+                if ($waste[$snm]['date'] == '') {
+                    $waste[$snm]['date'] = $tag;
                 }
             }
         }
 
         // write data to variable
-        foreach ($array as $line) {
-            if ($line['exist'] == true) {
-                // falls haendich geloescht, dann eben nicht!
-                $this->SetValueString((string) $line['ident'], $line['value']);
+        foreach ($waste as $key => $var) {
+            if ($var['exist'] == true) {
+                $this->SetValueString((string) $var['ident'], $var['date']);
             }
+        }
+
+        // build tile widget
+        $btw = $this->ReadPropertyBoolean('settingsTileVisu');
+        $skin = $this->ReadPropertyString('settingsTileSkin');
+        $this->SendDebug(__FUNCTION__, 'TileVisu: ' . $btw . '(' . $skin . ')');
+        if ($btw == true) {
+            $this->BuildWidget($waste, $skin);
         }
 
         // execute Script

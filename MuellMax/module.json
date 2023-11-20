@@ -1,0 +1,15 @@
+{
+    "id": "{2EC7DFA0-62D9-2E92-ADB1-6B8201D142FA}",
+    "name": "MuellMax",
+    "type": 3,
+    "vendor": "",
+    "aliases": [
+        "Abfallwirtschaft (MüllMax)",
+        "Entsorgungskalender (MüllMax)"
+    ],
+    "url": "https://wilkware.de/ip-symcon-module/abfallwirtschaft/",
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "MAXDE"
+}

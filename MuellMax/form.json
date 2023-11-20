@@ -11,7 +11,7 @@
                 },
                 {
                     "type": "Label",
-                    "label": "\nAbfallNavi – Disposal calendar\n ",
+                    "label": "\nMuellMax – Disposal calendar\n ",
                     "link": false,
                     "bold": true
                 }
@@ -19,7 +19,7 @@
         },
         {
             "type": "Label",
-            "label": "This module uses the data provided by the Regio IT online service to display upcoming disposal dates.",
+            "label": "This module uses the data provided by the MuellMax online service to display upcoming disposal dates.",
             "link": false
         },
         {
@@ -50,10 +50,10 @@
                     "items": [
                         {
                             "type": "Select",
-                            "name": "clientID",
+                            "name": "disposalID",
                             "caption": "Disposal area:",
                             "width": "450px",
-                            "onChange": "IPS_RequestAction($id,'OnChangeClient',$clientID);",
+                            "onChange": "IPS_RequestAction($id,'OnChangeDisposal',$disposalID);",
                             "options": [
                                 {
                                     "label": "Please select ...",
@@ -68,11 +68,11 @@
                     "items": [
                         {
                             "type": "Select",
-                            "name": "placeID",
-                            "caption": "Location:",
+                            "name": "cityID",
+                            "caption": "City:",
                             "width": "450px",
                             "visible": false,
-                            "onChange": "IPS_RequestAction($id,'OnChangePlace',$placeID);",
+                            "onChange": "IPS_RequestAction($id,'OnChangeCity',$cityID);",
                             "options": [
                                 {
                                     "label": "Please select ...",
@@ -328,7 +328,7 @@
             "type": "Button",
             "name": "updateButton",
             "caption": "Update",
-            "onClick": "REGIO_Update($id);",
+            "onClick": "MAXDE_Update($id);",
             "visible": true
         },
         {

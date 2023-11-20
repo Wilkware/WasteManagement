@@ -12,6 +12,7 @@ class AbfallNavi extends IPSModule
     use DebugHelper;
     use ServiceHelper;
     use VariableHelper;
+    use VisualisationHelper;
 
     // Service Provider
     private const SERVICE_PROVIDER = 'regio';
@@ -76,6 +77,8 @@ class AbfallNavi extends IPSModule
         $this->RegisterPropertyBoolean('settingsActivate', true);
         $this->RegisterPropertyBoolean('settingsVariables', false);
         $this->RegisterPropertyInteger('settingsScript', 0);
+        $this->RegisterPropertyBoolean('settingsTileVisu', false);
+        $this->RegisterPropertyString('settingsTileSkin', 'dark');
         // Attributes for dynamic configuration forms (> v3.0)
         $this->RegisterAttributeString('io', serialize($this->PrepareIO()));
         // Register daily update timer
@@ -268,9 +271,12 @@ class AbfallNavi extends IPSModule
         $sId = $this->ReadPropertyString('streetID');
         $aId = $this->ReadPropertyString('addonID');
         $activate = $this->ReadPropertyBoolean('settingsActivate');
+        $tilevisu = $this->ReadPropertyBoolean('settingsTileVisu');
         $this->SendDebug(__FUNCTION__, 'clientID=' . $cId . ', placeId=' . $pId . ', streetId=' . $sId . ', addonId=' . $aId);
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
+        // Support for Tile Viso (v7.x)
+        $this->MaintainVariable('Widget', $this->Translate('Pickup'), vtString, '~HTMLBox', 0, $tilevisu);
         // Set status
         $io = unserialize($this->ReadAttributeString('io'));
         $this->SendDebug(__FUNCTION__, $io);
@@ -335,12 +341,12 @@ class AbfallNavi extends IPSModule
             return;
         }
         // fractions convert to name => ident
-        $vars = [];
+        $waste = [];
         foreach ($io[self::IO_NAMES] as $ident => $name) {
             $this->SendDebug(__FUNCTION__, 'Fraction ident: ' . $ident . ', Name: ' . $name);
-            $vars[$ident] = '';
+            $waste[$ident] = ['ident' => $ident, 'date' => ''];
         }
-        $this->SendDebug(__FUNCTION__, $vars);
+        $this->SendDebug(__FUNCTION__, $waste);
         // Build timestamp
         $today = mktime(0, 0, 0);
         // Iterate dates
@@ -350,19 +356,27 @@ class AbfallNavi extends IPSModule
                 continue;
             }
             // find out disposal type
-            foreach ($vars as $key => $time) {
+            foreach ($waste as $key => $time) {
                 if ($key == $day['id']) {
-                    if ($time == '') {
-                        $vars[$key] = date('d.m.Y', strtotime($day['date']));
+                    if ($time['date'] == '') {
+                        $waste[$key]['date'] = date('d.m.Y', strtotime($day['date']));
                     }
                     break;
                 }
             }
         }
-        $this->SendDebug(__FUNCTION__, $vars);
+        $this->SendDebug(__FUNCTION__, $waste);
         // write data to variable
-        foreach ($vars as $key => $time) {
-            $this->SetValueString((string) $key, $time);
+        foreach ($waste as $key => $var) {
+            $this->SetValueString((string) $var['ident'], $var['date']);
+        }
+
+        // build tile widget
+        $btw = $this->ReadPropertyBoolean('settingsTileVisu');
+        $skin = $this->ReadPropertyString('settingsTileSkin');
+        $this->SendDebug(__FUNCTION__, 'TileVisu: ' . $btw . '(' . $skin . ')');
+        if ($btw == true) {
+            $this->BuildWidget($waste, $skin);
         }
 
         // execute Script
@@ -861,6 +875,7 @@ class AbfallNavi extends IPSModule
                     foreach ($json as $date) {
                         $data[] = ['id' => $date['bezirk']['fraktionId'], 'date' => $date['datum']];
                     }
+                    $data = $this->OrderData($data, 'date');
                     $io[self::IO_ACTION] = self::ACTION_DATES;
                 }
                 break;

@@ -1,10 +1,10 @@
 # MyMüll
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Product](https://img.shields.io/badge/Symcon%20Version-6.0-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-2.0.20230102-orange.svg)](https://github.com/Wilkware/IPSymconAwido)
+[![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg)](https://www.symcon.de/produkt/)
+[![Version](https://img.shields.io/badge/Modul%20Version-3.0.20231119-orange.svg)](https://github.com/Wilkware/WasteManagement)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-[![Actions](https://github.com/Wilkware/IPSymconAwido/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/IPSymconAwido/actions)
+[![Actions](https://github.com/Wilkware/WasteManagement/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/WasteManagement/actions)
 
 IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
 
@@ -27,13 +27,13 @@ Derzeit unterstützt das Modul über 400 verschiedene Gebiete. Wenn jemand noch 
 
 ### 2. Voraussetzungen
 
-* IP-Symcon ab Version 6.0
+* IP-Symcon ab Version 6.4
 
 ### 3. Installation
 
 * Über den Modul Store das Modul Abfallwirtschaft (ehem. Awido) installieren.
 * Alternativ Über das Modul-Control folgende URL hinzufügen.  
-`https://github.com/Wilkware/IPSymconAwido` oder `git://github.com/Wilkware/IPSymconAwido.git`
+`https://github.com/Wilkware/WasteManagement` oder `git://github.com/Wilkware/WasteManagement.git`
 
 ### 4. Einrichten der Instanzen in IP-Symcon
 
@@ -105,6 +105,11 @@ Die Funktion liefert keinerlei Rückgabewert.
 __Beispiel__: `MYMDE_Update(12345);`
 
 ### 8. Versionshistorie
+
+v3.0.20231119
+
+* _NEU_: Kompatibilität auf IPS 6.4 hoch gesetzt
+* _NEU_: Support für v7 Visualisierung
 
 v2.0.20230102
 
