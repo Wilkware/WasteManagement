@@ -30,18 +30,19 @@ trait VisualisationHelper
         // (0) tabel with all infos
         $table = [];
         // (1) build new data array
-        foreach($waste as $key => $value) {
+        foreach ($waste as $key => $value) {
             $id = @$this->GetIDForIdent($value['ident']);
             if ($id !== false) {
                 $name = IPS_GetName($id);
                 $type = $this->RecognizeWaste($name);
                 $date = $value['date'];
                 $days = $this->CalcDaysToDate($date);
-                $table[] = ['name' => $name, 'type' => $type, 'date' => $date, 'days' => $days ];
+                $table[] = ['name' => $name, 'type' => $type, 'date' => $date, 'days' => $days];
             }
         }
         // (2) sort waste by date
-        usort($table,  function ($a, $b) {
+        usort($table, function ($a, $b)
+        {
             return strtotime($a['date']) - strtotime($b['date']);
         });
         // (3) build html texts
@@ -57,7 +58,7 @@ trait VisualisationHelper
         // generate widget for tile visu
         if ($next == '') {
             $next = date('d.m.', strtotime($table[0]['date']));
-            $next = $this->Translate(date('D', strtotime($table[0]['date']))) . '. ' . $next; 
+            $next = $this->Translate(date('D', strtotime($table[0]['date']))) . '. ' . $next;
         }
         $textS = '';
         $textM = '';
@@ -65,10 +66,10 @@ trait VisualisationHelper
         // date infos
         $days = $table[0]['days'];
         $day = strtotime($table[0]['date']);
-        $wd = $this->Translate (date('l'));
+        $wd = $this->Translate(date('l'));
         $sd = date('d.m.', $day);
         $wn = $table[0]['name'];
-        if($days > 1) {
+        if ($days > 1) {
             $textS = "in $days " . $this->Translate('days');
             $textM = "$wn<br /><br />" . $this->Translate('Next pickup:') . "<br />in $days " . $this->Translate('days') . '<br />' . $this->Translate('on') . " $wd $sd";
         } else {
@@ -77,10 +78,10 @@ trait VisualisationHelper
         }
         // table rows
         $textL = '';
-        foreach($table as $row) {
+        foreach ($table as $row) {
             if ($row['days'] == 0) $text = $this->Translate('Today');
             if ($row['days'] == 1) $text = $this->Translate('Tomorrow');
-            if ($row['days'] >= 2) $text = $row['days'] . ' ' .  $this->Translate('days');
+            if ($row['days'] >= 2) $text = $row['days'] . ' ' . $this->Translate('days');
             $textL .= '<tr>';
             $textL .= '<td><svg class="icon icon--' . $row['type'] . '" aria-hidden="true"><use xlink:href="#icon-waste" href="#icon-waste" /></svg></td>';
             $textL .= '<td>' . $row['name'] . '</td>';
@@ -135,15 +136,15 @@ trait VisualisationHelper
 <!-- Small Cards -->
 <div class="cardS">
     <div id="grid">
-        <svg class="icon icon--' . $table[0]['type'] .'" aria-hidden="true"><use xlink:href="#icon-waste" href="#icon-waste" /></svg>
-        <div class="text">' . $textS. '</div>
+        <svg class="icon icon--' . $table[0]['type'] . '" aria-hidden="true"><use xlink:href="#icon-waste" href="#icon-waste" /></svg>
+        <div class="text">' . $textS . '</div>
     </div>
 </div>
 <!-- Medium Cards -->
 <div class="cardM">
     <div id="grid">
-        <svg class="icon icon--' . $table[0]['type'] .'" aria-hidden="true"><use xlink:href="#icon-waste" href="#icon-waste" /></svg>
-        <div class="text">' . $textM. '</div>
+        <svg class="icon icon--' . $table[0]['type'] . '" aria-hidden="true"><use xlink:href="#icon-waste" href="#icon-waste" /></svg>
+        <div class="text">' . $textM . '</div>
     </div>
 </div>
 <!-- Large Cards -->
@@ -152,7 +153,7 @@ trait VisualisationHelper
         <thead >
             <tr><th></th><th>' . $removal . '</th><th>' . $date . '</th><th>' . $pickup . '</th></tr>
         </thead>' .
-        $textL .'
+        $textL . '
     </table>
 </div>
 
@@ -187,16 +188,16 @@ trait VisualisationHelper
      */
     private function RecognizeWaste($name)
     {
-        if(preg_match("/(papier|pappe|zeitung)/i", $name)){
+        if (preg_match('/(papier|pappe|zeitung)/i', $name)) {
             return 'blue';
         }
-        if(preg_match("/(bio|grün|garten|baum|schnittgut)/i", $name)){
+        if (preg_match('/(bio|grün|garten|baum|schnittgut)/i', $name)) {
             return 'green';
         }
-        if(preg_match("/(gelb|plast|pvc)/i", $name)){
+        if (preg_match('/(gelb|plast|pvc)/i', $name)) {
             return 'yellow';
         }
-        if(preg_match("/(schadstoff|sonder|sperr)/i", $name)){
+        if (preg_match('/(schadstoff|sonder|sperr)/i', $name)) {
             return 'red';
         }
         // Rest or all others

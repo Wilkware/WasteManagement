@@ -134,7 +134,8 @@ trait ServiceHelper
             }
         }
         // Sort by passed keys
-        usort($arr, function ($a, $b) use ($props) {
+        usort($arr, function ($a, $b) use ($props)
+        {
             foreach ($props as $key => $val) {
                 if ($a[$key] == $b[$key]) {
                     continue;
