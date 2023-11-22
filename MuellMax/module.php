@@ -47,7 +47,7 @@ class MuellMax extends IPSModule
     private const ELEM_LABEL = 1;
     private const ELEM_PROVI = 2;
     private const ELEM_WASTE = 3;
-    private const ELEM_VISU  = 4;
+    private const ELEM_VISU = 4;
 
     /**
      * Create.
@@ -307,8 +307,8 @@ class MuellMax extends IPSModule
         // Debug output
         $this->SendDebug(__FUNCTION__, $io);
         //Only add default element if we do not have anything in persistence
-        $colors = json_decode($this->ReadPropertyString("settingsTileColors"), true);
-        if(empty($colors)) {
+        $colors = json_decode($this->ReadPropertyString('settingsTileColors'), true);
+        if (empty($colors)) {
             $this->SendDebug(__FUNCTION__, 'Translate Waste Visu');
             $jsonForm['elements'][self::ELEM_VISU]['items'][2]['values'] = $this->GetWasteValues();
         }
@@ -504,7 +504,7 @@ class MuellMax extends IPSModule
         $this->SendDebug(__FUNCTION__, 'TileVisu: ' . $btw);
         if ($btw == true) {
             $skin = $this->ReadPropertyString('settingsTileSkin');
-            $list = json_decode($this->ReadPropertyString('settingsTileColors'), true); 
+            $list = json_decode($this->ReadPropertyString('settingsTileColors'), true);
             $this->BuildWidget($waste, $skin, $list);
         }
 
