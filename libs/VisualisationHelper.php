@@ -128,7 +128,7 @@ trait VisualisationHelper
         $tbc = ($skin == 'light') ? '#D7D6D6' : '#4A4B4D';
         $wic = '';
         foreach ($custom as $color) {
-            $wic .= '    .icon--' . $color['Type'] . ' { fill: #' . dechex($color['Color']) . ';}' . PHP_EOL;
+            $wic .= '    .icon--' . $color['Type'] . ' { fill: #' . sprintf("%06X", $color['Color']) . ';}' . PHP_EOL;
         }
 
         $html = '
@@ -150,7 +150,7 @@ $wic . '
     .hidden { display: none; }
     table.wwx { border-collapse: collapse; width: 100% }
     .wwx th, .wwx td { vertical-align: middle; text-align: left; padding: 10px; }
-    .wwx tr { border-bottom: 2px solid ' . $tbc . '; }
+    .wwx tr { border-bottom: 1px solid ' . $tbc . '; }
     .tr4 tr > :nth-child(4) { text-align:right; }
     .badge { background-color: #00CDAB; font-weight: bold; font-size: 80%; border-radius: 10em; min-width: 1.5em; padding: 0.5em; text-align: center; }
     @media screen and (min-width: 384px) {
