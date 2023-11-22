@@ -23,6 +23,7 @@ class MyMuell extends IPSModule
     private const ELEM_LABEL = 1;
     private const ELEM_PROVI = 2;
     private const ELEM_MYMDE = 3;
+    private const ELEM_VISU  = 4;
 
     /**
      * Create.
@@ -39,12 +40,14 @@ class MyMuell extends IPSModule
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
             $this->RegisterPropertyBoolean('fractionID' . $i, false);
         }
+        // Visualisation
+        $this->RegisterPropertyBoolean('settingsTileVisu', false);
+        $this->RegisterPropertyString('settingsTileSkin', 'dark');
+        $this->RegisterPropertyString('settingsTileColors', '[]');
         // Advanced Settings
         $this->RegisterPropertyBoolean('settingsActivate', true);
         $this->RegisterPropertyBoolean('settingsVariables', false);
         $this->RegisterPropertyInteger('settingsScript', 0);
-        $this->RegisterPropertyBoolean('settingsTileVisu', false);
-        $this->RegisterPropertyString('settingsTileSkin', 'dark');
         // Register daily update timer
         $this->RegisterTimer('UpdateTimer', 0, 'MYMDE_Update(' . $this->InstanceID . ');');
     }
@@ -101,6 +104,14 @@ class MyMuell extends IPSModule
                 }
             }
         }
+
+        //Only add default element if we do not have anything in persistence
+        $colors = json_decode($this->ReadPropertyString("settingsTileColors"), true);
+        if(empty($colors)) {
+            $this->SendDebug(__FUNCTION__, 'Translate Waste Visu');
+            $jsonForm['elements'][self::ELEM_VISU]['items'][2]['values'] = $this->GetWasteValues();
+        }
+
         // Return Form
         return json_encode($jsonForm);
     }
@@ -200,10 +211,11 @@ class MyMuell extends IPSModule
 
         // build tile widget
         $btw = $this->ReadPropertyBoolean('settingsTileVisu');
-        $skin = $this->ReadPropertyString('settingsTileSkin');
-        $this->SendDebug(__FUNCTION__, 'TileVisu: ' . $btw . '(' . $skin . ')');
+        $this->SendDebug(__FUNCTION__, 'TileVisu: ' . $btw);
         if ($btw == true) {
-            $this->BuildWidget($waste, $skin);
+            $skin = $this->ReadPropertyString('settingsTileSkin');
+            $list = json_decode($this->ReadPropertyString('settingsTileColors'), true); 
+            $this->BuildWidget($waste, $skin, $list);
         }
 
         // execute Script

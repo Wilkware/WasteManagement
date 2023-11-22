@@ -49,6 +49,7 @@ class Abfall_IO extends IPSModule
     private const ELEM_LABEL = 1;
     private const ELEM_PROVI = 2;
     private const ELEM_ABPIO = 3;
+    private const ELEM_VISU  = 4;
 
     /**
      * Create.
@@ -68,14 +69,16 @@ class Abfall_IO extends IPSModule
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
             $this->RegisterPropertyBoolean('fractionID' . $i, false);
         }
+        // Visualisation
+        $this->RegisterPropertyBoolean('settingsTileVisu', false);
+        $this->RegisterPropertyString('settingsTileSkin', 'dark');
+        $this->RegisterPropertyString('settingsTileColors', '[]');
         // Advanced Settings
         $this->RegisterPropertyBoolean('settingsActivate', true);
         $this->RegisterPropertyBoolean('settingsVariables', false);
         $this->RegisterPropertyBoolean('settingsStartsWith', false);
         $this->RegisterPropertyInteger('settingsScript', 0);
         $this->RegisterPropertyString('settingsFormat', 'ics');
-        $this->RegisterPropertyBoolean('settingsTileVisu', false);
-        $this->RegisterPropertyString('settingsTileSkin', 'dark');
         // Attributes for dynamic configuration forms (> v3.0)
         $this->RegisterAttributeString('io', serialize($this->PrepareIO()));
         // Register daily update timer
@@ -272,12 +275,16 @@ class Abfall_IO extends IPSModule
                 $next = false;
             }
         }
-
         // Write IO array
         $this->WriteAttributeString('io', serialize($io));
-
         // Debug output
         $this->SendDebug(__FUNCTION__, $io);
+        //Only add default element if we do not have anything in persistence
+        $colors = json_decode($this->ReadPropertyString("settingsTileColors"), true);
+        if(empty($colors)) {
+            $this->SendDebug(__FUNCTION__, 'Translate Waste Visu');
+            $jsonForm['elements'][self::ELEM_VISU]['items'][2]['values'] = $this->GetWasteValues();
+        }
         // Return Form
         return json_encode($jsonForm);
     }
@@ -524,10 +531,11 @@ class Abfall_IO extends IPSModule
 
         // build tile widget
         $btw = $this->ReadPropertyBoolean('settingsTileVisu');
-        $skin = $this->ReadPropertyString('settingsTileSkin');
-        $this->SendDebug(__FUNCTION__, 'TileVisu: ' . $btw . '(' . $skin . ')');
+        $this->SendDebug(__FUNCTION__, 'TileVisu: ' . $btw);
         if ($btw == true) {
-            $this->BuildWidget($waste, $skin);
+            $skin = $this->ReadPropertyString('settingsTileSkin');
+            $list = json_decode($this->ReadPropertyString('settingsTileColors'), true); 
+            $this->BuildWidget($waste, $skin, $list);
         }
 
         // execute Script

@@ -289,18 +289,8 @@
         },
         {
             "type": "ExpansionPanel",
-            "caption": "Advanced settings ...",
+            "caption": "Visualisation ...",
             "items": [
-                {
-                    "type": "CheckBox",
-                    "name": "settingsActivate",
-                    "caption": "Activate daily update?"
-                },
-                {
-                    "type": "CheckBox",
-                    "name": "settingsVariables",
-                    "caption": "Create variables for non-selected disposals?"
-                },
                 {
                     "type": "CheckBox",
                     "name": "settingsTileVisu",
@@ -321,6 +311,68 @@
                             "value": "dark"
                         }
                     ]
+                },
+                {
+                    "type": "List",
+                    "name": "settingsTileColors",
+                    "caption": "Waste groups:",
+                    "add": false,
+                    "delete": false,
+                    "changeOrder": false,
+                    "rowCount": 5,
+                    "columns": [
+                        {
+                            "name": "Type",
+                            "caption": "Waste Type:",
+                            "save": true,
+                            "visible": false
+                        },
+                        {
+                            "name": "Term",
+                            "caption": "Generic term:",
+                            "save": true,
+                            "width": "200px"
+                        },
+                        {
+                            "name": "Color",
+                            "caption": "Barrel colour:",
+                            "width": "150px",
+                            "edit": {
+                                "type": "SelectColor",
+                                "allowTransparent": false
+                            }
+                        },
+                        {
+                            "name": "Match",
+                            "caption": "Search term:",
+                            "width": "auto",
+                            "add": "",
+                            "edit": {
+                                "type": "ValidationTextBox"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "Label",
+                    "label": "HINT: Always separate different search terms with | and do not use spaces!",
+                    "italic": true
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "Advanced settings ...",
+            "items": [
+                {
+                    "type": "CheckBox",
+                    "name": "settingsActivate",
+                    "caption": "Activate daily update?"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "settingsVariables",
+                    "caption": "Create variables for non-selected disposals?"
                 },
                 {
                     "type": "CheckBox",

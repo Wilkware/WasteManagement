@@ -112,7 +112,7 @@ v2.0.20231119
 
 * _NEU_: Kompatibilität auf IPS 6.4 hoch gesetzt
 * _NEU_: Support für v7 Visualisierung
-* _FIX_: Sortierreihenfolge der Daten korriegiert
+* _FIX_: Sortierreihenfolge der Daten korrigiert
 
 v1.0.20221020
 

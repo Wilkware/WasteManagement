@@ -20,11 +20,37 @@ declare(strict_types=1);
 trait VisualisationHelper
 {
     /**
+     * Pre-defined waste types with assoziated color and search term.
+     */
+    private const WASTE_TYPES = [
+        ['Type' => 'blue',   'Term' => 'Recyclable Waste',       'Color'=> 1155315,  'Match'=> 'papier|pappe|zeitung'],
+        ['Type' => 'green',  'Term' => 'Organic Waste',          'Color'=> 5810438,  'Match'=> 'bio|grün|garten|baum|schnittgut'],
+        ['Type' => 'yellow', 'Term' => 'Mixed Recycling Waste',  'Color'=> 16761095, 'Match'=> 'gelb|plaste|pvc'],
+        ['Type' => 'red',    'Term' => 'Hazardous Waste',        'Color'=> 15948332, 'Match'=> 'schadstoff|sonder|sperr|problem'],
+        ['Type' => 'gray',   'Term' => 'General Waste',          'Color'=> 10066588, 'Match'=> 'rest']
+    ];
+
+
+    /**
+     * GetWasteValues for form list
+     * @return array List values
+     */
+    protected function GetWasteValues()
+    {
+        $values = [];
+        foreach (self::WASTE_TYPES as $value) {
+            $value['Term'] = $this->Translate($value['Term']);
+            $values[] = $value;
+        }
+        return $values;
+    }
+
+    /**
      * Build a html widget for waste dates.
      *
      * @param array $waste Array with waste names and the next pick-up date.
      */
-    protected function BuildWidget(array $waste, string $skin)
+    protected function BuildWidget(array $waste, string $skin, array $custom)
     {
         $this->SendDebug(__FUNCTION__, $waste);
         // (0) tabel with all infos
@@ -34,11 +60,18 @@ trait VisualisationHelper
             $id = @$this->GetIDForIdent($value['ident']);
             if ($id !== false) {
                 $name = IPS_GetName($id);
-                $type = $this->RecognizeWaste($name);
-                $date = $value['date'];
-                $days = $this->CalcDaysToDate($date);
-                $table[] = ['name' => $name, 'type' => $type, 'date' => $date, 'days' => $days];
+                $type = $this->RecognizeWaste($name, $custom);
+                $date = isset($value['date']) ? $value['date'] : '';
+                if ($date != '') {
+                    $days = $this->CalcDaysToDate($date);
+                    $table[] = ['name' => $name, 'type' => $type, 'date' => $date, 'days' => $days];
+                }
             }
+        }
+        // Security Check
+        if (empty($table)) {
+            $table[] = ['name' => 'No DATA!', 'type' => 'red', 'date' => date('d.m.Y'), 'days' => 0];
+            $this->SendDebug(__FUNCTION__, 'SECURITY CHECK: NO DATA!!!');
         }
         // (2) sort waste by date
         usort($table, function ($a, $b)
@@ -66,7 +99,7 @@ trait VisualisationHelper
         // date infos
         $days = $table[0]['days'];
         $day = strtotime($table[0]['date']);
-        $wd = $this->Translate(date('l'));
+        $wd = $this->Translate(date('l', $day));
         $sd = date('d.m.', $day);
         $wn = $table[0]['name'];
         if ($days > 1) {
@@ -94,6 +127,12 @@ trait VisualisationHelper
         $pickup = $this->Translate('Pickup');
         $date = $this->Translate('Date');
         $tbc = ($skin == 'light') ? '#D7D6D6' : '#4A4B4D';
+        $wic = '';
+        foreach($custom as $color) {
+            $wic .= '    .icon--' . $color['Type'] . ' { fill: #' . dechex($color['Color']) . ';}' . PHP_EOL;
+        }
+
+
         $html = '
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
@@ -107,12 +146,8 @@ trait VisualisationHelper
     .cardL { display:none; }
     #grid {width: 100%; height: 100%; display: grid; justify-items: center; }
     #grid > div { justify-content: center; align-items: center; display: flex; width: 100%; }
-    .icon {width: 100%; height: 100%; }
-    .icon--green {fill:  #58A906;}
-    .icon--yellow { fill: #FFC107;}
-    .icon--gray { fill: #999A9C;}
-    .icon--blue { fill: #11A0F3;}
-    .icon--red { fill: #F35A2C;}
+    .icon {width: 100%; height: 100%; }' .
+$wic . '
     .text { font-size: 1.2em; }
     .hidden { display: none; }
     table.wwx { border-collapse: collapse; width: 100% }
@@ -186,19 +221,13 @@ trait VisualisationHelper
      *
      * @param mixed $name
      */
-    private function RecognizeWaste($name)
+    private function RecognizeWaste($name, $matches)
     {
-        if (preg_match('/(papier|pappe|zeitung)/i', $name)) {
-            return 'blue';
-        }
-        if (preg_match('/(bio|grün|garten|baum|schnittgut)/i', $name)) {
-            return 'green';
-        }
-        if (preg_match('/(gelb|plast|pvc)/i', $name)) {
-            return 'yellow';
-        }
-        if (preg_match('/(schadstoff|sonder|sperr)/i', $name)) {
-            return 'red';
+        foreach($matches as $match) {
+            $pm = '/(' . $match['Match'] . ')/i';
+            if (preg_match($pm, $name)) {
+                return $match['Type'];
+            }
         }
         // Rest or all others
         return 'gray';
