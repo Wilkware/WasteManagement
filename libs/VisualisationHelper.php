@@ -30,7 +30,6 @@ trait VisualisationHelper
         ['Type' => 'gray',   'Term' => 'General Waste',          'Color'=> 10066588, 'Match'=> 'rest']
     ];
 
-
     /**
      * GetWasteValues for form list
      * @return array List values
@@ -128,10 +127,9 @@ trait VisualisationHelper
         $date = $this->Translate('Date');
         $tbc = ($skin == 'light') ? '#D7D6D6' : '#4A4B4D';
         $wic = '';
-        foreach($custom as $color) {
+        foreach ($custom as $color) {
             $wic .= '    .icon--' . $color['Type'] . ' { fill: #' . dechex($color['Color']) . ';}' . PHP_EOL;
         }
-
 
         $html = '
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -223,7 +221,7 @@ $wic . '
      */
     private function RecognizeWaste($name, $matches)
     {
-        foreach($matches as $match) {
+        foreach ($matches as $match) {
             $pm = '/(' . $match['Match'] . ')/i';
             if (preg_match($pm, $name)) {
                 return $match['Type'];
