@@ -90,10 +90,10 @@ trait VisualisationHelper
         // (*) build svg icons & textM
         $svg = '';
         $wn = '';
-        for($i=0; $i < $pickups; $i++) {
+        for ($i = 0; $i < $pickups; $i++) {
             $svg .= '<svg class="icon icon--' . $table[$i]['type'] . '" aria-hidden="true"><use xlink:href="#icon-waste" href="#icon-waste" /></svg>';
             $wn .= $table[$i]['name'];
-            if($i != $pickups-1) {
+            if ($i != ($pickups - 1)) {
                 $wn .= ',';
             }
         }
