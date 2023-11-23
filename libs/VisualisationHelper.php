@@ -52,9 +52,9 @@ trait VisualisationHelper
     protected function BuildWidget(array $waste, string $skin, array $custom)
     {
         $this->SendDebug(__FUNCTION__, $waste);
-        // (0) tabel with all infos
+        // (*) tabel with all infos
         $table = [];
-        // (1) build new data array
+        // (*) build new data array
         foreach ($waste as $key => $value) {
             $id = @$this->GetIDForIdent($value['ident']);
             if ($id !== false) {
@@ -67,17 +67,37 @@ trait VisualisationHelper
                 }
             }
         }
-        // Security Check
+        // (*) Security Check
         if (empty($table)) {
             $table[] = ['name' => 'No DATA!', 'type' => 'red', 'date' => date('d.m.Y'), 'days' => 0];
             $this->SendDebug(__FUNCTION__, 'SECURITY CHECK: NO DATA!!!');
         }
-        // (2) sort waste by date
+        // (*) sort waste by date
         usort($table, function ($a, $b)
         {
             return strtotime($a['date']) - strtotime($b['date']);
         });
-        // (3) build html texts
+        // (*) count how many pickups as next
+        $pickups = 0;
+        $pudays = $table[0]['days'];
+        foreach ($table as $row) {
+            if ($row['days'] == $pudays) {
+                $pickups++;
+            } else {
+                break;
+            }
+        }
+        // (*) build svg icons & textM
+        $svg = '';
+        $wn = '';
+        for($i=0; $i < $pickups; $i++) {
+            $svg .= '<svg class="icon icon--' . $table[$i]['type'] . '" aria-hidden="true"><use xlink:href="#icon-waste" href="#icon-waste" /></svg>';
+            $wn .= $table[$i]['name'];
+            if($i != $pickups-1) {
+                $wn .= ',';
+            }
+        }
+        // (*) build html texts
         $next = '';
         // show today only if no date tommorow
         if (strtotime($table[0]['date']) === strtotime('today')) {
@@ -100,7 +120,6 @@ trait VisualisationHelper
         $day = strtotime($table[0]['date']);
         $wd = $this->Translate(date('l', $day));
         $sd = date('d.m.', $day);
-        $wn = $table[0]['name'];
         if ($days > 1) {
             $textS = "in $days " . $this->Translate('days');
             $textM = "$wn<br /><br />" . $this->Translate('Next pickup:') . "<br />in $days " . $this->Translate('days') . '<br />' . $this->Translate('on') . " $wd $sd";
@@ -111,73 +130,90 @@ trait VisualisationHelper
         // table rows
         $textL = '';
         foreach ($table as $row) {
-            if ($row['days'] == 0) $text = $this->Translate('Today');
-            if ($row['days'] == 1) $text = $this->Translate('Tomorrow');
-            if ($row['days'] >= 2) $text = $row['days'] . ' ' . $this->Translate('days');
+            if ($row['days'] == 0) {
+                $text = $this->Translate('Today');
+                $badge = 'red';
+            }
+            if ($row['days'] == 1) {
+                $text = $this->Translate('Tomorrow');
+                $badge = 'yellow';
+            }
+            if ($row['days'] >= 2) {
+                $text = $row['days'] . ' ' . $this->Translate('days');
+                $badge = 'green';
+            }
             $textL .= '<tr>';
             $textL .= '<td><svg class="icon icon--' . $row['type'] . '" aria-hidden="true"><use xlink:href="#icon-waste" href="#icon-waste" /></svg></td>';
             $textL .= '<td>' . $row['name'] . '</td>';
             $textL .= '<td>' . $row['date'] . '</td>';
-            $textL .= '<td><span class="badge">' . $text . '</span></td>';
+            $textL .= '<td><div class="badge ' . $badge . '">' . $text . '</div></td>';
             $textL .= '</tr>';
         }
-        // (4) assamble cards
+        // (*) assamble cards
         $removal = $this->Translate('Removal');
         $pickup = $this->Translate('Pickup');
         $date = $this->Translate('Date');
         $tbc = ($skin == 'light') ? '#D7D6D6' : '#4A4B4D';
         $wic = '';
         foreach ($custom as $color) {
-            $wic .= '    .icon--' . $color['Type'] . ' { fill: #' . sprintf("%06X", $color['Color']) . ';}' . PHP_EOL;
+            $wic .= '    .icon--' . $color['Type'] . ' {fill: #' . sprintf('%06X', $color['Color']) . ';}' . PHP_EOL;
         }
 
         $html = '
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <style>
     body {margin: 0px;}
-    ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: transparent; border-radius: 20px; }
-    ::-webkit-scrollbar-thumb:hover { background: #555; }
-    .cardS { display:block; }
-    .cardM { display:none; }
-    .cardL { display:none; }
-    #grid {width: 100%; height: 100%; display: grid; justify-items: center; }
-    #grid > div { justify-content: center; align-items: center; display: flex; width: 100%; }
-    .icon {width: 100%; height: 100%; }' .
+    ::-webkit-scrollbar {width: 8px;}
+    ::-webkit-scrollbar-track {background: transparent;}
+    ::-webkit-scrollbar-thumb {background: transparent; border-radius: 20px;}
+    ::-webkit-scrollbar-thumb:hover {background: #555;}
+    .cardS {display:block;}
+    .cardM {display:none;}
+    .cardL {display:none;}
+    #grid {text-align: center;}
+    #col1 {width: 50%; height: 100%; display: flex; float: left;}
+    #col2 {width: 50%; height: 100%; float: left; text-align: left;}
+    #row1 {width: 100%; height: 65%; display: flex;}
+    .icon {height: 100%;}' .
 $wic . '
-    .text { font-size: 1.2em; }
-    .hidden { display: none; }
-    table.wwx { border-collapse: collapse; width: 100% }
-    .wwx th, .wwx td { vertical-align: middle; text-align: left; padding: 10px; }
-    .wwx tr { border-bottom: 1px solid ' . $tbc . '; }
-    .tr4 tr > :nth-child(4) { text-align:right; }
-    .badge { background-color: #00CDAB; font-weight: bold; font-size: 80%; border-radius: 10em; min-width: 1.5em; padding: 0.5em; text-align: center; }
+    .text {font-size: 1.2em;}
+    .hidden {width:0; height:0; position:absolute;}
+    table.wwx {border-collapse: collapse; width: 100%;}
+    .wwx th, .wwx td {vertical-align: middle; text-align: left; padding: 10px;}
+    .wwx tr {border-bottom: 1px solid color-mix(in srgb, currentColor 25%, transparent);}
+    .tr4 tr > :nth-child(4) {text-align:right;}
+    .badge {border-radius: 5px; min-width: 100px; text-align: center; float: right; color: white;}
+    .green {background-color: #58A906;}
+    .yellow {background-color: #FFC107;}
+    .red {background-color: #F35A2C;}
     @media screen and (min-width: 384px) {
-        .cardS { display:none; }
-        .cardM { display:block; }
-        .cardL { display:none; }
-        #grid { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr; }
+        .cardS {display:none;}
+        .cardM {display:block;}
+        .cardL {display:none;}
     }
     @media screen and (min-width: 600px) {
-        .cardS { display:none; }
-        .cardM { display:none; }
-        .cardL { display:block; }
-        .icon { width: 24px; height: 24px; }
+        .cardS {display:none;}
+        .cardM {display:none;}
+        .cardL {display:block;}
+        .icon {width: 24px; height: 24px;}
     }
 </style>
 <!-- Small Cards -->
 <div class="cardS">
     <div id="grid">
-        <svg class="icon icon--' . $table[0]['type'] . '" aria-hidden="true"><use xlink:href="#icon-waste" href="#icon-waste" /></svg>
-        <div class="text">' . $textS . '</div>
+        <div id="row1">'
+. $svg . '
+        </div>
+        <div id="row2" class="text">' . $textS . '</div>
     </div>
 </div>
 <!-- Medium Cards -->
 <div class="cardM">
     <div id="grid">
-        <svg class="icon icon--' . $table[0]['type'] . '" aria-hidden="true"><use xlink:href="#icon-waste" href="#icon-waste" /></svg>
-        <div class="text">' . $textM . '</div>
+        <div id="col1">'
+. $svg . '
+        </div>
+        <div id="col2" class="text">' . $textM . '</div>
     </div>
 </div>
 <!-- Large Cards -->

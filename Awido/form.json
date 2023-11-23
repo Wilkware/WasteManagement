@@ -286,6 +286,7 @@
                     "name": "settingsTileSkin",
                     "caption": "Theme to be used (design):",
                     "width": "450px",
+                    "visible": false,
                     "options": [
                         {
                             "label": "Light Skin",
