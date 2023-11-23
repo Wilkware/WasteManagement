@@ -174,7 +174,7 @@ trait VisualisationHelper
     #col1 {width: 50%; height: 100%; display: flex; float: left;}
     #col2 {width: 50%; height: 100%; float: left; text-align: left;}
     #row1 {width: 100%; height: 65%; display: flex;}
-    .icon {height: 100%;}' .
+    .icon {width: 100%; height: 100%;}' .
 $wic . '
     .text {font-size: 1.2em;}
     .hidden {width:0; height:0; position:absolute;}
