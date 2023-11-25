@@ -23,11 +23,11 @@ trait VisualisationHelper
      * Pre-defined waste types with assoziated color and search term.
      */
     private static $WASTE_TYPES = [
-        ['Type' => 'blue',   'Term' => 'Recyclable Waste',       'Color'=> 1155315,  'Match'=> 'papier|pappe|zeitung'],
-        ['Type' => 'green',  'Term' => 'Organic Waste',          'Color'=> 5810438,  'Match'=> 'bio|grün|garten|baum|schnittgut'],
-        ['Type' => 'yellow', 'Term' => 'Mixed Recycling Waste',  'Color'=> 16761095, 'Match'=> 'gelb|plaste|pvc'],
-        ['Type' => 'red',    'Term' => 'Hazardous Waste',        'Color'=> 15948332, 'Match'=> 'schadstoff|sonder|sperr|problem'],
-        ['Type' => 'gray',   'Term' => 'General Waste',          'Color'=> 10066588, 'Match'=> 'rest']
+        ['Type' => 'blue',   'Term' => 'Recyclable Waste',      'Color'=> 1155315,  'Match'=> 'papier|pappe|zeitung'],
+        ['Type' => 'green',  'Term' => 'Organic Waste',         'Color'=> 5810438,  'Match'=> 'bio|grün|garten|baum|schnittgut'],
+        ['Type' => 'yellow', 'Term' => 'Mixed Recycling Waste', 'Color'=> 16761095, 'Match'=> 'gelb|plaste|pvc'],
+        ['Type' => 'red',    'Term' => 'Hazardous Waste',       'Color'=> 15948332, 'Match'=> 'schadstoff|sonder|sperr|problem'],
+        ['Type' => 'gray',   'Term' => 'General Waste',         'Color'=> 10066588, 'Match'=> 'rest']
     ];
 
     /**
