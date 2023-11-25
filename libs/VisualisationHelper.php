@@ -22,7 +22,7 @@ trait VisualisationHelper
     /**
      * Pre-defined waste types with assoziated color and search term.
      */
-    private const WASTE_TYPES = [
+    private static $WASTE_TYPES = [
         ['Type' => 'blue',   'Term' => 'Recyclable Waste',       'Color'=> 1155315,  'Match'=> 'papier|pappe|zeitung'],
         ['Type' => 'green',  'Term' => 'Organic Waste',          'Color'=> 5810438,  'Match'=> 'bio|grün|garten|baum|schnittgut'],
         ['Type' => 'yellow', 'Term' => 'Mixed Recycling Waste',  'Color'=> 16761095, 'Match'=> 'gelb|plaste|pvc'],
@@ -37,7 +37,7 @@ trait VisualisationHelper
     protected function GetWasteValues()
     {
         $values = [];
-        foreach (self::WASTE_TYPES as $value) {
+        foreach (self::$WASTE_TYPES as $value) {
             $value['Term'] = $this->Translate($value['Term']);
             $values[] = $value;
         }
@@ -94,7 +94,7 @@ trait VisualisationHelper
             $svg .= '<svg class="icon icon--' . $table[$i]['type'] . '" aria-hidden="true"><use xlink:href="#icon-waste" href="#icon-waste" /></svg>';
             $wn .= $table[$i]['name'];
             if ($i != ($pickups - 1)) {
-                $wn .= ',';
+                $wn .= ', ';
             }
         }
         // (*) build html texts
@@ -156,7 +156,7 @@ trait VisualisationHelper
         $tbc = ($skin == 'light') ? '#D7D6D6' : '#4A4B4D';
         $wic = '';
         foreach ($custom as $color) {
-            $wic .= '    .icon--' . $color['Type'] . ' {fill: #' . sprintf('%06X', $color['Color']) . ';}' . PHP_EOL;
+            $wic .= PHP_EOL . '    .icon--' . $color['Type'] . ' {fill: #' . sprintf('%06X', $color['Color']) . ';}';
         }
 
         $html = '
@@ -174,8 +174,7 @@ trait VisualisationHelper
     #col1 {width: 50%; height: 100%; display: flex; float: left;}
     #col2 {width: 50%; height: 100%; float: left; text-align: left;}
     #row1 {width: 100%; height: 65%; display: flex;}
-    .icon {width: 100%; height: 100%;}' .
-$wic . '
+    .icon {width: 100%; height: 100%;}' . $wic . '
     .text {font-size: 1.2em;}
     .hidden {width:0; height:0; position:absolute;}
     table.wwx {border-collapse: collapse; width: 100%;}
@@ -201,8 +200,7 @@ $wic . '
 <!-- Small Cards -->
 <div class="cardS">
     <div id="grid">
-        <div id="row1">'
-. $svg . '
+        <div id="row1">' . $svg . '
         </div>
         <div id="row2" class="text">' . $textS . '</div>
     </div>
@@ -210,8 +208,7 @@ $wic . '
 <!-- Medium Cards -->
 <div class="cardM">
     <div id="grid">
-        <div id="col1">'
-. $svg . '
+        <div id="col1">' . $svg . '
         </div>
         <div id="col2" class="text">' . $textM . '</div>
     </div>
