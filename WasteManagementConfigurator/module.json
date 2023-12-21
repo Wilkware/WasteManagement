@@ -1,12 +1,10 @@
 {
     "id": "{1C1C357C-D75D-295D-660A-D91CAF2C9614}",
     "name": "Waste Management Configurator",
+    "url": "https://wilkware.de/ip-symcon-module/abfallwirtschaft/",
     "type": 4,
     "vendor": "",
-    "aliases": [
-        "Abfallwirtschaft Konfigurator"
-    ],
-    "url": "https://wilkware.de/ip-symcon-module/abfallwirtschaft/",
+    "aliases": [],
     "parentRequirements": [],
     "childRequirements": [],
     "implemented": [],

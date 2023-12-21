@@ -1,11 +1,11 @@
 {
     "id": "{BE51BF6C-2496-4691-B4F3-027FFF0FD986}",
+    "name": "Abfallwirtschaft",
     "author": "Wilkware (@Pitti)",
     "url": "https://wilkware.de",
     "compatibility": {
         "version": "6.4"
     },
-    "name": "Abfallwirtschaft",
     "version": "4.0",
     "build": 20231119,
     "date": 1700391600

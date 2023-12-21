@@ -1,13 +1,13 @@
 {
     "id": "{2EC7DFA0-62D9-2E92-ADB1-6B8201D142FA}",
     "name": "MuellMax",
+    "url": "https://wilkware.de/ip-symcon-module/abfallwirtschaft/",
     "type": 3,
     "vendor": "",
     "aliases": [
-        "Abfallwirtschaft (MüllMax)",
-        "Entsorgungskalender (MüllMax)"
+        "Waste management (MüllMax)",
+        "Waste disposal calendar (MüllMax)"
     ],
-    "url": "https://wilkware.de/ip-symcon-module/abfallwirtschaft/",
     "parentRequirements": [],
     "childRequirements": [],
     "implemented": [],

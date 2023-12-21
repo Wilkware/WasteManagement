@@ -1,13 +1,13 @@
 {
     "id": "{085BA8B2-118B-208D-3664-3C230C55952E}",
     "name": "AbfallNavi",
+    "url": "https://wilkware.de/ip-symcon-module/abfallwirtschaft/",
     "type": 3,
     "vendor": "",
     "aliases": [
-        "Abfallwirtschaft (AbfallNavi)",
-        "Entsorgungskalender (AbfallNavi)"
+        "Waste management (AbfallNavi)",
+        "Waste disposal calendar (AbfallNavi)"
     ],
-    "url": "https://wilkware.de/ip-symcon-module/abfallwirtschaft/",
     "parentRequirements": [],
     "childRequirements": [],
     "implemented": [],
