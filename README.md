@@ -1,8 +1,8 @@
-# Abfallwirtschaft
+# Abfallwirtschaft (Waste Management)
 
-[![Version](https://img.shields.io/badge/Symcon-PHP--Bibliothek-purple.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg)](https://www.symcon.de/produkt/)
-[![Licence](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Version](https://img.shields.io/badge/Symcon-PHP--Bibliothek-purple.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
+[![Licence](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 IP-Symcon Modulbibliothek für die Visualisierung von Entsorgungsterminen.  
 Die Bibliothek nutzt verschieden Online-Dienste um bevorstehende Entsorgungstermine (Entsorgungskalender) in IPS zu integrieren.
@@ -11,6 +11,9 @@ Folgende Module beinhaltet diese Bibliothek:
 
 - __Abfallwirtschaft Konfigurator__ ([Dokumentation](WasteManagementConfigurator))  
     Konfiguration aller verfügbaren Instanzen pro Online Dienst.
+
+- __Abfall_ICS__ ([Dokumentation](Abfall_ICS))  
+    Abfalldaten aus Kalenderdatei (iCal-Datei) auslesen.
 
 - __Abfall_IO__ ([Dokumentation](Abfall_IO))  
     Abfall+ ist die Lösung für elektronische Bürgerdienste in der Abfallwirtschaft.
@@ -31,6 +34,7 @@ __HINWEIS:__ Über diese [Suchseite](https://asmium.de) kann man ganz schnell he
 
 ## Historie
 
+- 2024-03-04: Modul Abfall_ICS (Kalender ICS-Datei)
 - 2023-11-19: Modul MuellMax (MüllMax DE)
 - 2023-01-24: Modul Awido (Script-Fix)
 - 2022-10-20: Modul AbfallNavi (Regio IT)

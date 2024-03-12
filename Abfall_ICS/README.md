@@ -1,8 +1,8 @@
-# MyMüll
+# Abfall.ICS
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-3.1.20240304-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
+[![Version](https://img.shields.io/badge/Modul%20Version-1.0.20240304-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/style.yml?branch=main&label=CheckStyle&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
 
@@ -21,9 +21,7 @@ IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
 
 ### 1. Funktionsumfang
 
-Das Modul nutzt die von MyMüll.de (www.mymuell.de) bereitgestellten Daten zur Berechnung der bevorstehenden Entsorgungstermine (Abfallentsorgung).
-
-Derzeit unterstützt das Modul über 400 verschiedene Gebiete. Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
+Das Modul bietet einen generischen Abfallkalender mittels der Bereitstellung einer iCalendar Datei (ICS).
 
 ### 2. Voraussetzungen
 
@@ -37,7 +35,7 @@ Derzeit unterstützt das Modul über 400 verschiedene Gebiete. Wenn jemand noch 
 
 ### 4. Einrichten der Instanzen in IP-Symcon
 
-* Unter "Instanz hinzufügen" ist das _'MyMuell_-Modul (Alias: _Abfallwirtschaft (MyMüll.de)'_ oder _'Entsorgungskalender (MyMüll.de)'_)  unter dem Hersteller _'(Geräte)'_ aufgeführt.
+* Unter "Instanz hinzufügen" ist das _'Waste_ICS'_-Modul (Alias: _'Abfallwirtschaft (Abfall_ICS)'_ oder _'Entsorgungskalender (Abfall_ICS)'_)  unter dem Hersteller _'(Geräte)'_ aufgeführt.
 
 __Konfigurationsseite__:
 
@@ -54,14 +52,17 @@ _Einstellungsbereich:_
 
 Name                    | Beschreibung
 ----------------------- | ----------------------------------
-Anbieter                | 'MyMüll.de (mymuell.de)'
+Anbieter                | 'Abfall.IO (abfallplus.de)'
 
 > Abfallwirtschaft ...
 
 Name                    | Beschreibung
 ----------------------- | ---------------------------------
-Entsorgungsgebiet       | Liste der verfügbaren Gebiete
-Straße/Abfuhrbezirk     | Strasse bzw. Abfuhrbezirk im gewählten Gebiet
+Entsorgungsgebiet       | Liste der verfügbaren Gebiete (siehe oben)
+Stadt/Gemeinde          | Ort im Entsorgungsgebiet (kann identisch zum Gebiet sein)
+Stadt-/Ortsteil         | In einigen Gegend zusätzliche Gebietseinschränkung
+Straße/Abfuhrbezirk     | Strasse bzw. Abfuhrbezirk im gewählten Ort
+Hausnummer              | Hausnummer von-bis, oder Alle = gesamte Strasse
 Entsorgungen            | Entsorgungsarten, d.h. was wird im Gebiet an Entsorgung angeboten
 
 > Visualisierung ...
@@ -103,60 +104,20 @@ Aber wie bei der Konfiguration beschrieben, muss man aufpassen wenn die Konfigur
 ### 7. PHP-Befehlsreferenz
 
 ```php
-void MYMDE_Update(int $InstanzID);
+void WMICS_Update(int $InstanzID);
 ```
 
 Holt die nächsten anstehenden Entsorgungstermine für die gewählten Entsorgungsarten.  
 Die Funktion liefert keinerlei Rückgabewert.
 
-__Beispiel__: `MYMDE_Update(12345);`
+__Beispiel__: `WMICS_Update(12345);`
+
 
 ### 8. Versionshistorie
 
-v3.1.20240304
-
-* _NEU_: Umstellung auf Domain-Modell (nicht rückwärtskompatibel)
-* _FIX_: Support für v7 Visualisierung verbessert
-* _FIX_: Update für nicht aktivierte Abfallarten korrigiert
-* _FIX_: Einige interne Vereinheitlichungen und Anpassungen
-* _FIX_: Dokumentation korrigiert
-
-v3.0.20231119
-
-* _NEU_: Kompatibilität auf IPS 6.4 hoch gesetzt
-* _NEU_: Support für v7 Visualisierung
-
-v2.0.20230102
-
-* _FIX_: Komplette Konfigurationsumstellung wegen wechselnden IDs
-
-v1.3.20220413
-
-* _FIX_: Multi Domain Konzept dynamisiert
-
-v1.2.20220309
-
-* _NEU_: Unterstützung mehrere Domains
-* _NEU_: Konfigurationsformular optimiert
-* _FIX_: Bugfix für Strassenkomentare
-
-v1.1.20211109
-
-* _NEU_: Kompatibilität auf IPS 6.0 hoch gesetzt
-* _NEU_: Konfigurationsformular an die neuen Möglichkeiten der 6.0 angepasst
-
-v1.0.20211109
+v1.0.20240304
 
 * _NEU_: Initialversion
-
-## Danksagung
-
-Ich möchte mich für die Unterstützung bei der Entwicklung dieses Moduls bedanken bei ...
-
-* _HendrikD_ : für den Hinweis auf die API und das Testen :-)
-* _powerderk_ : für den Hinweis auf die ZAC Domain
-
-Vielen Dank!
 
 ## Entwickler
 

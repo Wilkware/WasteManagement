@@ -11,7 +11,7 @@
                 },
                 {
                     "type": "Label",
-                    "label": "\nAWIDO – Disposal calendar\n ",
+                    "label": "\nAbfall.ICS – Disposal calendar\n ",
                     "link": false,
                     "bold": true
                 }
@@ -19,7 +19,8 @@
         },
         {
             "type": "Label",
-            "label": "This module uses the data provided by the AWIDO online service to display upcoming disposal dates."
+            "label": "This module uses the data provided as an iCalendar file (ICS) to display the upcoming disposal dates.",
+            "link": false
         },
         {
             "type": "ExpansionPanel",
@@ -50,7 +51,7 @@
                         {
                             "type": "Select",
                             "name": "clientID",
-                            "caption": "Disposal area:",
+                            "caption": "Disposal area: (predefined)",
                             "width": "450px",
                             "onChange": "IPS_RequestAction($id,'OnChangeClient',$clientID);",
                             "options": [
@@ -59,64 +60,46 @@
                                     "value": "null"
                                 }
                             ]
-                        }
-                    ]
-                },
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "type": "Select",
-                            "name": "placeGUID",
-                            "caption": "Location:",
-                            "width": "450px",
-                            "visible": false,
-                            "onChange": "IPS_RequestAction($id,'OnChangePlace',$placeGUID);",
-                            "options": [
-                                {
-                                    "label": "Please select ...",
-                                    "value": "null"
-                                }
-                            ]
-                        }
-                    ]
-                },
-                {
-                    "type": "RowLayout",
-                    "items": [
-                        {
-                            "type": "Select",
-                            "name": "streetGUID",
-                            "caption": "District/Street:",
-                            "width": "450px",
-                            "visible": false,
-                            "onChange": "IPS_RequestAction($id,'OnChangeStreet',$streetGUID);",
-                            "options": [
-                                {
-                                    "label": "Please select ...",
-                                    "value": "null"
-                                }
-                            ]
                         },
                         {
-                            "type": "Select",
-                            "name": "addonGUID",
-                            "caption": "Number:",
-                            "width": "450px",
+                            "type": "Button",
+                            "name": "buttonID",
+                            "caption": "More",
+                            "link": true,
                             "visible": false,
-                            "onChange": "IPS_RequestAction($id,'OnChangeAddon',$addonGUID);",
-                            "options": [
-                                {
-                                    "label": "Please select ...",
-                                    "value": "null"
-                                }
-                            ]
+                            "onClick": "echo $clientID;"
+                        }
+                    ]
+                },
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "ValidationTextBox",
+                            "name": "clientURL",
+                            "caption": "Download URL (iCal-File):",
+                            "width": "900px",
+                            "validate": "^(https?://)([a-z0-9]+([\\-\\.]{1}[a-z0-9]+)*\\.[a-z]{2,5})(:[0-9]{1,5})?(/.*)?$"
+                        }
+                    ]
+                },
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "Button",
+                            "caption": "Analyse",
+                            "onClick": "IPS_RequestAction($id,'OnChangeLink',$clientURL);"
+                        },
+                        {
+                            "type": "Label",
+                            "caption": "The button is used to analyse the calendar file and display the available waste types."
                         }
                     ]
                 },
                 {
                     "type": "Label",
-                    "name": "labelFraction",
+                    "name": "fractionLabel",
                     "caption": "The following disposals are offered:",
                     "visible": false
                 },
@@ -335,12 +318,12 @@
             "items": [
                 {
                     "type": "CheckBox",
-                    "name": "activateAWIDO",
+                    "name": "settingsActivate",
                     "caption": "Activate daily update?"
                 },
                 {
                     "type": "CheckBox",
-                    "name": "createVariables",
+                    "name": "settingsVariables",
                     "caption": "Create variables for non-selected disposals?"
                 },
                 {
@@ -357,14 +340,14 @@
             "type": "Label",
             "name": "updateLabel",
             "caption": "Disposal data ...",
-            "visible": false
+            "visible": true
         },
         {
             "type": "Button",
             "name": "updateButton",
             "caption": "Update",
-            "onClick": "AWIDO_Update($id);",
-            "visible": false
+            "onClick": "WMICS_Update($id);",
+            "visible": true
         },
         {
             "type": "Label",
@@ -400,6 +383,20 @@
                     ]
                 }
             ]
+        },
+        {
+            "name": "EchoPopup",
+            "type": "PopupAlert",
+            "visible": false,
+            "popup": {
+                "items": [
+                    {
+                        "type": "Label",
+                        "name": "EchoMessage",
+                        "caption": ""
+                    }
+                ]
+            }
         }
     ],
     "status": [
@@ -421,25 +418,10 @@
         {
             "code": 201,
             "icon": "inactive",
-            "caption": "Please select a valid refuse management!"
+            "caption": "Please enter a correct URL and analyse the waste types!"
         },
         {
             "code": 202,
-            "icon": "inactive",
-            "caption": "Please select a valid place!"
-        },
-        {
-            "code": 203,
-            "icon": "inactive",
-            "caption": "Please select a valid location/street!"
-        },
-        {
-            "code": 204,
-            "icon": "inactive",
-            "caption": "Please select a valid street number!"
-        },
-        {
-            "code": 205,
             "icon": "inactive",
             "caption": "Please select a offered disposals!"
         }

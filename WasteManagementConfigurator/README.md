@@ -1,10 +1,10 @@
 # Abfallwirtschafts-Konfigurator (Waste Management Configutrator)
 
-[![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-2.0.20231119-orange.svg)](https://github.com/Wilkware/WasteManagement)
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-[![Actions](https://github.com/Wilkware/WasteManagement/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/WasteManagement/actions)
+[![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
+[![Version](https://img.shields.io/badge/Modul%20Version-2.1.20240304-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/style.yml?branch=main&label=CheckStyle&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
 
 IP-Symcon Modul für die Verwaltung von Online Diensten zur Bestimmung von Entsorgungsterminen.
 
@@ -29,7 +29,8 @@ Derzeit unterstützt der Konfigurator folgende Anbieter:
 * [Abfall+](https://abfallplus.de) - "Die Gesamtlösung für elektronische Bürgerdienste in der Abfallwirtschaft!"
 * [MyMüll.de](https://mymuell.de) - "Abfall und Wertstoffe sauber organisiert!"
 * [AbfallNavi](https://regioit.de) - "Der digitale Abfallkalender der regio IT für die Abfallentsorgung!"
-* [MyMuell](https://muellmax.de) - Müllmax Abfallkalender – barrierefrei online und gedruckt.
+* [MyMuell](https://muellmax.de) - "Müllmax Abfallkalender barrierefrei online und gedruckt."
+* [Abfall.ICS](https://asmium.de) - "Abfalldaten via Kalenderdatei ICS auslesen."
 
 __HINWEIS:__ Über diese [Suchseite](https://asmium.de) kann man ganz schnell herausfinden ob die eigene Stadt/Gemeinde von einem der aufgelisteten Dienste unterstützt wird! :+1:
 
@@ -80,6 +81,12 @@ Es ist keine weitere Steuerung oder gesonderte Darstellung integriert.
 Das Modul bietet keine direkten Funktionsaufrufe.
 
 ### 8. Versionshistorie
+
+v2.1.20240304
+
+* _NEU_: Generischen Abfallkalender via iCal-Detei (ICS) hinzugefügt
+* _FIX_: Übersetzungen nachgezogen
+* _FIX_: Einige interne Vereinheitlichungen und Anpassungen
 
 v2.0.20231119
 

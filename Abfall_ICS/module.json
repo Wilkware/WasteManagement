@@ -1,0 +1,15 @@
+{
+    "id": "{9E99E213-F884-FC95-A8ED-4F3FCC368E70}",
+    "name": "Abfall_ICS",
+    "url": "https://wilkware.de/ip-symcon-module/abfallwirtschaft/",
+    "type": 3,
+    "vendor": "",
+    "aliases": [
+        "Waste management (Abfall.ICS)",
+        "Waste disposal calendar (Abfall.ICS)"
+    ],
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "WMICS"
+}

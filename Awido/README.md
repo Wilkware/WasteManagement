@@ -1,10 +1,10 @@
 # Awido
 
-[![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-4.0.20231119-orange.svg)](https://github.com/Wilkware/WasteManagement)
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-[![Actions](https://github.com/Wilkware/WasteManagement/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/WasteManagement/actions)
+[![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
+[![Version](https://img.shields.io/badge/Modul%20Version-4.1.20240304-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/style.yml?branch=main&label=CheckStyle&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
 
 IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
 
@@ -24,24 +24,7 @@ IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
 Das Modul nutzt die von awido (www.awido-online.de) bereitgestellten Daten zur Berechnung
 der bevorstehenden Entsorgungstermine (Abfallentsorgung).
 
-Derzeit unterstützt das Modul folgende Gebiete:
-
-Entsorgungsgebiet           | Entsorgungsgebiet                             | Entsorgungsgebiet
-----------------------------|-----------------------------------------------|----------------------
-Gemeinde Unterhaching       | Lahn-Dill-Kreis                               | Landkreis Augsburg
-Landkreis Aichach-Friedberg | Landkreis Altenkirchen                        | Landkreis Ansbach
-Landkreis Bad Dürkheim      | Landkreis Bad Tölz-Wolfratshausen             | Landkreis Berchtesgadener Land
-Landkreis Coburg            | Landkreis Dillingen a.d. Donau und Donau-Ries | Landkreis Erding
-Landkreis Fürstenfeldbruck  | Landkreis Gießen                              | Landkreis Gotha
-Landkreis Günzburg          | Landkreis Hersfeld-Rotenburg                  | Landkreis Kelheim
-Landkreis Kronach           | Landkreis Neuburg-Schrobenhausen              | Landkreis Mühldorf am Inn
-Landkreis Rosenheim         | Landkreis Schweinfurt                         | Landkreis Südliche Weinstraße
-Landkreis Tirschenreuth     | Landkreis Tübingen                            | Landratsamt Dachau
-Neustadt a.d. Waldnaab      | Pullach im Isartal                            | Rems-Murr-Kreis
-Stadt Kaufbeuren            | Stadt Memmingen                               | Stadt Unterschleissheim
-Zweckverband Isar-Inn       | Zweckverband München-Südost                   | Zweckverband Saale-Orla
-
-Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
+Derzeit unterstützt das Modul 42 verschiedene Landkreise und Großstädte. Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
 ### 2. Voraussetzungen
 
@@ -84,6 +67,13 @@ Ortsteil/Strasse        | Ortsteil/Strasse im gewählten Ort
 Hausnummer              | Hausnummer von-bis, oder Alle = gesamte Strasse
 Entsorgungen            | Entsorgungsarten, d.h. was wird im Gebiet an Entsorgung angeboten
 
+> Visualisierung ...
+
+Name                                          | Beschreibung
+--------------------------------------------- | ---------------------------------
+Unterstützung für Tile Visu aktivieren?       | Aktivierung, ob HTML für Kacheldarstellung erstellt werden soll
+Abfallgruppen                                 | Farbliche Zuordnung der Abfallarten
+
 > Erweiterte Einstellungen ...
 
 Name                                                    | Beschreibung
@@ -125,6 +115,13 @@ Die Funktion liefert keinerlei Rückgabewert.
 __Beispiel__: `AWIDO_Update(12345);`
 
 ### 8. Versionshistorie
+
+v4.1.20240304
+
+* _FIX_: Support für v7 Visualisierung verbessert
+* _FIX_: Update für nicht aktivierte Abfallarten korrigiert
+* _FIX_: Einige interne Vereinheitlichungen und Anpassungen
+* _FIX_: Dokumentation korrigiert
 
 v4.0.20231119
 

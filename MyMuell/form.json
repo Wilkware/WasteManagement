@@ -50,10 +50,29 @@
                     "items": [
                         {
                             "type": "Select",
-                            "name": "cityID",
+                            "name": "domainID",
                             "caption": "Disposal area:",
                             "width": "450px",
-                            "onChange": "IPS_RequestAction($id,'OnChangeCity',$cityID);",
+                            "onChange": "IPS_RequestAction($id,'OnChangeDomain',$domainID);",
+                            "options": [
+                                {
+                                    "label": "Please select ...",
+                                    "value": "null"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "Select",
+                            "name": "cityID",
+                            "caption": "Location:",
+                            "width": "450px",
+                            "onChange": "IPS_RequestAction($id,'OnChangeCity',serialize(['domain'=> $domainID, 'city'=>$cityID]));",
+                            "visible": false,
                             "options": [
                                 {
                                     "label": "Please select ...",
@@ -72,7 +91,7 @@
                             "caption": "Street/District:",
                             "width": "450px",
                             "visible": false,
-                            "onChange": "IPS_RequestAction($id,'OnChangeArea',serialize(['city'=>$cityID,'area'=>$areaID]));",
+                            "onChange": "IPS_RequestAction($id,'OnChangeArea',serialize(['domain'=> $domainID, 'city'=>$cityID,'area'=>$areaID]));",
                             "options": [
                                 {
                                     "label": "Please select ...",
@@ -248,23 +267,6 @@
                     "type": "CheckBox",
                     "name": "settingsTileVisu",
                     "caption": "Activate support for Tile Visu?"
-                },
-                {
-                    "type": "Select",
-                    "name": "settingsTileSkin",
-                    "caption": "Theme to be used (design):",
-                    "width": "450px",
-                    "visible": false,
-                    "options": [
-                        {
-                            "label": "Light Skin",
-                            "value": "light"
-                        },
-                        {
-                            "label": "Dark Skin",
-                            "value": "dark"
-                        }
-                    ]
                 },
                 {
                     "type": "List",

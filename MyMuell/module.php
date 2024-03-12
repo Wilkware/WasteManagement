@@ -18,6 +18,9 @@ class MyMuell extends IPSModule
     private const SERVICE_PROVIDER = 'mymde';
     private const SERVICE_APIURL = '.jumomind.com/mmapp/api.php?';
 
+    // IO keys
+    private const IO_NAMES = 'names';
+
     // Form Elements Positions
     private const ELEM_IMAGE = 0;
     private const ELEM_LABEL = 1;
@@ -35,14 +38,16 @@ class MyMuell extends IPSModule
         // Service Provider
         $this->RegisterPropertyString('serviceProvider', self::SERVICE_PROVIDER);
         // Waste Management
+        $this->RegisterPropertyString('domainID', 'null');
         $this->RegisterPropertyString('cityID', 'null');
         $this->RegisterPropertyString('areaID', 'null');
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
             $this->RegisterPropertyBoolean('fractionID' . $i, false);
         }
+        // Attributes for dynamic configuration forms
+        $this->RegisterAttributeString('io', serialize($this->PrepareIO()));
         // Visualisation
         $this->RegisterPropertyBoolean('settingsTileVisu', false);
-        $this->RegisterPropertyString('settingsTileSkin', 'dark');
         $this->RegisterPropertyString('settingsTileColors', '[]');
         // Advanced Settings
         $this->RegisterPropertyBoolean('settingsActivate', true);
@@ -62,10 +67,11 @@ class MyMuell extends IPSModule
         // Settings
         $activate = $this->ReadPropertyBoolean('settingsActivate');
         // IO Values
+        $dId = $this->ReadPropertyString('domainID');
         $cId = $this->ReadPropertyString('cityID');
         $aId = $this->ReadPropertyString('areaID');
         // Debug output
-        $this->SendDebug(__FUNCTION__, 'cityID=' . $cId . ', areaId=' . $aId);
+        $this->SendDebug(__FUNCTION__, 'domainID=' . $dId . ',cityID=' . $cId . ', areaId=' . $aId);
 
         // Get Basic Form
         $jsonForm = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
@@ -77,9 +83,9 @@ class MyMuell extends IPSModule
         // Prompt
         $prompt = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
 
-        // Streets/Areas
-        if ($cId != 'null') {
-            $options = $this->RequestAreas($cId);
+        // Domain (client)
+        if ($dId != 'null') {
+            $options = $this->RequestCities($dId);
             if ($options != null) {
                 // Always add the selection prompt
                 array_unshift($options, $prompt);
@@ -87,19 +93,32 @@ class MyMuell extends IPSModule
                 $jsonForm['elements'][self::ELEM_MYMDE]['items'][1]['items'][0]['visible'] = true;
             }
         } else {
+            $this->SendDebug(__FUNCTION__, __LINE__);
+            $cId = null;
+        }
+        // Streets/Areas
+        if ($cId != 'null') {
+            $options = $this->RequestAreas($dId, $cId);
+            if ($options != null) {
+                // Always add the selection prompt
+                array_unshift($options, $prompt);
+                $jsonForm['elements'][self::ELEM_MYMDE]['items'][2]['items'][0]['options'] = $options;
+                $jsonForm['elements'][self::ELEM_MYMDE]['items'][2]['items'][0]['visible'] = true;
+            }
+        } else {
             $aId = null;
         }
 
         // Fractions
         if ($aId != null) {
-            $options = $this->RequestFractions($cId, $aId);
+            $options = $this->RequestFractions($dId, $cId, $aId);
             if ($options != null) {
                 // Label
-                $jsonForm['elements'][self::ELEM_MYMDE]['items'][2]['visible'] = true;
+                $jsonForm['elements'][self::ELEM_MYMDE]['items'][3]['visible'] = true;
                 $i = 1;
                 foreach ($options as $fract) {
-                    $jsonForm['elements'][self::ELEM_MYMDE]['items'][$i + 2]['caption'] = $fract['caption'];
-                    $jsonForm['elements'][self::ELEM_MYMDE]['items'][$i + 2]['visible'] = true;
+                    $jsonForm['elements'][self::ELEM_MYMDE]['items'][$i + 3]['caption'] = $fract['caption'];
+                    $jsonForm['elements'][self::ELEM_MYMDE]['items'][$i + 3]['visible'] = true;
                     $i++;
                 }
             }
@@ -109,7 +128,7 @@ class MyMuell extends IPSModule
         $colors = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         if (empty($colors)) {
             $this->SendDebug(__FUNCTION__, 'Translate Waste Visu');
-            $jsonForm['elements'][self::ELEM_VISU]['items'][2]['values'] = $this->GetWasteValues();
+            $jsonForm['elements'][self::ELEM_VISU]['items'][1]['values'] = $this->GetWasteValues();
         }
 
         // Return Form
@@ -124,17 +143,20 @@ class MyMuell extends IPSModule
     {
         // Never delete this line!
         parent::ApplyChanges();
+        $dId = $this->ReadPropertyString('domainID');
         $cId = $this->ReadPropertyString('cityID');
         $aId = $this->ReadPropertyString('areaID');
         $activate = $this->ReadPropertyBoolean('settingsActivate');
         $tilevisu = $this->ReadPropertyBoolean('settingsTileVisu');
-        $this->SendDebug(__FUNCTION__, 'cityID=' . ', areaID=' . $aId);
+        $this->SendDebug(__FUNCTION__, 'domainID=' . $dId . 'cityID=' . $cId . ', areaID=' . $aId);
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
         // Support for Tile Viso (v7.x)
-        $this->MaintainVariable('Widget', $this->Translate('Pickup'), vtString, '~HTMLBox', 0, $tilevisu);
+        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, '~HTMLBox', 0, $tilevisu);
         // Set status
-        if ($cId == 'null') {
+        if ($dId == 'null') {
+            $status = 201;
+        } elseif ($cId == 'null') {
             $status = 201;
         } elseif ($aId == 'null') {
             $status = 202;
@@ -143,7 +165,7 @@ class MyMuell extends IPSModule
         }
         // All okay
         if ($status == 102) {
-            $this->CreateVariables($cId, $aId);
+            $this->CreateVariables($dId, $cId, $aId);
             if ($activate == true) {
                 // Time neu berechnen
                 $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
@@ -182,19 +204,21 @@ class MyMuell extends IPSModule
             $this->SendDebug(__FUNCTION__, 'Status: Instance is not active.');
             return;
         }
+        $dId = $this->ReadPropertyString('domainID');
         $cId = $this->ReadPropertyString('cityID');
         $aId = $this->ReadPropertyString('areaID');
-
+        $io = unserialize($this->ReadAttributeString('io'));
+        $this->SendDebug(__FUNCTION__, $io);
         $waste = [];
         // Build URL data
-        $url = $this->BuildURL('dates', $cId, $aId);
+        $url = $this->BuildURL('dates', $dId, $cId, $aId);
         // Request Data
         $json = @file_get_contents($url);
         // Collect DATA
         if ($json !== false) {
             $data = json_decode($json, true);
             foreach ($data as $entry) {
-                if (!isset($waste[$entry['trash_name']])) {
+                if ((!isset($waste[$entry['trash_name']])) && (in_array($entry['title'], $io[self::IO_NAMES]))) {
                     $waste[$entry['trash_name']] = ['ident' => $entry['trash_name'], 'date' => date('d.m.Y', strtotime($entry['day'])), 'title' => $entry['title']];
                 }
             }
@@ -213,9 +237,8 @@ class MyMuell extends IPSModule
         $btw = $this->ReadPropertyBoolean('settingsTileVisu');
         $this->SendDebug(__FUNCTION__, 'TileVisu: ' . $btw);
         if ($btw == true) {
-            $skin = $this->ReadPropertyString('settingsTileSkin');
             $list = json_decode($this->ReadPropertyString('settingsTileColors'), true);
-            $this->BuildWidget($waste, $skin, $list);
+            $this->BuildWidget($waste, $list);
         }
 
         // execute Script
@@ -237,16 +260,64 @@ class MyMuell extends IPSModule
     }
 
     /**
-     * User has selected a new waste management city.
+     * User has selected a new waste management domain.
      *
-     * @param string $id City ID .
+     * @param string $id Domain ID.
      */
-    protected function OnChangeCity($id)
+    protected function OnChangeDomain($id)
     {
         $this->SendDebug(__FUNCTION__, $id);
         $options = null;
         if ($id != 'null') {
-            $options = $this->RequestAreas($id);
+            $options = $this->RequestCities($id);
+        }
+        // Cities
+        $prompt = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
+        if ($options != null) {
+            // Always add the selection prompt
+            array_unshift($options, $prompt);
+            $this->SendDebug(__FUNCTION__, $options);
+            $this->UpdateFormField('cityID', 'options', json_encode($options));
+            $this->UpdateFormField('cityID', 'visible', true);
+            $this->UpdateFormField('cityID', 'value', 'null');
+        } else {
+            $options = [];
+            // Only add the selection prompt
+            array_unshift($options, $prompt);
+            $this->UpdateFormField('cityID', 'options', json_encode($options));
+            $this->UpdateFormField('cityID', 'visible', false);
+            $this->UpdateFormField('cityID', 'value', 'null');
+        }
+        // Area
+        $options = [];
+        // Only add the selection prompt
+        array_unshift($options, $prompt);
+        $this->UpdateFormField('areaID', 'options', json_encode($options));
+        $this->UpdateFormField('areaID', 'visible', false);
+        $this->UpdateFormField('areaID', 'value', 'null');
+        // Fraction
+        $this->UpdateFormField('fractionLabel', 'visible', false);
+        for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+            $this->UpdateFormField('fractionID' . $i, 'value', false);
+            $this->UpdateFormField('fractionID' . $i, 'visible', false);
+        }
+    }
+
+    /**
+     * User has selected a new waste management city.
+     *
+     * @param string $value Domain & City ID.
+     */
+    protected function OnChangeCity($value)
+    {
+        $this->SendDebug(__FUNCTION__, $value);
+        $data = unserialize($value);
+        $dId = $data['domain'];
+        $cId = $data['city'];
+
+        $options = null;
+        if ($cId != 'null') {
+            $options = $this->RequestAreas($dId, $cId);
         }
         // Area
         $prompt = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
@@ -275,18 +346,19 @@ class MyMuell extends IPSModule
     /**
      * User has selected a new street or district.
      *
-     * @param string $value City & Area ID.
+     * @param string $value Domain & City & Area ID.
      */
     protected function OnChangeArea($value)
     {
         $this->SendDebug(__FUNCTION__, $value);
         $data = unserialize($value);
+        $dId = $data['domain'];
         $cId = $data['city'];
         $aId = $data['area'];
 
         $options = null;
         if ($aId != 'null') {
-            $options = $this->RequestFractions($cId, $aId);
+            $options = $this->RequestFractions($dId, $cId, $aId);
         }
         if ($options != null) {
             // Label
@@ -314,49 +386,68 @@ class MyMuell extends IPSModule
     }
 
     /**
+     * Serialize properties to IO interface array
+     *
+     * @return array IO interface
+     */
+    protected function PrepareIO()
+    {
+        $io[self::IO_NAMES] = [];
+        // data2array
+        return $io;
+    }
+
+    /**
      * Create the variables for the fractions.
      *
+     *  @param string $domain Domain ID.
      *  @param string $city City ID.
      *  @param string $area Area ID.
      */
-    protected function CreateVariables($city, $area)
+    protected function CreateVariables($domain, $city, $area)
     {
-        $this->SendDebug(__FUNCTION__, $city . ' : ' . $area);
-        if (($city == 'null') || ($area == 'null')) {
+        $this->SendDebug(__FUNCTION__, $domain . ' : ' . $city . ' : ' . $area);
+        if (($domain == 'null') || ($city == 'null') || ($area == 'null')) {
             return;
         }
+        $io = unserialize($this->ReadAttributeString('io'));
         // how to maintain?
         $variable = $this->ReadPropertyBoolean('settingsVariables');
-        $options = $this->RequestFractions($city, $area);
+        $options = $this->RequestFractions($domain, $city, $area);
         $i = 1;
+        $names = [];
         foreach ($options as $fract) {
             if ($i <= static::$FRACTIONS) {
                 $enabled = $this->ReadPropertyBoolean('fractionID' . $i);
-                $this->MaintainVariable($fract['value'], $fract['caption'], vtString, '', $i, $enabled || $variable);
+                $this->MaintainVariable($fract['value'], $fract['caption'], VARIABLETYPE_STRING, '', $i, $enabled || $variable);
+                if ($enabled) {
+                    $names[] = $fract['caption'];
+                }
             }
             $i++;
         }
+        $io[self::IO_NAMES] = $names;
+        $this->WriteAttributeString('io', serialize($io));
     }
 
     /**
      * Builds the POST/GET Url for the API CALLS
      *
      * @param string $type Request type.
+     * @param string $domain Domain ID.
      * @param string $city City ID.
      * @param string $area Area ID.
      * @return string Service Url
      */
-    protected function BuildURL($type, $city, $area = null)
+    protected function BuildURL($type, $domain, $city = null, $area = null)
     {
-        // Get domain & id
-        $va = explode(':', $city);
-        $id = $va[0];
-        $domain = isset($va[1]) ? $va[1] : 'mymuell';
         $url = 'https://' . $domain . self::SERVICE_APIURL;
         // Type
         $url = $url . 'r=' . $type;
         // City
-        $url = $url . '&city_id=' . $id;
+        if ($city != null) {
+            $url = $url . '&city_id=' . $city;
+        }
         // Area
         if ($area != null) {
             $url = $url . '&area_id=' . $area;
@@ -367,16 +458,49 @@ class MyMuell extends IPSModule
     }
 
     /**
+     * Call the service provider to get cities for a given client
+     *
+     * @param $domain Domain ID
+     * @return array New selecteable options or null.
+     */
+    protected function RequestCities($domain)
+    {
+        $this->SendDebug(__FUNCTION__, $domain);
+        // Build URL data
+        $url = $this->BuildURL('cities', $domain);
+        // Request Data
+        $res = @file_get_contents($url);
+        $data = null;
+        // Collect DATA
+        if ($res !== false) {
+            $json = json_decode($res, true);
+            foreach ($json as $city) {
+                if (($city['has_streets'] == false) && $city['area_id'] == 0) {
+                    continue;
+                }
+                if (str_contains($city['name'], '2021') || str_contains($city['name'], 'Musterstadt')) {
+                    continue;
+                }
+                $city['name'] = str_replace(' mit allen Ortsteilen', '', $city['name']);
+                $this->SendDebug(__FUNCTION__, $city['name']);
+                $data[] = ['caption' => $city['name'], 'value' => $city['id']];
+            }
+        }
+        return $data;
+    }
+
+    /**
      * Call the service provider to get areas for a given city
      *
+     * @param $domain Domain ID
      * @param $city City ID
      * @return array New selecteable options or null.
      */
-    protected function RequestAreas($city)
+    protected function RequestAreas($domain, $city)
     {
-        $this->SendDebug(__FUNCTION__, $city);
+        $this->SendDebug(__FUNCTION__, $domain . ':' . $city);
         // Build URL data
-        $url = $this->BuildURL('streets', $city);
+        $url = $this->BuildURL('streets', $domain, $city);
         // Request Data
         $res = @file_get_contents($url);
         $data = null;
@@ -401,15 +525,16 @@ class MyMuell extends IPSModule
     /**
      * Call the service provider to get fractions for a given city
      *
+     * @param $domain Domain ID
      * @param $city City ID
      * @param $area Area ID
      * @return array New selecteable options or null.
      */
-    protected function RequestFractions($city, $area)
+    protected function RequestFractions($domain, $city, $area)
     {
-        $this->SendDebug(__FUNCTION__, $city . ':' . $area);
+        $this->SendDebug(__FUNCTION__, $domain . ':' . $city . ':' . $area);
         // Build URL data
-        $url = $this->BuildURL('trash', $city, $area);
+        $url = $this->BuildURL('trash', $domain, $city, $area);
         // Request Data
         $res = @file_get_contents($url);
         $data = null;

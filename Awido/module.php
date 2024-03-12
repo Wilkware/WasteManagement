@@ -43,7 +43,6 @@ class Awido extends IPSModule
         }
         // Visualisation
         $this->RegisterPropertyBoolean('settingsTileVisu', false);
-        $this->RegisterPropertyString('settingsTileSkin', 'dark');
         $this->RegisterPropertyString('settingsTileColors', '[]');
         // Advanced Settings
         $this->RegisterPropertyBoolean('createVariables', false);
@@ -138,7 +137,7 @@ class Awido extends IPSModule
         $colors = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         if (empty($colors)) {
             $this->SendDebug(__FUNCTION__, 'Translate Waste Visu');
-            $jsonForm['elements'][self::ELEM_VISU]['items'][2]['values'] = $this->GetWasteValues();
+            $jsonForm['elements'][self::ELEM_VISU]['items'][1]['values'] = $this->GetWasteValues();
         }
         // Return form
         return json_encode($jsonForm);
@@ -166,7 +165,7 @@ class Awido extends IPSModule
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
         // Support for Tile Viso (v7.x)
-        $this->MaintainVariable('Widget', $this->Translate('Pickup'), vtString, '~HTMLBox', 0, $tilevisu);
+        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, '~HTMLBox', 0, $tilevisu);
         //$status = 102;
         if ($clientId == 'null') {
             $status = 201;
@@ -241,8 +240,10 @@ class Awido extends IPSModule
         $waste = [];
         foreach ($data as $fract) {
             $fractID = $this->ReadPropertyBoolean('fractionID' . $fract->id);
-            $waste[$fract->snm] = ['ident' => $fract->snm, 'date' => '', 'exist' => $fractID];
+            $fractIDENT = $this->GetVariableIdent($fract->snm);
+            $waste[$fract->snm] = ['ident' => $fractIDENT, 'date' => '', 'exist' => $fractID];
         }
+        $this->SendDebug(__FUNCTION__, $waste);
 
         // update data
         $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getData/' . $addonId . '?fractions=' . $fractIds . '&client=' . $clientId;
@@ -280,9 +281,8 @@ class Awido extends IPSModule
         $btw = $this->ReadPropertyBoolean('settingsTileVisu');
         $this->SendDebug(__FUNCTION__, 'TileVisu: ' . $btw);
         if ($btw == true) {
-            $skin = $this->ReadPropertyString('settingsTileSkin');
             $list = json_decode($this->ReadPropertyString('settingsTileColors'), true);
-            $this->BuildWidget($waste, $skin, $list);
+            $this->BuildWidget($waste, $list);
         }
 
         // execute Script
@@ -555,7 +555,8 @@ class Awido extends IPSModule
         $variable = $this->ReadPropertyBoolean('createVariables');
         foreach ($data as $fract) {
             $fractID = $this->ReadPropertyBoolean('fractionID' . $fract->id);
-            $this->MaintainVariable($fract->snm, html_entity_decode($fract->nm), vtString, '', $fract->id, $fractID || $variable);
+            $fractIDENT = $this->GetVariableIdent($fract->snm);
+            $this->MaintainVariable($fractIDENT, html_entity_decode($fract->nm), VARIABLETYPE_STRING, '', $fract->id, $fractID || $variable);
         }
     }
 }

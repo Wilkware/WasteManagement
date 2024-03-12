@@ -23,11 +23,12 @@ trait ServiceHelper
      * Supported Service Provider
      */
     private static $PROVIDERS = [
-        'awido' => [1, '{8A591704-E699-4F78-A728-490210FDE747}', 'AWIDO', 'awido-online.de', 'Die Web-Anwendung mit alle wichtigen Entsorgungstermine online!'],
-        'abpio' => [2, '{53922265-6F58-E833-34A1-52D44D1C8D3F}', 'Abfall.IO', 'abfallplus.de', 'Abfall+ ist die Lösung für elektronische Bürgerdienste in der Abfallwirtschaft!'],
-        'mymde' => [3, '{BCB84068-9194-754C-436F-F10BDD8E51BE}', 'MyMüll', 'mymuell.de', 'Abfall und Wertstoffe sauber organisiert!'],
-        'regio' => [4, '{085BA8B2-118B-208D-3664-3C230C55952E}', 'AbfallNavi', 'regioit.de', 'Der digitale Abfallkalender der regio IT für die Abfallentsorgung.'],
-        'maxde' => [5, '{2EC7DFA0-62D9-2E92-ADB1-6B8201D142FA}', 'MüllMax', 'muellmax.de', 'Abfallkalender – barrierefrei online und gedruckt!'],
+        'awido' => [1, '{8A591704-E699-4F78-A728-490210FDE747}', 'AWIDO', 'awido-online.de', 'The web application with all important waste disposal dates online!'],
+        'abpio' => [2, '{53922265-6F58-E833-34A1-52D44D1C8D3F}', 'Abfall.IO', 'abfallplus.de', 'Abfall+ is the solution for electronic citizen services in waste management!'],
+        'mymde' => [3, '{BCB84068-9194-754C-436F-F10BDD8E51BE}', 'MyMüll', 'mymuell.de', 'Waste and recyclables neatly organised!'],
+        'regio' => [4, '{085BA8B2-118B-208D-3664-3C230C55952E}', 'AbfallNavi', 'regioit.de', 'The digital waste calendar from regio IT for waste disposal.'],
+        'maxde' => [5, '{2EC7DFA0-62D9-2E92-ADB1-6B8201D142FA}', 'MüllMax', 'muellmax.de', 'Waste calendar - barrier-free online and printed!'],
+        'wmics' => [6, '{9E99E213-F884-FC95-A8ED-4F3FCC368E70}', 'Abfall.ICS', 'asmium.de', 'Read out waste data via ICS calendar file.'],
     ];
 
     /**
@@ -95,6 +96,7 @@ trait ServiceHelper
     {
         // Debug output
         $this->SendDebug(__FUNCTION__, 'LINK: ' . $url);
+        //$url = $url . '/index.json';
         // read API URL
         $json = @file_get_contents($url);
         // error handling

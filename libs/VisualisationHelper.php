@@ -48,8 +48,9 @@ trait VisualisationHelper
      * Build a html widget for waste dates.
      *
      * @param array $waste Array with waste names and the next pick-up date.
+     * @param array $custom Array with color mappings
      */
-    protected function BuildWidget(array $waste, string $skin, array $custom)
+    protected function BuildWidget(array $waste, array $custom)
     {
         $this->SendDebug(__FUNCTION__, $waste);
         // (*) tabel with all infos
@@ -153,7 +154,6 @@ trait VisualisationHelper
         $removal = $this->Translate('Removal');
         $pickup = $this->Translate('Pickup');
         $date = $this->Translate('Date');
-        $tbc = ($skin == 'light') ? '#D7D6D6' : '#4A4B4D';
         $wic = '';
         foreach ($custom as $color) {
             $wic .= PHP_EOL . '    .icon--' . $color['Type'] . ' {fill: #' . sprintf('%06X', $color['Color']) . ';}';
@@ -175,7 +175,7 @@ trait VisualisationHelper
     #col2 {width: 50%; height: 100%; float: left; text-align: left;}
     #row1 {width: 100%; height: 65%; display: flex;}
     .icon {width: 100%; height: 100%;}' . $wic . '
-    .text {font-size: 1.2em;}
+    .text {font-size: 14px;}
     .hidden {width:0; height:0; position:absolute;}
     table.wwx {border-collapse: collapse; width: 100%;}
     .wwx th, .wwx td {vertical-align: middle; text-align: left; padding: 10px;}

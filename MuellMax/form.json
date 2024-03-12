@@ -283,23 +283,6 @@
                     "caption": "Activate support for Tile Visu?"
                 },
                 {
-                    "type": "Select",
-                    "name": "settingsTileSkin",
-                    "caption": "Theme to be used (design):",
-                    "width": "450px",
-                    "visible": false,
-                    "options": [
-                        {
-                            "label": "Light Skin",
-                            "value": "light"
-                        },
-                        {
-                            "label": "Dark Skin",
-                            "value": "dark"
-                        }
-                    ]
-                },
-                {
                     "type": "List",
                     "name": "settingsTileColors",
                     "caption": "Waste groups:",

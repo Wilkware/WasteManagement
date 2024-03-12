@@ -53,7 +53,7 @@ class WasteManagementConfigurator extends IPSModule
             $values[] = [
                 'id'            => $value[0],
                 'provider'      => $value[2],
-                'description'   => $value[4],
+                'description'   => $this->Translate($value[4]),
                 'url'           => $value[3],
             ];
         }

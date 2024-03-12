@@ -21,7 +21,7 @@ class MuellMax extends IPSModule
 
     // Service Provider
     private const SERVICE_PROVIDER = 'maxde';
-    private const SERVICE_USERAGENT = "'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36";
+    private const SERVICE_USERAGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36';
     private const SERVICE_BASEURL = 'https://www.muellmax.de/abfallkalender/';
 
     // IO keys
@@ -68,7 +68,6 @@ class MuellMax extends IPSModule
         }
         // Visualisation
         $this->RegisterPropertyBoolean('settingsTileVisu', false);
-        $this->RegisterPropertyString('settingsTileSkin', 'dark');
         $this->RegisterPropertyString('settingsTileColors', '[]');
         // Advanced Settings
         $this->RegisterPropertyBoolean('settingsActivate', true);
@@ -310,7 +309,7 @@ class MuellMax extends IPSModule
         $colors = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         if (empty($colors)) {
             $this->SendDebug(__FUNCTION__, 'Translate Waste Visu');
-            $jsonForm['elements'][self::ELEM_VISU]['items'][2]['values'] = $this->GetWasteValues();
+            $jsonForm['elements'][self::ELEM_VISU]['items'][1]['values'] = $this->GetWasteValues();
         }
         // Return Form
         return json_encode($jsonForm);
@@ -330,7 +329,7 @@ class MuellMax extends IPSModule
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
         // Support for Tile Viso (v7.x)
-        $this->MaintainVariable('Widget', $this->Translate('Pickup'), vtString, '~HTMLBox', 0, $tilevisu);
+        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, '~HTMLBox', 0, $tilevisu);
         // Set status
         if ($dId == 'null') {
             $status = 201;
@@ -441,11 +440,15 @@ class MuellMax extends IPSModule
         $args[] = 'xxx=1';
         $args[] = 'mm_frm_type=termine';
         // fractions convert to name => ident
+        $i = 1;
         $waste = [];
         foreach ($io[self::IO_NAMES] as $ident => $name) {
             $this->SendDebug(__FUNCTION__, 'Fraction ident: ' . $ident . ', Name: ' . $name);
-            $waste[$name] = ['ident' => $ident, 'date' => ''];
-            $args[] = 'mm_frm_fra_' . $ident . '=' . $ident;
+            $enabled = $this->ReadPropertyBoolean('fractionID' . $i++);
+            if ($enabled) {
+                $waste[$name] = ['ident' => $ident, 'date' => ''];
+                $args[] = 'mm_frm_fra_' . $ident . '=' . $ident;
+            }
         }
         $args[] = 'mm_ica_gen=iCalendar-Datei laden';
         // service request
@@ -503,9 +506,8 @@ class MuellMax extends IPSModule
         $btw = $this->ReadPropertyBoolean('settingsTileVisu');
         $this->SendDebug(__FUNCTION__, 'TileVisu: ' . $btw);
         if ($btw == true) {
-            $skin = $this->ReadPropertyString('settingsTileSkin');
             $list = json_decode($this->ReadPropertyString('settingsTileColors'), true);
-            $this->BuildWidget($waste, $skin, $list);
+            $this->BuildWidget($waste, $list);
         }
 
         // execute Script
@@ -782,7 +784,7 @@ class MuellMax extends IPSModule
         foreach ($ids as $fract) {
             if ($i <= static::$FRACTIONS) {
                 $enabled = $this->ReadPropertyBoolean('fractionID' . $i);
-                $this->MaintainVariable($fract, $io[self::IO_NAMES][$fract], vtString, '', $i, $enabled || $variable);
+                $this->MaintainVariable($fract, $io[self::IO_NAMES][$fract], VARIABLETYPE_STRING, '', $i, $enabled || $variable);
             }
             $i++;
         }

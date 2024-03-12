@@ -1,10 +1,10 @@
 # Abfall.IO
 
-[![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-2.0.2023119-orange.svg)](https://github.com/Wilkware/WasteManagement)
-[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-[![Actions](https://github.com/Wilkware/WasteManagement/workflows/Check%20Style/badge.svg)](https://github.com/Wilkware/WasteManagement/actions)
+[![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
+[![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
+[![Version](https://img.shields.io/badge/Modul%20Version-2.1.20240304-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/style.yml?branch=main&label=CheckStyle&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
 
 IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
 
@@ -67,6 +67,13 @@ Straße/Abfuhrbezirk     | Strasse bzw. Abfuhrbezirk im gewählten Ort
 Hausnummer              | Hausnummer von-bis, oder Alle = gesamte Strasse
 Entsorgungen            | Entsorgungsarten, d.h. was wird im Gebiet an Entsorgung angeboten
 
+> Visualisierung ...
+
+Name                                          | Beschreibung
+--------------------------------------------- | ---------------------------------
+Unterstützung für Tile Visu aktivieren?       | Aktivierung, ob HTML für Kacheldarstellung erstellt werden soll
+Abfallgruppen                                 | Farbliche Zuordnung der Abfallarten
+
 > Erweiterte Einstellungen ...
 
 Name                                                    | Beschreibung
@@ -117,6 +124,14 @@ Die Funktion liefert keinerlei Rückgabewert.
 __Beispiel__: `ABPIO_FixWasteName(12345, 'Hausmüll', 'Hausmüll (2 wöchentlich)');`
 
 ### 8. Versionshistorie
+
+v2.1.20240304
+
+* _FIX_: User-Agent für Datenabruf korrigiert
+* _FIX_: Support für v7 Visualisierung verbessert
+* _FIX_: Update für nicht aktivierte Abfallarten korrigiert
+* _FIX_: Einige interne Vereinheitlichungen und Anpassungen
+* _FIX_: Dokumentation korrigiert
 
 v2.0.20231119
 
