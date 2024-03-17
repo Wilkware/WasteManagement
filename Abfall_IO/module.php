@@ -40,6 +40,7 @@ class Abfall_IO extends IPSModule
     private const ACTION_CLIENT = 'init';
     private const ACTION_PLACE = 'auswahl_kommune_set';
     private const ACTION_DISTRICT = 'auswahl_bezirk_set';
+    private const ACTION_QUERY = 'auswahl_strasse_qry_set';
     private const ACTION_STREET = 'auswahl_strasse_set';
     private const ACTION_ADDON = 'auswahl_hnr_set';
     private const ACTION_FRACTIONS = 'auswahl_fraktionen_set';
@@ -122,7 +123,7 @@ class Abfall_IO extends IPSModule
         if ($cId != 'null') {
             $io[self::IO_CLIENT] = $cId;
             $options = $this->ExecuteAction($io);
-            if ($options == null) {
+            if (($options == null) && ($io[self::IO_ACTION] != self::ACTION_QUERY)) {
                 $next = false;
             }
         } else {
@@ -131,6 +132,11 @@ class Abfall_IO extends IPSModule
         }
         // Place
         if ($next) {
+            // Streets?
+            if ($io[self::IO_ACTION] == self::ACTION_QUERY) {
+                $options = $this->ExecuteAction($io);
+                $this->SendDebug(__FUNCTION__, $io);
+            }
             // Fix or Dynamic
             if ($io[self::IO_ACTION] == self::ACTION_PLACE) {
                 if ($options != null) {
@@ -162,6 +168,11 @@ class Abfall_IO extends IPSModule
         }
         // District
         if ($next) {
+            // Streets?
+            if ($io[self::IO_ACTION] == self::ACTION_QUERY) {
+                $options = $this->ExecuteAction($io);
+                $this->SendDebug(__FUNCTION__, $io);
+            }
             // Fix or Dynamic
             if ($io[self::IO_ACTION] == self::ACTION_DISTRICT) {
                 if ($options != null) {
@@ -177,7 +188,7 @@ class Abfall_IO extends IPSModule
                     $io[self::IO_DISTRICT] = $dId;
                     // than prepeare the next
                     $options = $this->ExecuteAction($io);
-                    if ($options == null) {
+                    if (($options == null) && ($io[self::IO_ACTION] != self::ACTION_QUERY)) {
                         $this->SendDebug(__FUNCTION__, __LINE__);
                         $next = false;
                     }
@@ -193,6 +204,11 @@ class Abfall_IO extends IPSModule
         }
         // Street
         if ($next) {
+            // Streets?
+            if ($io[self::IO_ACTION] == self::ACTION_QUERY) {
+                $options = $this->ExecuteAction($io);
+                $this->SendDebug(__FUNCTION__, $io);
+            }
             // Fix or Dynamic
             if ($io[self::IO_ACTION] == self::ACTION_STREET) {
                 if ($options != null) {
@@ -573,27 +589,35 @@ class Abfall_IO extends IPSModule
         if ($id != 'null') {
             $data = $this->ExecuteAction($io);
         }
+        if ($io[self::IO_ACTION] == self::ACTION_QUERY) {
+            $data = $this->ExecuteAction($io);
+            $this->SendDebug(__FUNCTION__, $io);
+        }
         $this->SendDebug(__FUNCTION__, $io);
         // Bad fix for cities only!!!
         if ($io[self::IO_ACTION] == self::ACTION_STREET) {
+            $this->SendDebug(__FUNCTION__,'Hide place & district');
             $this->UpdateFormField('placeID', 'visible', false);
             $this->UpdateFormField('districtID', 'visible', false);
             // Fix Options
             if ($io[self::IO_PLACE] == '') {
+                $this->SendDebug(__FUNCTION__,'Place == null');
                 $this->UpdateFormField('placeID', 'value', 'null');
             } else {
+                $this->SendDebug(__FUNCTION__,'Place == ' . $io[self::IO_PLACE]);
                 $options[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $io[self::IO_PLACE]];
                 $this->UpdateFormField('placeID', 'options', json_encode($options));
                 $this->UpdateFormField('placeID', 'value', $io[self::IO_PLACE]);
             }
             if ($io[self::IO_DISTRICT] == '') {
-                $this->UpdateFormField('placeID', 'value', 'null');
+                $this->UpdateFormField('districtID', 'value', 'null');
             } else {
                 $options[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $io[self::IO_DISTRICT]];
-                $this->UpdateFormField('placeID', 'options', json_encode($options));
-                $this->UpdateFormField('placeID', 'value', $io[self::IO_DISTRICT]);
+                $this->UpdateFormField('districtID', 'options', json_encode($options));
+                $this->UpdateFormField('districtID', 'value', $io[self::IO_DISTRICT]);
             }
         }
+        $this->SendDebug(__FUNCTION__, $io);
         // Hide or Unhide properties
         $this->UpdateForm($io, $data);
         // Update attribute
@@ -612,6 +636,9 @@ class Abfall_IO extends IPSModule
         $this->UpdateIO($io, self::ACTION_PLACE, $id);
         $data = null;
         if ($id != 'null') {
+            $data = $this->ExecuteAction($io);
+        }
+        if ($io[self::IO_ACTION] == self::ACTION_QUERY) {
             $data = $this->ExecuteAction($io);
         }
         $this->SendDebug(__FUNCTION__, $io);
@@ -633,6 +660,9 @@ class Abfall_IO extends IPSModule
         $this->UpdateIO($io, self::ACTION_DISTRICT, $id);
         $data = null;
         if ($id != 'null') {
+            $data = $this->ExecuteAction($io);
+        }
+        if ($io[self::IO_ACTION] == self::ACTION_QUERY) {
             $data = $this->ExecuteAction($io);
         }
         // Hide or Unhide properties
@@ -995,6 +1025,18 @@ class Abfall_IO extends IPSModule
                     $io[$name] = $value;
                 }
                 $this->SendDebug(__FUNCTION__, 'Hidden: ' . $name . ':' . $value);
+            }
+            $inputs = $res->query("//input[@type='text']");
+            foreach($inputs as $input){
+                $items = [];
+                $name = $input->getAttribute('name');
+                $action = $input->getAttribute('awk-data-onchange-submit-waction');
+                $this->SendDebug(__FUNCTION__, 'Text: ' . $name . ':' . $action);
+                if ($this->StartsWith($name, 'f_qry')) {
+                    $io[self::IO_ACTION] = $action;
+                    $io[$name] = '';
+                    return $data;
+                }
             }
             $divs = $res->query("//div[@class='awk-ui-input-tr']");
             if ($divs->length > 0) {

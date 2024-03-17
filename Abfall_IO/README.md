@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-2.1.20240304-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
+[![Version](https://img.shields.io/badge/Modul%20Version-2.2.20240317-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/style.yml?branch=main&label=CheckStyle&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
 
@@ -124,6 +124,10 @@ Die Funktion liefert keinerlei Rückgabewert.
 __Beispiel__: `ABPIO_FixWasteName(12345, 'Hausmüll', 'Hausmüll (2 wöchentlich)');`
 
 ### 8. Versionshistorie
+
+v2.2.20240317
+
+* _NEU_: Support für (manuelle) Strassensuche
 
 v2.1.20240304
 
