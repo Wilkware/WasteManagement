@@ -56,14 +56,13 @@ Anbieter                | 'Abfall.ICS (asmium.de)'
 
 > Abfallwirtschaft ...
 
-Name                    | Beschreibung
------------------------ | ---------------------------------
-Entsorgungsgebiet       | Liste der verfügbaren Gebiete (siehe oben)
-Stadt/Gemeinde          | Ort im Entsorgungsgebiet (kann identisch zum Gebiet sein)
-Stadt-/Ortsteil         | In einigen Gegend zusätzliche Gebietseinschränkung
-Straße/Abfuhrbezirk     | Strasse bzw. Abfuhrbezirk im gewählten Ort
-Hausnummer              | Hausnummer von-bis, oder Alle = gesamte Strasse
-Entsorgungen            | Entsorgungsarten, d.h. was wird im Gebiet an Entsorgung angeboten
+Name                             | Beschreibung
+-------------------------------- | ---------------------------------
+Entsorgungsgebiet (vordefiniert) | Liste der vordefinierten Abfallwirtschaften
+WEITER                           | Öffnet im neuen Browser-Fenster die selektierte Abfallwirtschafts-Seite
+Download URL (iCal-File)         | Link zuum Herunterladen der Kalender-Datei (ICS)
+ANALYSIEREN                      | Analysiert die in der Kalenderdatei enthaltenen Entsorgungsarten
+Entsorgungen                     | Entsorgungsarten, d.h. was wird im Gebiet an Entsorgung angeboten
 
 > Visualisierung ...
 
