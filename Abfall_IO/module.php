@@ -596,15 +596,15 @@ class Abfall_IO extends IPSModule
         $this->SendDebug(__FUNCTION__, $io);
         // Bad fix for cities only!!!
         if ($io[self::IO_ACTION] == self::ACTION_STREET) {
-            $this->SendDebug(__FUNCTION__,'Hide place & district');
+            $this->SendDebug(__FUNCTION__, 'Hide place & district');
             $this->UpdateFormField('placeID', 'visible', false);
             $this->UpdateFormField('districtID', 'visible', false);
             // Fix Options
             if ($io[self::IO_PLACE] == '') {
-                $this->SendDebug(__FUNCTION__,'Place == null');
+                $this->SendDebug(__FUNCTION__, 'Place == null');
                 $this->UpdateFormField('placeID', 'value', 'null');
             } else {
-                $this->SendDebug(__FUNCTION__,'Place == ' . $io[self::IO_PLACE]);
+                $this->SendDebug(__FUNCTION__, 'Place == ' . $io[self::IO_PLACE]);
                 $options[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $io[self::IO_PLACE]];
                 $this->UpdateFormField('placeID', 'options', json_encode($options));
                 $this->UpdateFormField('placeID', 'value', $io[self::IO_PLACE]);
@@ -1027,7 +1027,7 @@ class Abfall_IO extends IPSModule
                 $this->SendDebug(__FUNCTION__, 'Hidden: ' . $name . ':' . $value);
             }
             $inputs = $res->query("//input[@type='text']");
-            foreach($inputs as $input){
+            foreach ($inputs as $input) {
                 $items = [];
                 $name = $input->getAttribute('name');
                 $action = $input->getAttribute('awk-data-onchange-submit-waction');
