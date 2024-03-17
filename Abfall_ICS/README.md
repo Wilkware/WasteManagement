@@ -52,7 +52,7 @@ _Einstellungsbereich:_
 
 Name                    | Beschreibung
 ----------------------- | ----------------------------------
-Anbieter                | 'Abfall.IO (abfallplus.de)'
+Anbieter                | 'Abfall.ICS (asmium.de)'
 
 > Abfallwirtschaft ...
 
