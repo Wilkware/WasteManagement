@@ -44,6 +44,8 @@ class Awido extends IPSModule
         // Visualisation
         $this->RegisterPropertyBoolean('settingsTileVisu', false);
         $this->RegisterPropertyString('settingsTileColors', '[]');
+        $this->RegisterPropertyBoolean('settingsLookAhead', false);
+        $this->RegisterPropertyString('settingsLookTime', '{"hour":12,"minute":0,"second":0}');
         // Advanced Settings
         $this->RegisterPropertyBoolean('createVariables', false);
         $this->RegisterPropertyBoolean('activateAWIDO', true);
@@ -56,6 +58,8 @@ class Awido extends IPSModule
         $this->RegisterAttributeString('fID', 'null');
         // Register daily update timer
         $this->RegisterTimer('UpdateTimer', 0, 'AWIDO_Update(' . $this->InstanceID . ');');
+        // Register daily look ahead timer
+        $this->RegisterTimer('LookAheadTimer', 0, 'AWIDO_LookAhead(' . $this->InstanceID . ');');
     }
 
     /**
@@ -154,6 +158,8 @@ class Awido extends IPSModule
         $addonId = $this->ReadPropertyString('addonGUID');
         $activate = $this->ReadPropertyBoolean('activateAWIDO');
         $tilevisu = $this->ReadPropertyBoolean('settingsTileVisu');
+        $loakahead = $this->ReadPropertyBoolean('settingsLookAhead');
+
         $fractions = [];
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
             if ($this->ReadPropertyBoolean('fractionID' . $i)) {
@@ -164,6 +170,7 @@ class Awido extends IPSModule
         $this->SendDebug(__FUNCTION__, 'clientID=' . $clientId . ', placeId=' . $placeId . ', streetId=' . $streetId . ', addonId=' . $addonId . ', fractIds=' . $fractIds);
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
+        $this->SetTimerInterval('LookAheadTimer', 0);
         // Support for Tile Viso (v7.x)
         $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, '~HTMLBox', 0, $tilevisu);
         //$status = 102;
@@ -182,7 +189,15 @@ class Awido extends IPSModule
             $status = 102;
             // Time neu berechnen
             $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
-            $this->SendDebug(__FUNCTION__, 'Timer aktiviert!');
+            $this->SendDebug(__FUNCTION__, 'Update Timer aktiviert!');
+            if ($loakahead & $tilevisu) {
+                $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
+                if (($time['hour'] == 0) && ($time['minute'] <= 30)) {
+                    $this->SendDebug(__FUNCTION__, 'LookAhead Time zu niedrieg!');
+                } else {
+                    $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second'], 0);
+                }
+            }
         } else {
             $status = 104;
         }
@@ -202,6 +217,44 @@ class Awido extends IPSModule
         $this->SendDebug(__FUNCTION__, $ident . ' => ' . $value);
         eval('$this->' . $ident . '(\'' . $value . '\');');
         return true;
+    }
+
+    /**
+     * This function will be available automatically after the module is imported with the module control.
+     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
+     *
+     * AWIDO_LookAhead($id);
+     */
+    public function LookAhead()
+    {
+        // Check instance state
+        if ($this->GetStatus() != 102) {
+            $this->SendDebug(__FUNCTION__, 'Status: Instance is not active.');
+            return;
+        }
+        // rebuild informations
+        $clientId = $this->ReadPropertyString('clientID');
+        $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=' . $clientId;
+        $json = file_get_contents($url);
+        $data = json_decode($json);
+        // Fractions mit Kurzzeichen(Short Name)) in Array konvertieren
+        $waste = [];
+        foreach ($data as $fract) {
+            $fractID = $this->ReadPropertyBoolean('fractionID' . $fract->id);
+            $fractIDENT = $this->GetVariableIdent($fract->snm);
+            $date = '';
+            if ($fractID) {
+                $date = $this->GetValue($fractIDENT);
+            }
+            $waste[$fract->snm] = ['ident' => $fractIDENT, 'date' => $date, 'exist' => $fractID];
+        }
+        $this->SendDebug(__FUNCTION__, $waste);
+        // update tile widget
+        $list = json_decode($this->ReadPropertyString('settingsTileColors'), true);
+        $this->BuildWidget($waste, $list, true);
+        // Set Timer to the next day
+        $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
+        $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second']);
     }
 
     /**

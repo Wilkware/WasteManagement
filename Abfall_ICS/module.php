@@ -55,6 +55,8 @@ class Abfall_ICS extends IPSModule
         // Visualisation
         $this->RegisterPropertyBoolean('settingsTileVisu', false);
         $this->RegisterPropertyString('settingsTileColors', '[]');
+        $this->RegisterPropertyBoolean('settingsLookAhead', false);
+        $this->RegisterPropertyString('settingsLookTime', '{"hour":12,"minute":0,"second":0}');
         // Advanced Settings
         $this->RegisterPropertyBoolean('settingsActivate', true);
         $this->RegisterPropertyBoolean('settingsVariables', false);
@@ -62,6 +64,8 @@ class Abfall_ICS extends IPSModule
 
         // Register daily update timer
         $this->RegisterTimer('UpdateTimer', 0, 'WMICS_Update(' . $this->InstanceID . ');');
+        // Register daily look ahead timer
+        $this->RegisterTimer('LookAheadTimer', 0, 'WMICS_LookAhead(' . $this->InstanceID . ');');
         // Buffer for ICS/CSV data
         $this->SetBuffer('ics_cache', '');
     }
@@ -123,9 +127,11 @@ class Abfall_ICS extends IPSModule
         $url = $this->ReadPropertyString('clientURL');
         $activate = $this->ReadPropertyBoolean('settingsActivate');
         $tilevisu = $this->ReadPropertyBoolean('settingsTileVisu');
+        $loakahead = $this->ReadPropertyBoolean('settingsLookAhead');
         $this->SendDebug(__FUNCTION__, 'clientID=' . $id . ' ,clientURL=' . $url);
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
+        $this->SetTimerInterval('LookAheadTimer', 0);
         // IO Data
         $io = unserialize($this->ReadAttributeString('io'));
         // Set status
@@ -152,7 +158,15 @@ class Abfall_ICS extends IPSModule
             if ($activate == true) {
                 // Time neu berechnen
                 $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
-                $this->SendDebug(__FUNCTION__, 'Timer aktiviert!');
+                $this->SendDebug(__FUNCTION__, 'Update Timer aktiviert!');
+                if ($loakahead & $tilevisu) {
+                    $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
+                    if (($time['hour'] == 0) && ($time['minute'] <= 30)) {
+                        $this->SendDebug(__FUNCTION__, 'LookAhead Time zu niedrieg!');
+                    } else {
+                        $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second'], 0);
+                    }
+                }
             } else {
                 $status = 104;
             }
@@ -173,6 +187,40 @@ class Abfall_ICS extends IPSModule
         $this->SendDebug(__FUNCTION__, $ident . ' => ' . $value);
         eval('$this->' . $ident . '(\'' . $value . '\');');
         return true;
+    }
+
+    /**
+     * This function will be available automatically after the module is imported with the module control.
+     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
+     *
+     * WMICS_LookAhead($id);
+     */
+    public function LookAhead()
+    {
+        // Check instance state
+        if ($this->GetStatus() != 102) {
+            $this->SendDebug(__FUNCTION__, 'Status: Instance is not active.');
+            return;
+        }
+        // rebuild informations
+        $io = unserialize($this->ReadAttributeString('io'));
+        $this->SendDebug(__FUNCTION__, $io);
+        // fractions convert to ident => values
+        $waste = [];
+        foreach ($io[self::IO_FRACTIONS] as $fract) {
+            $this->SendDebug(__FUNCTION__, 'Fraction ident: ' . $fract['ident'] . ', Name: ' . $fract['name']);
+            if ($fract['active']) {
+                $date = $this->GetValue($fract['ident']);
+                $waste[$fract['name']] = ['ident' => $fract['ident'], 'date' => $date];
+            }
+        }
+        $this->SendDebug(__FUNCTION__, $waste);
+        // update tile widget
+        $list = json_decode($this->ReadPropertyString('settingsTileColors'), true);
+        $this->BuildWidget($waste, $list, true);
+        // Set Timer to the next day
+        $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
+        $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second']);
     }
 
     /**

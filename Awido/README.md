@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-4.1.20240304-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
+[![Version](https://img.shields.io/badge/Modul%20Version-4.2.20240702-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/style.yml?branch=main&label=CheckStyle&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
 
@@ -69,10 +69,12 @@ Entsorgungen            | Entsorgungsarten, d.h. was wird im Gebiet an Entsorgun
 
 > Visualisierung ...
 
-Name                                          | Beschreibung
---------------------------------------------- | ---------------------------------
-Unterstützung für Tile Visu aktivieren?       | Aktivierung, ob HTML für Kacheldarstellung erstellt werden soll
-Abfallgruppen                                 | Farbliche Zuordnung der Abfallarten
+Name                                                    | Beschreibung
+------------------------------------------------------- | ---------------------------------
+Unterstützung für Tile Visu aktivieren?                 | Aktivierung, ob HTML für Kacheldarstellung erstellt werden soll
+Abfallgruppen                                           | Farbliche Zuordnung der Abfallarten
+Vorrausschauende Anzeige für Folgetage aktivieren?      | Aktivierung, ob zu einer bestimmten Zeit die Anzeige umschalten soll auf Folgetermine
+Zeitpunkt                                               | Uhrzeit, wo die Umschaltung erfolgen soll
 
 > Erweiterte Einstellungen ...
 
@@ -106,6 +108,15 @@ Aber wie bei der Konfiguration beschrieben, muss man aufpassen wenn die Konfigur
 ### 7. PHP-Befehlsreferenz
 
 ```php
+void AWIDO_LookAhead(int $InstanzID);
+```
+
+Stellt in der Visualisierung den für Folgetage anstehenden Entsorgungstermine dar.  
+Die Funktion liefert keinerlei Rückgabewert.
+
+__Beispiel__: `AWIDO_LookAhead(12345);`
+
+```php
 void AWIDO_Update(int $InstanzID);
 ```
 
@@ -115,6 +126,11 @@ Die Funktion liefert keinerlei Rückgabewert.
 __Beispiel__: `AWIDO_Update(12345);`
 
 ### 8. Versionshistorie
+
+v4.2.20240702
+
+* _NEU_: Vorrausschauende Anzeige
+* _FIX_: URL Prüfung verbessert
 
 v4.1.20240304
 

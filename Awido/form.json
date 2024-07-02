@@ -326,6 +326,27 @@
                     "type": "Label",
                     "label": "HINT: Always separate different search terms with | and do not use spaces!",
                     "italic": true
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "settingsLookAhead",
+                    "caption": "Activate predictive display for the following days?"
+                },
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "SelectTime",
+                            "name": "settingsLookTime",
+                            "caption": "Time:",
+                            "width": "250px"
+                        },
+                        {
+                            "type": "Label",
+                            "caption": "\nTimes before 0:30 am will not be considered!",
+                            "italic": true
+                        }
+                    ]
                 }
             ]
         },

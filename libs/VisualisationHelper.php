@@ -50,7 +50,7 @@ trait VisualisationHelper
      * @param array $waste Array with waste names and the next pick-up date.
      * @param array $custom Array with color mappings
      */
-    protected function BuildWidget(array $waste, array $custom)
+    protected function BuildWidget(array $waste, array $custom, bool $lookahead = false)
     {
         $this->SendDebug(__FUNCTION__, $waste);
         // (*) tabel with all infos
@@ -78,47 +78,63 @@ trait VisualisationHelper
         {
             return strtotime($a['date']) - strtotime($b['date']);
         });
+        // (*) look ahead update
+        $offset = 0;
+        if ($lookahead) {
+            foreach ($table as $row) {
+                if (strtotime($row['date']) == strtotime('today')) {
+                    $offset++;
+                } else {
+                    break;
+                }
+            }
+        }
+        $this->SendDebug(__FUNCTION__, 'LookAhead Offset: ' . $offset);
         // (*) count how many pickups as next
         $pickups = 0;
-        $pudays = $table[0]['days'];
-        foreach ($table as $row) {
+        $pudays = $table[$offset]['days'];
+        foreach ($table as $pk => $row) {
+            if ($pk < $offset) {
+                continue;
+            }
             if ($row['days'] == $pudays) {
                 $pickups++;
             } else {
                 break;
             }
         }
+        $this->SendDebug(__FUNCTION__, 'Counter Pickups: ' . $pickups);
         // (*) build svg icons & textM
         $svg = '';
         $wn = '';
-        for ($i = 0; $i < $pickups; $i++) {
+        for ($i = $offset; $i < ($offset + $pickups); $i++) {
             $svg .= '<svg class="icon icon--' . $table[$i]['type'] . '" aria-hidden="true"><use xlink:href="#icon-waste" href="#icon-waste" /></svg>';
             $wn .= $table[$i]['name'];
-            if ($i != ($pickups - 1)) {
+            if ($i != ($offset + $pickups - 1)) {
                 $wn .= ', ';
             }
         }
         // (*) build html texts
         $next = '';
         // show today only if no date tommorow
-        if (strtotime($table[0]['date']) === strtotime('today')) {
+        if (strtotime($table[$offset]['date']) === strtotime('today')) {
             $next = $this->Translate('Heute');
         }
         // tommorow overrule today
-        if (strtotime($table[0]['date']) === strtotime('tomorrow')) {
+        if (strtotime($table[$offset]['date']) === strtotime('tomorrow')) {
             $next = $this->Translate('Morgen');
         }
         // generate widget for tile visu
         if ($next == '') {
-            $next = date('d.m.', strtotime($table[0]['date']));
-            $next = $this->Translate(date('D', strtotime($table[0]['date']))) . '. ' . $next;
+            $next = date('d.m.', strtotime($table[$offset]['date']));
+            $next = $this->Translate(date('D', strtotime($table[$offset]['date']))) . '. ' . $next;
         }
         $textS = '';
         $textM = '';
         $textL = '';
         // date infos
-        $days = $table[0]['days'];
-        $day = strtotime($table[0]['date']);
+        $days = $table[$offset]['days'];
+        $day = strtotime($table[$offset]['date']);
         $wd = $this->Translate(date('l', $day));
         $sd = date('d.m.', $day);
         if ($days > 1) {

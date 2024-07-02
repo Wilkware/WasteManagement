@@ -49,12 +49,16 @@ class MyMuell extends IPSModule
         // Visualisation
         $this->RegisterPropertyBoolean('settingsTileVisu', false);
         $this->RegisterPropertyString('settingsTileColors', '[]');
+        $this->RegisterPropertyBoolean('settingsLookAhead', false);
+        $this->RegisterPropertyString('settingsLookTime', '{"hour":12,"minute":0,"second":0}');
         // Advanced Settings
         $this->RegisterPropertyBoolean('settingsActivate', true);
         $this->RegisterPropertyBoolean('settingsVariables', false);
         $this->RegisterPropertyInteger('settingsScript', 0);
         // Register daily update timer
         $this->RegisterTimer('UpdateTimer', 0, 'MYMDE_Update(' . $this->InstanceID . ');');
+        // Register daily look ahead timer
+        $this->RegisterTimer('LookAheadTimer', 0, 'MYMDE_LookAhead(' . $this->InstanceID . ');');
     }
 
     /**
@@ -148,9 +152,11 @@ class MyMuell extends IPSModule
         $aId = $this->ReadPropertyString('areaID');
         $activate = $this->ReadPropertyBoolean('settingsActivate');
         $tilevisu = $this->ReadPropertyBoolean('settingsTileVisu');
+        $loakahead = $this->ReadPropertyBoolean('settingsLookAhead');
         $this->SendDebug(__FUNCTION__, 'domainID=' . $dId . 'cityID=' . $cId . ', areaID=' . $aId);
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
+        $this->SetTimerInterval('LookAheadTimer', 0);
         // Support for Tile Viso (v7.x)
         $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, '~HTMLBox', 0, $tilevisu);
         // Set status
@@ -169,7 +175,15 @@ class MyMuell extends IPSModule
             if ($activate == true) {
                 // Time neu berechnen
                 $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
-                $this->SendDebug(__FUNCTION__, 'Timer aktiviert!');
+                $this->SendDebug(__FUNCTION__, 'Update Timer aktiviert!');
+                if ($loakahead & $tilevisu) {
+                    $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
+                    if (($time['hour'] == 0) && ($time['minute'] <= 30)) {
+                        $this->SendDebug(__FUNCTION__, 'LookAhead Time zu niedrieg!');
+                    } else {
+                        $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second'], 0);
+                    }
+                }
             } else {
                 $status = 104;
             }
@@ -189,6 +203,42 @@ class MyMuell extends IPSModule
         $this->SendDebug(__FUNCTION__, $ident . ' => ' . $value);
         eval('$this->' . $ident . '(\'' . $value . '\');');
         return true;
+    }
+
+    /**
+     * This function will be available automatically after the module is imported with the module control.
+     * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
+     *
+     * MYMDE_LookAhead($id);
+     */
+    public function LookAhead()
+    {
+        // Check instance state
+        if ($this->GetStatus() != 102) {
+            $this->SendDebug(__FUNCTION__, 'Status: Instance is not active.');
+            return;
+        }
+        // rebuild informations
+        $io = unserialize($this->ReadAttributeString('io'));
+        $this->SendDebug(__FUNCTION__, $io);
+        $i = 1;
+        $waste = [];
+        // fractions convert to name => ident
+        foreach ($io[self::IO_NAMES] as $ident => $name) {
+            $this->SendDebug(__FUNCTION__, 'Fraction ident: ' . $ident . ', Name: ' . $name);
+            $enabled = $this->ReadPropertyBoolean('fractionID' . $i++);
+            if ($enabled) {
+                $date = $this->GetValue($ident);
+                $waste[$name] = ['ident' => $ident, 'date' => $date];
+            }
+        }
+        $this->SendDebug(__FUNCTION__, $waste);
+        // update tile widget
+        $list = json_decode($this->ReadPropertyString('settingsTileColors'), true);
+        $this->BuildWidget($waste, $list, true);
+        // Set Timer to the next day
+        $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
+        $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second']);
     }
 
     /**
@@ -421,7 +471,7 @@ class MyMuell extends IPSModule
                 $enabled = $this->ReadPropertyBoolean('fractionID' . $i);
                 $this->MaintainVariable($fract['value'], $fract['caption'], VARIABLETYPE_STRING, '', $i, $enabled || $variable);
                 if ($enabled) {
-                    $names[] = $fract['caption'];
+                    $names[$fract['value']] = $fract['caption'];
                 }
             }
             $i++;

@@ -27,12 +27,23 @@ trait EventHelper
      * @param int    $minute Start minute.
      * @param int    $second Start second.
      */
-    protected function UpdateTimerInterval($ident, $hour, $minute, $second)
+    protected function UpdateTimerInterval($ident, $hour, $minute, $second, $days = 1)
     {
         $now = new DateTime();
         $target = new DateTime();
-        $target->modify('+1 day');
         $target->setTime($hour, $minute, $second);
+
+        if ($days == 0) {
+            // Check if the target time is still reachable today
+            if ($now > $target) {
+                // If not, set days to 1 to move to the next day
+                $days = 1;
+            }
+        }
+
+        if ($days > 0) {
+            $target->modify("+$days day");
+        }
         $diff = $target->getTimestamp() - $now->getTimestamp();
         $interval = $diff * 1000;
         $this->SetTimerInterval($ident, $interval);
