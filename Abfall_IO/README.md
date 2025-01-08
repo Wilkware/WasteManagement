@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-2.3.20240702-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
+[![Version](https://img.shields.io/badge/Modul%20Version-2.4.20250107-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/style.yml?branch=main&label=CheckStyle&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
 
@@ -15,7 +15,7 @@ IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
 3. [Installation](#user-content-3-installation)
 4. [Einrichten der Instanzen in IP-Symcon](#user-content-4-einrichten-der-instanzen-in-ip-symcon)
 5. [Statusvariablen und Profile](#user-content-5-statusvariablen-und-profile)
-6. [WebFront](#user-content-6-webfront)
+6. [Visualisierung](#user-content-6-visualisierung)
 7. [PHP-Befehlsreferenz](#user-content-7-php-befehlsreferenz)
 8. [Versionshistorie](#user-content-8-versionshistorie)
 
@@ -55,6 +55,7 @@ _Einstellungsbereich:_
 Name                    | Beschreibung
 ----------------------- | ----------------------------------
 Anbieter                | 'Abfall.IO (abfallplus.de)'
+Land                    | Landesauswahl (derzeit DE, AT)
 
 > Abfallwirtschaft ...
 
@@ -100,7 +101,7 @@ Entsorgungsart(en) | String    | Abhängig vom Entsorgungsgebiet und den angebot
 
 Es werden keine zusätzlichen Profile benötigt.
 
-### 6. WebFront
+### 6. Visualisierung
 
 Man kann die Statusvariablen(Strings) direkt im WF verlinken.  
 Aber wie bei der Konfiguration beschrieben, muss man aufpassen wenn die Konfiguration geändert wird. Dann müssen gegebenenfalls die Links neu eingerichtet werden.
@@ -135,6 +136,11 @@ Die Funktion liefert keinerlei Rückgabewert.
 __Beispiel__: `ABPIO_FixWasteName(12345, 'Hausmüll', 'Hausmüll (2 wöchentlich)');`
 
 ### 8. Versionshistorie
+
+v2.4.20250107
+
+* _NEU_: Internationalisierte Anbieterauswahl
+* _FIX_: Dokumentation verbessert
 
 v2.3.20240702
 

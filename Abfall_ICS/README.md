@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.1.20240702-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
+[![Version](https://img.shields.io/badge/Modul%20Version-1.2.20250107-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/style.yml?branch=main&label=CheckStyle&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
 
@@ -15,7 +15,7 @@ IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
 3. [Installation](#user-content-3-installation)
 4. [Einrichten der Instanzen in IP-Symcon](#user-content-4-einrichten-der-instanzen-in-ip-symcon)
 5. [Statusvariablen und Profile](#user-content-5-statusvariablen-und-profile)
-6. [WebFront](#user-content-6-webfront)
+6. [Visualisierung](#user-content-6-visualisierung)
 7. [PHP-Befehlsreferenz](#user-content-7-php-befehlsreferenz)
 8. [Versionshistorie](#user-content-8-versionshistorie)
 
@@ -53,6 +53,7 @@ _Einstellungsbereich:_
 Name                    | Beschreibung
 ----------------------- | ----------------------------------
 Anbieter                | 'Abfall.ICS (asmium.de)'
+Land                    | Landesauswahl (derzeit DE, AT)
 
 > Abfallwirtschaft ...
 
@@ -60,7 +61,9 @@ Name                             | Beschreibung
 -------------------------------- | ---------------------------------
 Entsorgungsgebiet (vordefiniert) | Liste der vordefinierten Abfallwirtschaften
 WEITER                           | Öffnet im neuen Browser-Fenster die selektierte Abfallwirtschafts-Seite
-Download URL (iCal-File)         | Link zuum Herunterladen der Kalender-Datei (ICS)
+Daten importieren                | Auswahl via File oder Link (URL)
+Datei auswählen                  | Auswahl einer Kalender-Datei (ICS) aus dem File-System
+Download URL (iCal-File)         | Link zum Herunterladen der Kalender-Datei (ICS)
 ANALYSIEREN                      | Analysiert die in der Kalenderdatei enthaltenen Entsorgungsarten
 Entsorgungen                     | Entsorgungsarten, d.h. was wird im Gebiet an Entsorgung angeboten
 
@@ -97,7 +100,7 @@ Entsorgungsart(en) | String    | Abhängig vom Entsorgungsgebiet und den angebot
 
 Es werden keine zusätzlichen Profile benötigt.
 
-### 6. WebFront
+### 6. Visualisierung
 
 Man kann die Statusvariablen(Strings) direkt im WF verlinken.  
 Aber wie bei der Konfiguration beschrieben, muss man aufpassen wenn die Konfiguration geändert wird. Dann müssen gegebenenfalls die Links neu eingerichtet werden.
@@ -124,6 +127,12 @@ __Beispiel__: `WMICS_Update(12345);`
 
 
 ### 8. Versionshistorie
+
+v1.2.20250107
+
+* _NEU_: Internationalisierte Anbieterauswahl
+* _NEU_: ICS Datei kann vom Filesystem geladen werden
+* _FIX_: Dokumentation verbessert
 
 v1.1.20240702
 

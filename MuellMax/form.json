@@ -38,6 +38,19 @@
                             "value": "null"
                         }
                     ]
+                },
+                {
+                    "type": "Select",
+                    "name": "serviceCountry",
+                    "caption": "Country:",
+                    "width": "450px",
+                    "onChange": "IPS_RequestAction($id,'OnChangeCountry',$serviceCountry);",
+                    "options": [
+                        {
+                            "label": "Germany",
+                            "value": "de"
+                        }
+                    ]
                 }
             ]
         },

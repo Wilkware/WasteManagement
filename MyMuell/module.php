@@ -37,6 +37,7 @@ class MyMuell extends IPSModule
         parent::Create();
         // Service Provider
         $this->RegisterPropertyString('serviceProvider', self::SERVICE_PROVIDER);
+        $this->RegisterPropertyString('serviceCountry', 'de');
         // Waste Management
         $this->RegisterPropertyString('domainID', 'null');
         $this->RegisterPropertyString('cityID', 'null');
@@ -70,23 +71,23 @@ class MyMuell extends IPSModule
     {
         // Settings
         $activate = $this->ReadPropertyBoolean('settingsActivate');
+        // Service Values
+        $country = $this->ReadPropertyString('serviceCountry');
         // IO Values
         $dId = $this->ReadPropertyString('domainID');
         $cId = $this->ReadPropertyString('cityID');
         $aId = $this->ReadPropertyString('areaID');
         // Debug output
         $this->SendDebug(__FUNCTION__, 'domainID=' . $dId . ',cityID=' . $cId . ', areaId=' . $aId);
-
         // Get Basic Form
         $jsonForm = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         // Service Provider
         $jsonForm['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
+        $jsonForm['elements'][self::ELEM_PROVI]['items'][1]['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
         // Waste Management
-        $jsonForm['elements'][self::ELEM_MYMDE]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER);
-
+        $jsonForm['elements'][self::ELEM_MYMDE]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
         // Prompt
         $prompt = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
-
         // Domain (client)
         if ($dId != 'null') {
             $options = $this->RequestCities($dId);
@@ -112,7 +113,6 @@ class MyMuell extends IPSModule
         } else {
             $aId = null;
         }
-
         // Fractions
         if ($aId != null) {
             $options = $this->RequestFractions($dId, $cId, $aId);
@@ -127,7 +127,6 @@ class MyMuell extends IPSModule
                 }
             }
         }
-
         //Only add default element if we do not have anything in persistence
         $colors = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         if (empty($colors)) {
@@ -307,6 +306,21 @@ class MyMuell extends IPSModule
         if ($activate == true) {
             $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
         }
+    }
+
+    /**
+     * User has selected a new waste management country.
+     *
+     * @param string $id Country ID.
+     */
+    protected function OnChangeCountry($id)
+    {
+        $this->SendDebug(__FUNCTION__, $id);
+        $options = $this->GetClientOptions(self::SERVICE_PROVIDER, $id);
+        $this->UpdateFormField('domainID', 'options', json_encode($options));
+        $this->UpdateFormField('domainID', 'visible', true);
+        $this->UpdateFormField('domainID', 'value', 'null');
+        $this->OnChangeDomain('null');
     }
 
     /**

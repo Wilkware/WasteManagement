@@ -23,9 +23,13 @@ class Abfall_ICS extends IPSModule
     private const SERVICE_PROVIDER = 'wmics';
     private const SERVICE_USERAGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36';
 
+    // Import type
+    private const IMPORT_LINK = 0;
+    private const IMPORT_FILE = 1;
+
     // IO keys
     private const IO_CLIENT = 'id';
-    private const IO_LINK = 'url';
+    private const IO_TYPE = 'type';
     private const IO_FRACTIONS = 'fract';
 
     // Form Elements Positions
@@ -44,9 +48,12 @@ class Abfall_ICS extends IPSModule
         parent::Create();
         // Service Provider
         $this->RegisterPropertyString('serviceProvider', self::SERVICE_PROVIDER);
+        $this->RegisterPropertyString('serviceCountry', 'de');
         // Waste Management
         $this->RegisterPropertyString('clientID', 'null');
-        $this->RegisterPropertyString('clientURL', '');
+        $this->RegisterPropertyInteger('clientTYPE', self::IMPORT_LINK);
+        $this->RegisterPropertyString('clientURL', ''); // => clientLINK !!!
+        $this->RegisterPropertyString('clientFILE', '');
         for ($i = 1; $i <= static::$FRACTIONS; $i++) {
             $this->RegisterPropertyBoolean('fractionID' . $i, false);
         }
@@ -79,17 +86,20 @@ class Abfall_ICS extends IPSModule
     {
         // Settings
         $activate = $this->ReadPropertyBoolean('settingsActivate');
+        // Service Values
+        $country = $this->ReadPropertyString('serviceCountry');
         // IO Values
         $id = $this->ReadPropertyString('clientID');
-        $url = $this->ReadPropertyString('clientURL');
+        $type = $this->ReadPropertyInteger('clientTYPE');
         // Debug output
-        $this->SendDebug(__FUNCTION__, 'clientID=' . $id . ' ,clientURL=' . $url);
+        $this->SendDebug(__FUNCTION__, 'clientID=' . $id . ' ,clientTYPE=' . $type);
         // Get Basic Form
         $jsonForm = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         // Service Provider
         $jsonForm['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
+        $jsonForm['elements'][self::ELEM_PROVI]['items'][1]['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
         // Waste Management
-        $jsonForm['elements'][self::ELEM_WMICS]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER);
+        $jsonForm['elements'][self::ELEM_WMICS]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
         // IO Data
         $io = unserialize($this->ReadAttributeString('io'));
         $this->SendDebug(__FUNCTION__, $io);
@@ -97,6 +107,9 @@ class Abfall_ICS extends IPSModule
         if ($io[self::IO_CLIENT] != 'null') {
             $jsonForm['elements'][self::ELEM_WMICS]['items'][0]['items'][1]['visible'] = true;
         }
+        // Type (File or Link)
+        $jsonForm['elements'][self::ELEM_WMICS]['items'][1]['items'][1]['visible'] = ($type == self::IMPORT_LINK);
+        $jsonForm['elements'][self::ELEM_WMICS]['items'][1]['items'][2]['visible'] = ($type == self::IMPORT_FILE);
         // Fractions
         if (!empty($io[self::IO_FRACTIONS])) {
             // Label
@@ -124,25 +137,33 @@ class Abfall_ICS extends IPSModule
         //Never delete this line!
         parent::ApplyChanges();
         $id = $this->ReadPropertyString('clientID');
-        $url = $this->ReadPropertyString('clientURL');
+        $type = $this->ReadPropertyInteger('clientTYPE');
         $activate = $this->ReadPropertyBoolean('settingsActivate');
         $tilevisu = $this->ReadPropertyBoolean('settingsTileVisu');
         $loakahead = $this->ReadPropertyBoolean('settingsLookAhead');
-        $this->SendDebug(__FUNCTION__, 'clientID=' . $id . ' ,clientURL=' . $url);
+        $this->SendDebug(__FUNCTION__, 'clientID=' . $id . ' ,clientTYPE=' . $type);
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
         $this->SetTimerInterval('LookAheadTimer', 0);
-        // IO Data
-        $io = unserialize($this->ReadAttributeString('io'));
         // Set status
-        if (($url == '') || ($url != $io[self::IO_LINK])) {
-            $this->WriteAttributeString('io', serialize($this->PrepareIO($id, $url)));
-            $status = 201;
+        $status = 102;
+        if ($type == self::IMPORT_LINK) {
+            $url = $this->ReadPropertyString('clientURL');
+            if (($url == '')) {
+                $status = 201;
+            }
         } else {
-            $status = 102;
+            $file = $this->ReadPropertyString('clientFILE');
+            if (($file == '')) {
+                $status = 201;
+            }
         }
         // take over the selected fractions
         if ($status == 102) {
+            // IO Type
+            $io = unserialize($this->ReadAttributeString('io'));
+            $io[self::IO_TYPE] = $type;
+            // IO Fractions
             $count = count($io[self::IO_FRACTIONS]);
             for ($i = 1; $i <= $count; $i++) {
                 $enabled = $this->ReadPropertyBoolean('fractionID' . $i);
@@ -250,7 +271,7 @@ class Abfall_ICS extends IPSModule
 
         //$res = $this->GetBuffer('ics_cache');
         try {
-            $ical = new ICal($io[self::IO_LINK], [
+            $ical = new ICal(false, [
                 'defaultSpan'                 => 2,     // Default value
                 'defaultTimeZone'             => 'UTC',
                 'defaultWeekStart'            => 'MO',  // Default value
@@ -259,6 +280,11 @@ class Abfall_ICS extends IPSModule
                 'filterDaysBefore'            => null,  // Default value
                 'skipRecurrence'              => false, // Default value
             ]);
+            if ($io[self::IO_TYPE] == self::IMPORT_LINK) {
+                $ical->initUrl($this->ReadPropertyString('clientURL'));
+            } else {
+                $ical->initString(base64_decode($this->ReadPropertyString('clientFILE')));
+            }
         } catch (Exception $e) {
             $this->SendDebug(__FUNCTION__, 'initICS: ' . $e);
             return;
@@ -315,6 +341,21 @@ class Abfall_ICS extends IPSModule
     }
 
     /**
+     * User has selected a new waste management country.
+     *
+     * @param string $id Country ID.
+     */
+    protected function OnChangeCountry($id)
+    {
+        $this->SendDebug(__FUNCTION__, $id);
+        $options = $this->GetClientOptions(self::SERVICE_PROVIDER, $id);
+        $this->UpdateFormField('clientID', 'options', json_encode($options));
+        $this->UpdateFormField('clientID', 'visible', true);
+        $this->UpdateFormField('clientID', 'value', 'null');
+        $this->OnChangeClient('null');
+    }
+
+    /**
      * User has clicked to analyse a new waste management (iCal file).
      *
      * @param string $url Client URL.
@@ -329,14 +370,25 @@ class Abfall_ICS extends IPSModule
      *
      * @param string $url Client URL.
      */
-    protected function OnChangeLink(string $url)
+    protected function OnChangeFile(string $file)
     {
-        $this->SendDebug(__FUNCTION__, $url);
+        $this->SendDebug(__FUNCTION__, $file);
+    }
+
+    /**
+     * User has clicked to analyse a new waste management (iCal url).
+     *
+     * @param string $url Client URL.
+     */
+    protected function OnChangeImport(string $value)
+    {
+        $this->SendDebug(__FUNCTION__, $value);
+        $data = unserialize($value);
         // Reset IO data
-        $io = $this->PrepareIO($url);
+        $io = $this->PrepareIO($data['c'], $data['t']);
         // ICS data
         try {
-            $ical = new ICal($url, [
+            $ical = new ICal(false, [
                 'defaultSpan'                 => 2,     // Default value
                 'defaultTimeZone'             => 'UTC',
                 'defaultWeekStart'            => 'MO',  // Default value
@@ -345,6 +397,11 @@ class Abfall_ICS extends IPSModule
                 'filterDaysBefore'            => null,  // Default value
                 'skipRecurrence'              => false, // Default value
             ]);
+            if ($io[self::IO_TYPE] == self::IMPORT_LINK) {
+                $ical->initUrl($data['l']);
+            } else {
+                $ical->initString(base64_decode($data['f']));
+            }
         } catch (Exception $e) {
             $this->SendDebug(__FUNCTION__, 'initICS: ' . $e);
             $this->EchoMessage($e->getMessage());
@@ -372,8 +429,6 @@ class Abfall_ICS extends IPSModule
         foreach ($names as $ident => $name) {
             $io[self::IO_FRACTIONS][] = ['ident' => $ident, 'name' => $name, 'active' => true];
         }
-        // take over the new URL
-        $io[self::IO_LINK] = $url;
         $this->SendDebug(__FUNCTION__, $io);
         // Hide or Unhide properties
         $this->UpdateForm($io);
@@ -440,10 +495,10 @@ class Abfall_ICS extends IPSModule
      * @param string $c client url value
      * @return array IO interface
      */
-    protected function PrepareIO(string $c = 'null', string $l = 'null')
+    protected function PrepareIO(string $c = 'null', int $t = 0)
     {
         $io[self::IO_CLIENT] = $c;
-        $io[self::IO_LINK] = ($l != 'null') ? $l : '';
+        $io[self::IO_TYPE] = $t;
         $io[self::IO_FRACTIONS] = [];
         // data2array
         return $io;
@@ -461,6 +516,18 @@ class Abfall_ICS extends IPSModule
         $base = base64_encode($hash);
         $ident = substr($base, 0, 15); // Extract the first 15 characters
         return $ident;
+    }
+
+    /**
+     * User has select an other kind of import type.
+     *
+     * @param int $value import type.
+     */
+    private function OnChangeType(int $value)
+    {
+        $this->SendDebug(__FUNCTION__, 'Value: ' . $value);
+        $this->UpdateFormField('clientURL', 'visible', ($value == self::IMPORT_LINK));
+        $this->UpdateFormField('clientFILE', 'visible', ($value == self::IMPORT_FILE));
     }
 
     /**

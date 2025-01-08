@@ -49,6 +49,7 @@ trait VisualisationHelper
      *
      * @param array $waste Array with waste names and the next pick-up date.
      * @param array $custom Array with color mappings
+     * @param bool $lookahead Flag if look ahead is enabled or not.
      */
     protected function BuildWidget(array $waste, array $custom, bool $lookahead = false)
     {
@@ -71,7 +72,7 @@ trait VisualisationHelper
         // (*) Security Check
         if (empty($table)) {
             $table[] = ['name' => 'No DATA!', 'type' => 'red', 'date' => date('d.m.Y'), 'days' => 0];
-            $this->SendDebug(__FUNCTION__, 'SECURITY CHECK: NO DATA!!!');
+            $this->LogMessage('SECURITY CHECK: NO DATA!!!');
         }
         // (*) sort waste by date
         usort($table, function ($a, $b)
@@ -114,6 +115,7 @@ trait VisualisationHelper
                 $wn .= ', ';
             }
         }
+
         // (*) build html texts
         $next = '';
         // show today only if no date tommorow
@@ -253,22 +255,24 @@ trait VisualisationHelper
     /**
      * Calculate days up to a date
      *
-     * @param mixed $startDate
-     * @param null $endDate
-     * @return int Number of days
+     * @param string $start Start date
+     * @param string $end  End date
+     * @return int Number of days to date
      */
-    private function CalcDaysToDate($startDate, $endDate = null)
+    private function CalcDaysToDate(string $start, string $end = '')
     {
-        if (empty($endDate)) $endDate = date('Y-m-d');
-        return round(abs(strtotime($endDate) - strtotime($startDate)) / (60 * 60 * 24));
+        if (empty($end)) $end = date('Y-m-d');
+        return intval(round(abs(strtotime($end) - strtotime($start)) / (60 * 60 * 24)));
     }
 
     /**
-     * Recognize waste type for given name
+     * Recognize waste type for given name.
      *
-     * @param mixed $name
+     * @param string $name Waste name
+     * @param array $matches Array of predefined colored waste types
+     * @return int Color of associated waste type
      */
-    private function RecognizeWaste($name, $matches)
+    private function RecognizeWaste(string $name, array $matches)
     {
         foreach ($matches as $match) {
             $pm = '/(' . $match['Match'] . ')/i';

@@ -62,6 +62,8 @@ class Abfall_IO extends IPSModule
         parent::Create();
         // Service Provider
         $this->RegisterPropertyString('serviceProvider', self::SERVICE_PROVIDER);
+        $this->RegisterPropertyString('serviceCountry', 'de');
+
         // Waste Management
         $this->RegisterPropertyString('clientID', 'null');
         $this->RegisterPropertyString('placeID', 'null');
@@ -101,6 +103,8 @@ class Abfall_IO extends IPSModule
     {
         // Settings
         $activate = $this->ReadPropertyBoolean('settingsActivate');
+        // Service Values
+        $country = $this->ReadPropertyString('serviceCountry');
         // IO Values
         $cId = $this->ReadPropertyString('clientID');
         $pId = $this->ReadPropertyString('placeID');
@@ -109,14 +113,13 @@ class Abfall_IO extends IPSModule
         $aId = $this->ReadPropertyString('addonID');
         // Debug output
         $this->SendDebug(__FUNCTION__, 'clientID=' . $cId . ', placeId=' . $pId . ', districtId=' . $dId . ', streetId=' . $sId . ', addonId=' . $aId); // . ', fractIds=' . $fId);
-
         // Get Basic Form
         $jsonForm = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         // Service Provider
         $jsonForm['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
+        $jsonForm['elements'][self::ELEM_PROVI]['items'][1]['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
         // Waste Management
-        $jsonForm['elements'][self::ELEM_ABPIO]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER);
-
+        $jsonForm['elements'][self::ELEM_ABPIO]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
         // Prompt
         $prompt = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
         // go throw thw whole way
@@ -563,15 +566,15 @@ class Abfall_IO extends IPSModule
             $csv = array_map(null, ...$csv);
             $now = date('Ymd');
             // each events
-            foreach ($csv as $waste) {
-                $count = count($waste);
-                $name = utf8_encode($waste[0]);
+            foreach ($csv as $line) {
+                $count = count($line);
+                $name = mb_convert_encoding($line[0], 'UTF-8', 'ISO-8859-1');
                 $this->SendDebug(__FUNCTION__, 'Fraction name: ' . $name . ', count:' . $count);
                 for ($i = 1; $i < $count; $i++) {
-                    if (empty($waste[$i])) {
+                    if (empty($line[$i])) {
                         continue;
                     }
-                    $day = substr($waste[$i], 6) . substr($waste[$i], 3, 2) . substr($waste[$i], 0, 2);
+                    $day = substr($line[$i], 6) . substr($line[$i], 3, 2) . substr($line[$i], 0, 2);
                     if ($day < $now) {
                         $this->SendDebug(__FUNCTION__, 'Fraction day: ' . $day);
                         continue;
@@ -587,8 +590,8 @@ class Abfall_IO extends IPSModule
                         }
                     }
                     if (isset($waste[$name]) && $waste[$name]['date'] == '') {
-                        $waste[$name]['date'] = $waste[$i];
-                        $this->SendDebug(__FUNCTION__, 'Fraction date: ' . $name . ' = ' . $waste[$i]);
+                        $waste[$name]['date'] = $line[$i];
+                        $this->SendDebug(__FUNCTION__, 'Fraction date: ' . $name . ' = ' . $line[$i]);
                     }
                 }
             }
@@ -623,6 +626,21 @@ class Abfall_IO extends IPSModule
         if ($activate == true) {
             $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
         }
+    }
+
+    /**
+     * User has selected a new waste management country.
+     *
+     * @param string $id Country ID.
+     */
+    protected function OnChangeCountry($id)
+    {
+        $this->SendDebug(__FUNCTION__, $id);
+        $options = $this->GetClientOptions(self::SERVICE_PROVIDER, $id);
+        $this->UpdateFormField('clientID', 'options', json_encode($options));
+        $this->UpdateFormField('clientID', 'visible', true);
+        $this->UpdateFormField('clientID', 'value', 'null');
+        $this->OnChangeClient('null');
     }
 
     /**

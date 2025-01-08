@@ -34,7 +34,8 @@ __HINWEIS:__ Über diese [Suchseite](https://asmium.de) kann man ganz schnell he
 
 ## Historie
 
-- 2024-07-02: Look-Ahead Visualiserungeingebaut
+- 2025-01-07: Internationalisierte Anbieterauswahl
+- 2024-07-02: Look-Ahead Visualiserung eingebaut
 - 2024-03-04: Modul Abfall_ICS (Kalender ICS-Datei)
 - 2023-11-19: Modul MuellMax (MüllMax DE)
 - 2023-01-24: Modul Awido (Script-Fix)

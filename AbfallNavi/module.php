@@ -67,6 +67,7 @@ class AbfallNavi extends IPSModule
         parent::Create();
         // Service Provider
         $this->RegisterPropertyString('serviceProvider', self::SERVICE_PROVIDER);
+        $this->RegisterPropertyString('serviceCountry', 'de');
         // Waste Management
         $this->RegisterPropertyString('clientID', 'null');
         $this->RegisterPropertyString('placeID', 'null');
@@ -105,6 +106,8 @@ class AbfallNavi extends IPSModule
     {
         // Settings
         $activate = $this->ReadPropertyBoolean('settingsActivate');
+        // Service Values
+        $country = $this->ReadPropertyString('serviceCountry');
         // IO Values
         $cId = $this->ReadPropertyString('clientID');
         $pId = $this->ReadPropertyString('placeID');
@@ -112,14 +115,13 @@ class AbfallNavi extends IPSModule
         $aId = $this->ReadPropertyString('addonID');
         // Debug output
         $this->SendDebug(__FUNCTION__, 'clientID=' . $cId . ', placeId=' . $pId . ', streetId=' . $sId . ', addonId=' . $aId);
-
         // Get Basic Form
         $jsonForm = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         // Service Provider
         $jsonForm['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
+        $jsonForm['elements'][self::ELEM_PROVI]['items'][1]['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
         // Waste Management
-        $jsonForm['elements'][self::ELEM_REGIO]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER);
-
+        $jsonForm['elements'][self::ELEM_REGIO]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
         // Prompt
         $prompt = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
         // go throw the whole way
@@ -458,6 +460,21 @@ class AbfallNavi extends IPSModule
         if ($activate == true) {
             $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
         }
+    }
+
+    /**
+     * User has selected a new waste management country.
+     *
+     * @param string $id Country ID.
+     */
+    protected function OnChangeCountry($id)
+    {
+        $this->SendDebug(__FUNCTION__, $id);
+        $options = $this->GetClientOptions(self::SERVICE_PROVIDER, $id);
+        $this->UpdateFormField('clientID', 'options', json_encode($options));
+        $this->UpdateFormField('clientID', 'visible', true);
+        $this->UpdateFormField('clientID', 'value', 'null');
+        $this->OnChangeClient('null');
     }
 
     /**

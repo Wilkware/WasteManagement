@@ -38,6 +38,19 @@
                             "value": "null"
                         }
                     ]
+                },
+                {
+                    "type": "Select",
+                    "name": "serviceCountry",
+                    "caption": "Country:",
+                    "width": "450px",
+                    "onChange": "IPS_RequestAction($id,'OnChangeCountry',$serviceCountry);",
+                    "options": [
+                        {
+                            "label": "Germany",
+                            "value": "de"
+                        }
+                    ]
                 }
             ]
         },
@@ -75,11 +88,36 @@
                     "type": "RowLayout",
                     "items": [
                         {
+                            "type": "Select",
+                            "name": "clientTYPE",
+                            "caption": "Import Data:",
+                            "width": "450px",
+                            "onChange": "IPS_RequestAction($id,'OnChangeType', $clientTYPE);",
+                            "options": [
+                                {
+                                    "caption": "From a URL",
+                                    "value": 0
+                                },
+                                {
+                                    "caption": "From a file",
+                                    "value": 1
+                                }
+                            ]
+                        },
+                        {
                             "type": "ValidationTextBox",
                             "name": "clientURL",
                             "caption": "Download URL (iCal-File):",
                             "width": "900px",
-                            "validate": "^(http(s?):\\\/\\\/)?(((www\\.)?[a-zA-Z0-9\\.\\-\\_]+(\\.[a-zA-Z]{2,3})+)(:[0-9]{1,5})?|(\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b))(:[0-9]{1,5})?(\\\/[a-zA-Z0-9\\_\\-\\s\\,\\.\\\/\\?\\%\\#\\&\\=]*)?$"
+                            "visible": false,
+                            "validate": "^(http(s?):\\/\\/)?(((www\\.)?[a-zA-Z0-9\\.\\-\\_]+(\\.[a-zA-Z]{2,3})+)(:[0-9]{1,5})?|(\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b))(:[0-9]{1,5})?(\\/[a-zA-Z0-9\\_\\-\\s\\,\\.\\/\\?\\%\\#\\&\\=]*)?$"
+                        },
+                        {
+                            "type": "SelectFile",
+                            "name": "clientFILE",
+                            "caption": "Choose File",
+                            "extensions": ".ics",
+                            "visible": false
                         }
                     ]
                 },
@@ -89,7 +127,7 @@
                         {
                             "type": "Button",
                             "caption": "Analyse",
-                            "onClick": "IPS_RequestAction($id,'OnChangeLink',$clientURL);"
+                            "onClick": "IPS_RequestAction($id,'OnChangeImport',serialize(['c'=>$clientID, 't'=>$clientTYPE, 'l'=>$clientURL, 'f'=>$clientFILE]));"
                         },
                         {
                             "type": "Label",
@@ -439,7 +477,7 @@
         {
             "code": 201,
             "icon": "inactive",
-            "caption": "Please enter a correct URL and analyse the waste types!"
+            "caption": "Please enter a correct URL or FILE and analyse the waste types!"
         },
         {
             "code": 202,

@@ -32,9 +32,21 @@ trait ServiceHelper
     ];
 
     /**
+     * Supported Countries per Service
+     */
+    private static $COUNTRIES = [
+        'awido' => ['de' => 'Germany'],
+        'abpio' => ['de' => 'Germany', 'at' => 'Austria'],
+        'mymde' => ['de' => 'Germany'],
+        'regio' => ['de' => 'Germany'],
+        'maxde' => ['de' => 'Germany'],
+        'wmics' => ['de' => 'Germany', 'at' => 'Austria'],
+    ];
+
+    /**
      * API URL for Client IDs
      */
-    private static $CLIENTS = 'https://api.asmium.de/waste/de/';
+    private static $CLIENTS = 'https://api.asmium.de/waste/';
 
     /**
      * Maximale Anzahl an Entsorgungsarten
@@ -59,11 +71,32 @@ trait ServiceHelper
     }
 
     /**
+     * Returns the list of available countries per services provider.
+     *
+     * @param string $provider Service provider identifier
+     * @return array Array of countries.
+     */
+    protected function GetCountryOptions(string $provider)
+    {
+        $this->SendDebug(__FUNCTION__, $provider);
+        // Options
+        $options = [];
+        // Default key
+        foreach (static::$COUNTRIES[$provider] as $key => $value) {
+            $options[] = ['caption' => $this->Translate($value), 'value' => $key];
+        }
+        $this->SendDebug(__FUNCTION__, $options);
+        return $options;
+    }
+
+    /**
      * Returns the list of available clients for the dropdown menu.
      *
+     * @param string $provider Service provider identifier
+     * @param string $country Service country identifier
      * @return array Array of clients.
      */
-    protected function GetClientOptions($provider)
+    protected function GetClientOptions(string $provider, string $country = 'de')
     {
         $this->SendDebug(__FUNCTION__, $provider);
         // Options
@@ -72,7 +105,7 @@ trait ServiceHelper
         $options[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
         // Build array
         if ($provider != 'null') {
-            $link = static::$CLIENTS . $provider;
+            $link = static::$CLIENTS . $country . '/' . $provider;
             $data = $this->ExtractClients($link);
             foreach ($data as $client) {
                 $value = $client['client'];
@@ -82,6 +115,8 @@ trait ServiceHelper
                 $options[] = ['caption' => $client['name'], 'value' => $value];
             }
         }
+        // Debug
+        // $options[] = ['caption' => 'Testgebiet', 'value' => '12345678790'];
         //$this->SendDebug(__FUNCTION__, $options);
         return $options;
     }

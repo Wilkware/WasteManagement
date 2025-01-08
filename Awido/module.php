@@ -33,6 +33,8 @@ class Awido extends IPSModule
         parent::Create();
         // Service Provider
         $this->RegisterPropertyString('serviceProvider', self::SERVICE_PROVIDER);
+        $this->RegisterPropertyString('serviceCountry', 'de');
+
         // Waste Management
         $this->RegisterPropertyString('clientID', 'null');
         $this->RegisterPropertyString('placeGUID', 'null');
@@ -69,6 +71,8 @@ class Awido extends IPSModule
      */
     public function GetConfigurationForm()
     {
+        // Service Values
+        $country = $this->ReadPropertyString('serviceCountry');
         // Setup einlesen
         $clientId = $this->ReadPropertyString('clientID');
         $placeId = $this->ReadPropertyString('placeGUID');
@@ -114,8 +118,9 @@ class Awido extends IPSModule
         $jsonForm = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
         // Service Provider
         $jsonForm['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
+        $jsonForm['elements'][self::ELEM_PROVI]['items'][1]['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
         // Waste Management
-        $jsonForm['elements'][self::ELEM_AWIDO]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER);
+        $jsonForm['elements'][self::ELEM_AWIDO]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
         $jsonForm['elements'][self::ELEM_AWIDO]['items'][1]['items'][0]['options'] = $this->GetPlaceOptions();
         $jsonForm['elements'][self::ELEM_AWIDO]['items'][2]['items'][0]['options'] = $this->GetStreetOptions();
         $jsonForm['elements'][self::ELEM_AWIDO]['items'][2]['items'][1]['options'] = $this->GetAddonOptions();
@@ -353,6 +358,21 @@ class Awido extends IPSModule
         if ($activate == true) {
             $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
         }
+    }
+
+    /**
+     * User has selected a new waste management country.
+     *
+     * @param string $id Country ID.
+     */
+    protected function OnChangeCountry($id)
+    {
+        $this->SendDebug(__FUNCTION__, $id);
+        $options = $this->GetClientOptions(self::SERVICE_PROVIDER, $id);
+        $this->UpdateFormField('clientID', 'options', json_encode($options));
+        $this->UpdateFormField('clientID', 'visible', true);
+        $this->UpdateFormField('clientID', 'value', 'null');
+        $this->OnChangeClient('null');
     }
 
     /**
