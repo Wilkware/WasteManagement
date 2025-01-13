@@ -290,11 +290,11 @@ class Abfall_ICS extends IPSModule
             return;
         }
         // get all events
-        $events = $ical->events();
+        $events = $ical->sortEventsWithOrder($ical->events());
         // go throw all events
         $this->SendDebug(__FUNCTION__, 'ICS Events: ' . $ical->eventCount);
         foreach ($events as $event) {
-            //$this->SendDebug(__FUNCTION__, 'Event: ' . $event->summary . ' = ' . $event->dtstart);
+            $this->SendDebug(__FUNCTION__, 'Event: ' . $event->summary . ' = ' . $event->dtstart);
             $dtstart = substr($event->dtstart, 0, 8);
             if ($dtstart < date('Ymd')) {
                 continue;

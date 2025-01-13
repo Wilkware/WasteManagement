@@ -132,6 +132,7 @@ v1.2.20250107
 
 * _NEU_: Internationalisierte Anbieterauswahl
 * _NEU_: ICS Datei kann vom Filesystem geladen werden
+* _FIX_: Events in ICS werden standardmäßig sortiert
 * _FIX_: Dokumentation verbessert
 
 v1.1.20240702
