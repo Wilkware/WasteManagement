@@ -29,6 +29,7 @@ trait ServiceHelper
         'regio' => [4, '{085BA8B2-118B-208D-3664-3C230C55952E}', 'AbfallNavi', 'regioit.de', 'The digital waste calendar from regio IT for waste disposal.'],
         'maxde' => [5, '{2EC7DFA0-62D9-2E92-ADB1-6B8201D142FA}', 'MüllMax', 'muellmax.de', 'Waste calendar - barrier-free online and printed!'],
         'wmics' => [6, '{9E99E213-F884-FC95-A8ED-4F3FCC368E70}', 'Abfall.ICS', 'asmium.de', 'Read out waste data via ICS calendar file.'],
+        'apapp' => [7, '{E3371D9B-9206-9584-4ACE-03AB9DB9C346}', 'Abfall.APP', 'abfallplus.de', 'Abfall+ is the solution to the challenges of waste management.'],
     ];
 
     /**
@@ -41,6 +42,7 @@ trait ServiceHelper
         'regio' => ['de' => 'Germany'],
         'maxde' => ['de' => 'Germany'],
         'wmics' => ['de' => 'Germany', 'at' => 'Austria'],
+        'apapp' => ['de' => 'Germany', 'at' => 'Austria'],
     ];
 
     /**

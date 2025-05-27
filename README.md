@@ -12,6 +12,9 @@ Folgende Module beinhaltet diese Bibliothek:
 - __Abfallwirtschaft Konfigurator__ ([Dokumentation](WasteManagementConfigurator))  
     Konfiguration aller verfügbaren Instanzen pro Online Dienst.
 
+- __Abfall_APP__ ([Dokumentation](Abfall_APP))  
+    Abfall+ ist die Lösung für elektronische Bürgerdienste in der Abfallwirtschaft.
+
 - __Abfall_ICS__ ([Dokumentation](Abfall_ICS))  
     Abfalldaten aus Kalenderdatei (iCal-Datei) auslesen.
 
@@ -34,6 +37,7 @@ __HINWEIS:__ Über diese [Suchseite](https://asmium.de) kann man ganz schnell he
 
 ## Historie
 
+- 2025-05-27: Modul Abfall_APP (App Abfall+)
 - 2025-01-07: Internationalisierte Anbieterauswahl
 - 2024-07-02: Look-Ahead Visualiserung eingebaut
 - 2024-03-04: Modul Abfall_ICS (Kalender ICS-Datei)
