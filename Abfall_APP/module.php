@@ -368,6 +368,7 @@ class Abfall_APP extends IPSModule
         $this->UpdateFormField('clientID', 'options', json_encode($options));
         $this->UpdateFormField('clientID', 'visible', true);
         $this->UpdateFormField('clientID', 'value', 'null');
+        $this->UpdateFormField('buttonStreet', 'visible', false);
         $this->UpdateForm([], self::CHANGE_COUNTRY);
     }
 
@@ -392,6 +393,7 @@ class Abfall_APP extends IPSModule
             }
         }
         // Hide or Unhide properties
+        $this->UpdateFormField('buttonStreet', 'visible', false);
         $this->UpdateForm($io, self::CHANGE_CLIENT);
         // Update attribute
         $this->WriteAttributeString('io', serialize($io));
@@ -433,8 +435,30 @@ class Abfall_APP extends IPSModule
         if ($id != 'null') {
             // Get io array
             $io = unserialize($this->ReadAttributeString('io'));
+            foreach ($io['landkreis'] as $landkreis) {
+                if ($landkreis['value'] == $id) {
+                    // Bundesland ID
+                    if ($landkreis['bundesland_id'] != null) {
+                        $io['bundesland_id'] = $landkreis['bundesland_id'];
+                    }
+                    // Landkreis ID
+                    $io['landkreis_id'] = ($landkreis['landkreis_id'] !== null) ? $landkreis['landkreis_id'] : $landkreis['value'];
+                    // Kommune ID
+                    if ($landkreis['kommune_id'] != null) {
+                        $io['kommune_id'] = $landkreis['kommune_id'];
+                    }
+                    // Overstep
+                    if ($landkreis['next_step'] != null) {
+                        $index = array_search($landkreis['next_step'], $io['actions']);
+                        if ($index !== false) {
+                            // Remove all actions befor
+                            $io['actions'] = array_slice($io['actions'], $index);
+                        }
+                    }
+                }
+            }
             // set selection
-            $io['landkreis_id'] = $id;
+            //???? $io['landkreis_id'] = $id;
             $ret = $this->ExecuteAction($io);
             $this->SendDebug(__FUNCTION__, $io);
             if (!$ret) $io = [];
@@ -473,6 +497,14 @@ class Abfall_APP extends IPSModule
                     $io['region_id'] = $kommune['value'];
                     // Kommune ID
                     $io['kommune_id'] = ($kommune['kommune_id'] !== null) ? $kommune['kommune_id'] : $kommune['value'];
+                    // Overstep
+                    if ($kommune['next_step'] != $io['actions'][0]) {
+                        $index = array_search($kommune['next_step'], $io['actions']);
+                        if ($index !== false) {
+                            // Remove all actions befor
+                            $io['actions'] = array_slice($io['actions'], $index);
+                        }
+                    }
                     // Finished
                     if ($kommune['finished'] || array_key_exists('street_id', $kommune)) {
                         $io['strasse_id'] = ($kommune['street_id'] !== null) ? $kommune['street_id'] : null;
@@ -880,6 +912,26 @@ class Abfall_APP extends IPSModule
         return $body;
     }
 
+    private function SearchStreet(string $search) 
+    {
+        $this->SendDebug(__FUNCTION__, $search);
+        if(empty($search) || strlen($search) < 2) {
+            return;
+        }
+        // Get io array
+        $io = unserialize($this->ReadAttributeString('io'));
+        $ret = $this->GetStreets($io, $search);
+        if (!$ret) {
+            $this->SendDebug(__FUNCTION__, 'ERROR: Strasse suchen!');
+            return;
+        }
+        $this->UpdateFormField('buttonStreet', 'visible', false);
+        // Hide or Unhide properties
+        $this->UpdateForm($io, self::CHANGE_DISTRICT);
+        // Update attribute
+        $this->WriteAttributeString('io', serialize($io));
+    }
+
     private function ExecuteAction(array &$io)
     {
         $ret = true;
@@ -919,11 +971,9 @@ class Abfall_APP extends IPSModule
             case 'strasse':
                 $ret = $this->GetStreets($io);
                 if (!$ret) {
-                    $search = readline('Straße suchen:');
-                    $ret = $this->GetStreets($io, $search);
-                    if (!$ret) {
-                        $this->SendDebug(__FUNCTION__, 'ERROR: Strasse auslesen!');
-                    }
+                    $this->SendDebug(__FUNCTION__, 'ERROR: Strasse muss eingegeben werden!');
+                    $this->UpdateFormField('buttonStreet', 'visible', true);
+                    $ret = true;
                 }
                 break;
                 // HAUSNUMMER auswählen
@@ -1054,6 +1104,8 @@ class Abfall_APP extends IPSModule
                 'name'          => $data[1],
                 'bundesland_id' => isset($data[5]['set_id_bundesland']) ? $data[5]['set_id_bundesland'] : null,
                 'landkreis_id'  => isset($data[5]['set_id_landkreis']) ? $data[5]['set_id_landkreis'] : null,
+                "kommune_id"    => isset($data[5]["set_id_kommune"]) ? $data[5]["set_id_kommune"] : null,
+                "next_step"     => isset($data[5]["next_step"]) ? $data[5]["next_step"] : null,
             ];
         }
 
@@ -1100,6 +1152,7 @@ class Abfall_APP extends IPSModule
                 'bundesland_id' => isset($data[5]['set_id_bundesland']) ? $data[5]['set_id_bundesland'] : null,
                 'landkreis_id'  => isset($data[5]['set_id_landkreis']) ? $data[5]['set_id_landkreis'] : null,
                 'kommune_id'    => isset($data[5]['set_id_kommune']) ? $data[5]['set_id_kommune'] : null,
+                "next_step"     => $data[3],
                 'finished'      => false
             ];
             if (isset($data[5]['step_follow_data']['step_akt']) && $data[5]['step_follow_data']['step_akt'] === 'strasse') {
@@ -1188,6 +1241,7 @@ class Abfall_APP extends IPSModule
         $ending = 'strasse/';  // Ziel-URL
         // Send HTTP request
         $response = $this->ServiceRequest($io, $ending, self::SERVICE_ASSISTANT, $data);
+        $this->SendDebug(__FUNCTION__, $response);
         // Error handling
         if (!$response) {
             $this->SendDebug(__FUNCTION__, "Error in the request to: $ending");
@@ -1204,7 +1258,10 @@ class Abfall_APP extends IPSModule
                 'finished'   => $data[3] == 'fertig',
             ];
         }
-
+        // Empty means we have to search a street ...
+        if(empty($io['strasse'])) {
+            return false;
+        }
         return true;
     }
 

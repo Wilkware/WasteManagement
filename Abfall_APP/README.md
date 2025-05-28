@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-1.0.20250527-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
+[![Version](https://img.shields.io/badge/Modul%20Version-1.1.20250528-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/style.yml?branch=main&label=CheckStyle&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
 
@@ -45,7 +45,7 @@ Entsprechend der gewählten Auswahl verändert sich das Formular dynamisch.
 Eine komplette Neuauswahl erreicht man durch eine Landesauswahl oder durch die 
 Auswahl "Bitte wählen ..." des Entsorgungsgebietes.  
 
-VORSTICHT: Aufgrund gewisser Umstände beim Abruf der Konfigurationsdaten bestehen folgende Einschränkungen:
+VORSICHT: Aufgrund gewisser Umstände beim Abruf der Konfigurationsdaten bestehen folgende Einschränkungen:
 * Änderungen an Teilen der Konfiguration bedingt ein komplette Neuauswahl der Daten!
 * Änderung die verworfen werden ("Änderungen verwerfen") führt zu einem undefinierten Zustand!!
 
@@ -133,6 +133,11 @@ Die Funktion liefert keinerlei Rückgabewert.
 __Beispiel__: `APAPP_Update(12345);`
 
 ### 8. Versionshistorie
+
+v1.1.20250528
+
+* _NEU_: Strassensuche integriert
+* _FIX_: Reihenfolge des Einrichtungsassisteneten einbezogen (Skip actions)
 
 v1.0.20250527
 

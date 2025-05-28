@@ -146,6 +146,33 @@
                     "type": "RowLayout",
                     "items": [
                         {
+                            "type": "PopupButton",
+                            "name": "buttonStreet",
+                            "caption": "Street search",
+                            "visible": false,
+                            "popup": {
+                                "caption": "Street search",
+                                "closeCaption": "Cancel",
+                                "items": [
+                                    {
+                                        "type": "Label",
+                                        "caption": "Please enter at least the first 2 characters of your street!"
+                                    },
+                                    {
+                                        "type": "ValidationTextBox",
+                                        "name": "streetSearch",
+                                        "caption": "Street name:"
+                                    }
+                                ],
+                                "buttons": [
+                                    {
+                                        "caption": "Start",
+                                        "onClick": "IPS_RequestAction($id,'SearchStreet',$streetSearch);"
+                                    }
+                                ]
+                            }
+                        },
+                        {
                             "type": "Select",
                             "name": "streetID",
                             "caption": "Street:",
