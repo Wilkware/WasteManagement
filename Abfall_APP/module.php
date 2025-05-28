@@ -912,10 +912,10 @@ class Abfall_APP extends IPSModule
         return $body;
     }
 
-    private function SearchStreet(string $search) 
+    private function SearchStreet(string $search)
     {
         $this->SendDebug(__FUNCTION__, $search);
-        if(empty($search) || strlen($search) < 2) {
+        if (empty($search) || strlen($search) < 2) {
             return;
         }
         // Get io array
@@ -1104,8 +1104,8 @@ class Abfall_APP extends IPSModule
                 'name'          => $data[1],
                 'bundesland_id' => isset($data[5]['set_id_bundesland']) ? $data[5]['set_id_bundesland'] : null,
                 'landkreis_id'  => isset($data[5]['set_id_landkreis']) ? $data[5]['set_id_landkreis'] : null,
-                "kommune_id"    => isset($data[5]["set_id_kommune"]) ? $data[5]["set_id_kommune"] : null,
-                "next_step"     => isset($data[5]["next_step"]) ? $data[5]["next_step"] : null,
+                'kommune_id'    => isset($data[5]['set_id_kommune']) ? $data[5]['set_id_kommune'] : null,
+                'next_step'     => isset($data[5]['next_step']) ? $data[5]['next_step'] : null,
             ];
         }
 
@@ -1152,7 +1152,7 @@ class Abfall_APP extends IPSModule
                 'bundesland_id' => isset($data[5]['set_id_bundesland']) ? $data[5]['set_id_bundesland'] : null,
                 'landkreis_id'  => isset($data[5]['set_id_landkreis']) ? $data[5]['set_id_landkreis'] : null,
                 'kommune_id'    => isset($data[5]['set_id_kommune']) ? $data[5]['set_id_kommune'] : null,
-                "next_step"     => $data[3],
+                'next_step'     => $data[3],
                 'finished'      => false
             ];
             if (isset($data[5]['step_follow_data']['step_akt']) && $data[5]['step_follow_data']['step_akt'] === 'strasse') {
@@ -1259,7 +1259,7 @@ class Abfall_APP extends IPSModule
             ];
         }
         // Empty means we have to search a street ...
-        if(empty($io['strasse'])) {
+        if (empty($io['strasse'])) {
             return false;
         }
         return true;
