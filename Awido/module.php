@@ -346,7 +346,15 @@ class Awido extends IPSModule
         // execute Script
         if ($scriptId != 0) {
             if (IPS_ScriptExists($scriptId)) {
-                $rs = IPS_RunScript($scriptId);
+                // Filter only exist waste idents
+                $data = array_map(
+                    fn($e) => [
+                        'ident' => $e['ident'],
+                        'date'  => $e['date']
+                    ],
+                    array_filter($waste, fn($e) => !empty($e['exist']))
+                );
+                $rs = IPS_RunScriptEx($scriptId, ['TIMESTAMP' => time(), 'DATA' => json_encode($data)]);
                 $this->SendDebug(__FUNCTION__, 'Script Execute (Return Value): ' . $rs, 0);
             } else {
                 $this->SendDebug(__FUNCTION__, 'Update: Script #' . $scriptId . ' existiert nicht!');

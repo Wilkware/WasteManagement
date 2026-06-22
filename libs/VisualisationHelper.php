@@ -70,7 +70,8 @@ trait VisualisationHelper
             }
         }
         // (*) Security Check
-        if (empty($table)) {
+        $empty = empty($table);
+        if ($empty) {
             $table[] = ['name' => 'No DATA!', 'type' => 'red', 'date' => date('d.m.Y'), 'days' => 0];
             $this->LogMessage('SECURITY CHECK: NO DATA!!!');
         }
@@ -81,7 +82,7 @@ trait VisualisationHelper
         });
         // (*) look ahead update
         $offset = 0;
-        if ($lookahead) {
+        if ($lookahead && !$empty) {
             foreach ($table as $row) {
                 if (strtotime($row['date']) == strtotime('today')) {
                     $offset++;

@@ -45,8 +45,8 @@ class Abfall_APP extends IPSModule
         self::CHANGE_COUNTY     => ['landkreis', 'landkreis_id', 'countyID', 1, 1],
         self::CHANGE_COMMUNE    => ['kommune', 'kommune_id', 'communeID', 2, 0],
         self::CHANGE_DISTRICT   => ['bezirk', 'bezirk_id', 'districtID', 2, 1],
-        self::CHANGE_STREET     => ['strasse', 'strasse_id', 'streetID', 3, 0],
-        self::CHANGE_ADDON      => ['hnr', 'hnr_id', 'addonID', 3, 1],
+        self::CHANGE_STREET     => ['strasse', 'strasse_id', 'streetID', 3, 1],
+        self::CHANGE_ADDON      => ['hnr', 'hnr_id', 'addonID', 3, 2],
     ];
 
     /**
@@ -246,17 +246,21 @@ class Abfall_APP extends IPSModule
         $io = unserialize($this->ReadAttributeString('io'));
         $this->SendDebug(__FUNCTION__, $io);
         // fractions convert to name => ident
-        $i = 1;
+        $f = 1;
         $waste = [];
-        foreach ($io[self::IO_NAMES] as $ident => $name) {
-            $this->SendDebug(__FUNCTION__, 'Fraction ident: ' . $ident . ', Name: ' . $name);
-            $enabled = $this->ReadPropertyBoolean('fractionID' . $i++);
-            if ($enabled) {
-                $date = $this->GetValue($ident);
-                $waste[$name] = ['ident' => $ident, 'date' => $date];
+
+        if (isset($io['abfallarten']) && !empty($io['abfallarten'])) {
+            foreach ($io['abfallarten'] as $fract) {
+                $this->SendDebug(__FUNCTION__, 'Fraction ident: ' . $fract['value'] . ', Name: ' . $fract['name']);
+                $enabled = $this->ReadPropertyBoolean('fractionID' . $f++);
+                if ($enabled) {
+                    $date = $this->GetValue((string) $fract['value']);
+                    $waste[$fract['name']] = ['ident' =>  $fract['value'], 'date' => $date];
+                }
             }
         }
         $this->SendDebug(__FUNCTION__, $waste);
+
         // update tile widget
         $list = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         $this->BuildWidget($waste, $list, true);
@@ -292,10 +296,10 @@ class Abfall_APP extends IPSModule
             $this->SendDebug(__FUNCTION__, 'Get dates failed!');
             return;
         }
+        $waste = [];
         // fractions convert to name => ident
         if (isset($io['abfallarten']) && !empty($io['abfallarten'])) {
             $f = 1;
-            $waste = [];
             foreach ($io['abfallarten'] as $fract) {
                 $this->SendDebug(__FUNCTION__, 'Fraction ident: ' . $fract['value'] . ', Name: ' . $fract['name']);
                 $enabled = $this->ReadPropertyBoolean('fractionID' . $f++);
@@ -342,7 +346,7 @@ class Abfall_APP extends IPSModule
         $script = $this->ReadPropertyInteger('settingsScript');
         if ($script != 0) {
             if (IPS_ScriptExists($script)) {
-                $rs = IPS_RunScript($script);
+                $rs = IPS_RunScriptEx($script, ['TIMESTAMP' => time(), 'DATA' => json_encode($waste)]);
                 $this->SendDebug(__FUNCTION__, 'Script Execute (Return Value): ' . $rs, 0);
             } else {
                 $this->SendDebug(__FUNCTION__, 'Update: Script #' . $script . ' existiert nicht!');

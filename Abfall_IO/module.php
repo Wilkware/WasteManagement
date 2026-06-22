@@ -614,7 +614,7 @@ class Abfall_IO extends IPSModule
         $script = $this->ReadPropertyInteger('settingsScript');
         if ($script != 0) {
             if (IPS_ScriptExists($script)) {
-                $rs = IPS_RunScript($script);
+                $rs = IPS_RunScriptEx($script, ['TIMESTAMP' => time(), 'DATA' => json_encode($waste)]);
                 $this->SendDebug(__FUNCTION__, 'Script Execute (Return Value): ' . $rs, 0);
             } else {
                 $this->SendDebug(__FUNCTION__, 'Update: Script #' . $script . ' existiert nicht!');

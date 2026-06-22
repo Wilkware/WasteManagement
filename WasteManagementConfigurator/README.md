@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-2.1.20240304-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
+[![Version](https://img.shields.io/badge/Modul%20Version-4.5.20260622-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/style.yml?branch=main&label=CheckStyle&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
 
@@ -81,6 +81,9 @@ Es ist keine weitere Steuerung oder gesonderte Darstellung integriert.
 Das Modul bietet keine direkten Funktionsaufrufe.
 
 ### 8. Versionshistorie
+
+v4.5.20260622
+* _NEU_: Letzte Version für Symcon v6.4
 
 v2.1.20240304
 

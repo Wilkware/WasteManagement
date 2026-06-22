@@ -37,6 +37,7 @@ __HINWEIS:__ Über diese [Suchseite](https://asmium.de) kann man ganz schnell he
 
 ## Historie
 
+- 2025-06-22: Datenübergabe an Skript, Kleinere Fehlerbehebungen
 - 2025-05-27: Modul Abfall_APP (App Abfall+)
 - 2025-01-07: Internationalisierte Anbieterauswahl
 - 2024-07-02: Look-Ahead Visualiserung eingebaut
