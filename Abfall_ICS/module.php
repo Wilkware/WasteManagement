@@ -426,8 +426,13 @@ class Abfall_ICS extends IPSModule
                 $names[$ident] = $event->summary;
             }
         }
-        foreach ($names as $ident => $name) {
-            $io[self::IO_FRACTIONS][] = ['ident' => $ident, 'name' => $name, 'active' => true];
+        // take over only max 30 fractions
+        foreach (array_slice($names, 0, self::$FRACTIONS, true) as $ident => $name) {
+            $io[self::IO_FRACTIONS][] = [
+                'ident' => $ident,
+                'name' => $name,
+                'active' => true,
+            ];
         }
         $this->SendDebug(__FUNCTION__, $io);
         // Hide or Unhide properties
