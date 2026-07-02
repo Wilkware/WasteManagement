@@ -154,7 +154,7 @@ __Beispiel__: `APAPP_Update(12345);`
 
 ### 8. Versionshistorie
 
-v4.5.20260628
+v4.5.20260622
 * _NEU_: Datenübergabe an Skript
 * _NEU_: Letzte Version für Support ab Symcon v6.4
 * _FIX_: Form Mapping korrigiert

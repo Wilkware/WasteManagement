@@ -7,7 +7,7 @@
  *
  * @package       traits
  * @author        Heiko Wilknitz <heiko@wilkware.de>
- * @copyright     2020 Heiko Wilknitz
+ * @copyright     2026 Heiko Wilknitz
  * @link          https://wilkware.de
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ (CC BY-NC-SA 4.0)
  */
@@ -19,10 +19,8 @@ declare(strict_types=1);
  */
 trait ServiceHelper
 {
-    /**
-     * Supported Service Provider
-     */
-    private static $PROVIDERS = [
+    /** @var array<string,array{int,string,string,string,string}> $PROVIDERS Supported Service Provider */
+    private static array $PROVIDERS = [
         'awido' => [1, '{8A591704-E699-4F78-A728-490210FDE747}', 'AWIDO', 'awido-online.de', 'The web application with all important waste disposal dates online!'],
         'abpio' => [2, '{53922265-6F58-E833-34A1-52D44D1C8D3F}', 'Abfall.IO', 'abfallplus.de', 'Abfall+ is the solution for electronic citizen services in waste management!'],
         'mymde' => [3, '{BCB84068-9194-754C-436F-F10BDD8E51BE}', 'MyMüll', 'mymuell.de', 'Waste and recyclables neatly organised!'],
@@ -32,10 +30,8 @@ trait ServiceHelper
         'apapp' => [7, '{E3371D9B-9206-9584-4ACE-03AB9DB9C346}', 'Abfall.APP', 'abfallplus.de', 'Abfall+ is the solution to the challenges of waste management.'],
     ];
 
-    /**
-     * Supported Countries per Service
-     */
-    private static $COUNTRIES = [
+    /** @var array<string,array<string,string>> $COUNTRIES Supported Countries per Service */
+    private static array $COUNTRIES = [
         'awido' => ['de' => 'Germany'],
         'abpio' => ['de' => 'Germany', 'at' => 'Austria'],
         'mymde' => ['de' => 'Germany'],
@@ -45,27 +41,23 @@ trait ServiceHelper
         'apapp' => ['de' => 'Germany', 'at' => 'Austria'],
     ];
 
-    /**
-     * API URL for Client IDs
-     */
-    private static $CLIENTS = 'https://api.asmium.de/waste/';
+    /** @var string $CLIENTS API URL for Client IDs */
+    private static string $CLIENTS = 'https://api.asmium.de/waste/';
 
-    /**
-     * Maximale Anzahl an Entsorgungsarten
-     */
-    private static $FRACTIONS = 30;
+    /** @var int $FRACTIONS Maximale Anzahl an Entsorgungsarten */
+    private static int $FRACTIONS = 30;
 
     /**
      * Returns the supported service provider for the dropdown menu.
      *
-     * @return array Array of service providers
+     * @return list<array<string,string>> Array of service providers
      */
-    protected function GetProviderOptions()
+    protected function GetProviderOptions(): array
     {
         // Options
         $options = [];
         // Build array
-        foreach (static::$PROVIDERS as $key => $value) {
+        foreach (self::$PROVIDERS as $key => $value) {
             $options[] = ['caption' => $value[2] . ' (' . $value[3] . ')', 'value' => $key];
         }
         //$this->SendDebug(__FUNCTION__, $options);
@@ -76,18 +68,19 @@ trait ServiceHelper
      * Returns the list of available countries per services provider.
      *
      * @param string $provider Service provider identifier
-     * @return array Array of countries.
+     *
+     * @return list<array<string,string>> Array of countries.
      */
-    protected function GetCountryOptions(string $provider)
+    protected function GetCountryOptions(string $provider): array
     {
-        $this->SendDebug(__FUNCTION__, $provider);
+        $this->LogDebug(__FUNCTION__, $provider);
         // Options
         $options = [];
         // Default key
-        foreach (static::$COUNTRIES[$provider] as $key => $value) {
+        foreach (self::$COUNTRIES[$provider] as $key => $value) {
             $options[] = ['caption' => $this->Translate($value), 'value' => $key];
         }
-        $this->SendDebug(__FUNCTION__, $options);
+        $this->LogDebug(__FUNCTION__, $options);
         return $options;
     }
 
@@ -96,18 +89,19 @@ trait ServiceHelper
      *
      * @param string $provider Service provider identifier
      * @param string $country Service country identifier
-     * @return array Array of clients.
+     *
+     * @return list<array<string,string>> Array of clients.
      */
-    protected function GetClientOptions(string $provider, string $country = 'de')
+    protected function GetClientOptions(string $provider, string $country = 'de'): array
     {
-        $this->SendDebug(__FUNCTION__, $provider);
+        $this->LogDebug(__FUNCTION__, $provider);
         // Options
         $options = [];
         // Default key
         $options[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
         // Build array
         if ($provider != 'null') {
-            $link = static::$CLIENTS . $country . '/' . $provider;
+            $link = self::$CLIENTS . $country . '/' . $provider;
             $data = $this->ExtractClients($link);
             foreach ($data as $client) {
                 $value = $client['client'];
@@ -119,7 +113,7 @@ trait ServiceHelper
         }
         // Debug
         // $options[] = ['caption' => 'Testgebiet', 'value' => '12345678790'];
-        //$this->SendDebug(__FUNCTION__, $options);
+        //$this->LogDebug(__FUNCTION__, $options);
         return $options;
     }
 
@@ -127,19 +121,20 @@ trait ServiceHelper
      * Get and extract clients from json format.
      *
      * @param string $url API URL to receive client information.
-     * @return array  array, with name and client id
+     *
+     * @return list<array<string,string>> Array, with name and client id
      */
     private function ExtractClients(string $url): array
     {
         // Debug output
-        $this->SendDebug(__FUNCTION__, 'LINK: ' . $url);
+        $this->LogDebug(__FUNCTION__, 'LINK: ' . $url);
         //$url = $url . '/index.json';
         // read API URL
         $json = @file_get_contents($url);
         // error handling
         if ($json === false) {
             $this->LogMessage($this->Translate('Could not load json data!'), KL_ERROR);
-            $this->SendDebug(__FUNCTION__, 'ERROR LOAD DATA');
+            $this->LogDebug(__FUNCTION__, 'ERROR LOAD DATA');
             return [];
         }
         // json decode
@@ -151,11 +146,12 @@ trait ServiceHelper
     /**
      * Order assoziate array data
      *
-     * @param array $arr
-     * @param string|null $key
-     * @param string $direction
+     * @param array<mixed> $arr Array to order
+     * @param string|list<string>|null $key Key or array of keys to order by
+     * @param string $direction Direction of sorting (ASC or DESC)
+     * @return array<mixed> Ordered array
      */
-    private function OrderData(array $arr, string $key = null, string $direction = 'ASC')
+    private function OrderData(array $arr, string|array|null $key = null, string $direction = 'ASC'): array
     {
         // Check "order by key"
         if (!is_string($key) && !is_array($key)) {

@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <style>
+        :root {
+            --today-color: #b42828;
+            --tomorrow-color: #b48200;
+            --tonne-color: transparent;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        ::-webkit-scrollbar {
+            width: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: transparent;
+            border-radius: 10px;
+        }
+
+        html,
+        body {
+            margin: 0px;
+            height: 100%;
+            width: 100%;
+        }
+
+        #card {
+            width: 100%;
+            height: 100%;
+            padding: var(--margin-top) var(--margin-side) var(--margin-bottom);
+        }
+
+        #content {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        /* ── Small: Hintergrundtint nur hier ─────────────────────────────── */
+        body.urgency-today {
+            background: var(--today-color);
+        }
+
+        body.urgency-tomorrow {
+            background: var(--tomorrow-color);
+        }
+
+        body.urgency-tonne {
+            background: var(--tonne-color);
+        }
+
+        /* ── Symbol: Standarddefinition ──────────────────────────────────── */
+        .wm-svg-defs {
+            width: 0;
+            height: 0;
+            position: absolute;
+            overflow: hidden;
+        }
+
+        /* ── Small ───────────────────────────────────────────────────────── */
+        #view-small {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            position: relative;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
+        }
+
+        #view-small #small-icons.tapped {
+            transition: filter 0.15s ease-out;
+            filter: drop-shadow(0 0 6px rgba(255,255,255,0.9));
+            transform: scale(1.05);
+        }
+
+        #view-small .wm-day-label {
+            font-size: 12px;
+            font-weight: 500;
+            /* line-height: 1; */
+            color: var(--content-color);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ── LookAhead: tappbares "Heute"-Badge wenn heute Abholung ist ──── */
+        #view-small .wm-lookahead-badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 2px 8px;
+            border-radius: 6px;
+            white-space: nowrap;
+            border: solid 2px var(--content-color);
+            cursor: pointer;
+        }
+
+        /* ── Stack-Tooltip (CSS :active) ────────────────────────────────── */
+        .wm-stack-wrap {
+            position: relative;
+            flex-shrink: 0;
+            touch-action: none;
+        }
+        .wm-stack-tooltip {
+            display: none;
+            position: absolute;
+            bottom: calc(60%);
+            left: 50%;
+            transform: translateX(-50%);
+            background: color-mix(in srgb, var(--card-color) 95%, transparent);
+            font-size: 12px;
+            font-weight: 500;
+            padding: 5px 10px;
+            border-radius: 6px;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 999;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+        .wm-icon-stack:active + .wm-stack-tooltip { display: block; }
+
+        /* ── Gestackter Icon-Block ───────────────────────────────────────── */
+        .wm-icon-stack {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .wm-icon-stack svg {
+            position: absolute;
+            display: block;
+            filter: drop-shadow(-1px 1px 2px rgba(0, 0, 0, 0.35));
+        }
+
+        /* ── Medium ──────────────────────────────────────────────────────── */
+        #view-medium {
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: thin;
+            scrollbar-color: color-mix(in srgb, var(--accent-color) 70%, transparent) transparent;
+            touch-action: pan-y;
+        }
+
+        #view-medium .wm-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 10px;
+            border-radius: 8px;
+            background: color-mix(in srgb, var(--content-color) 5%, transparent);
+            flex: 1;
+        }
+
+        #view-medium .wm-row.urgency-today {
+            background-color: color-mix(in srgb, var(--today-color) 20%, transparent);
+        }
+
+        #view-medium .wm-row.urgency-tomorrow {
+            background-color: color-mix(in srgb, var(--tomorrow-color) 20%, transparent);
+        }
+
+        #view-medium .wm-row-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        #view-medium .wm-row-name {
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--content-color);
+        }
+
+        #view-medium .wm-row-date {
+            font-size: 11px;
+            color: color-mix(in srgb, var(--content-color) 50%, transparent);
+            margin-top: 1px;
+        }
+
+        #view-medium .wm-row.urgency-today .wm-row-date {
+            color: color-mix(in srgb, var(--today-color) 100%, transparent);
+        }
+
+        #view-medium .wm-row.urgency-tomorrow .wm-row-date {
+            color: color-mix(in srgb, var(--tomorrow-color) 100%, transparent);
+        }
+
+        #view-medium .wm-row-count {
+            flex-shrink: 0;
+            text-align: right;
+            min-width: 36px;
+        }
+
+        #view-medium .wm-row-num {
+            font-size: 22px;
+            font-weight: 500;
+            line-height: 1;
+            color: var(--content-color);
+        }
+
+        #view-medium .wm-row-unit {
+            font-size: 8px;
+            color: color-mix(in srgb, var(--content-color) 50%, transparent);
+            margin-top: 2px;
+        }
+
+        #view-medium .wm-row-badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 3px 8px;
+            border-radius: 6px;
+            line-height: 1.4;
+            white-space: nowrap;
+        }
+
+        #view-medium .wm-row.urgency-today .wm-row-badge {
+            background-color: color-mix(in srgb, var(--today-color) 20%, transparent);
+            color: color-mix(in srgb, var(--today-color) 100%, transparent);
+        }
+
+        #view-medium .wm-row.urgency-tomorrow .wm-row-badge {
+            background-color: color-mix(in srgb, var(--tomorrow-color) 20%, transparent);
+            color: color-mix(in srgb, var(--tomorrow-color) 100%, transparent);
+        }
+
+        /* ── Large ───────────────────────────────────────────────────────── */
+        #view-large {
+            width: 100%;
+            height: 100%;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        #view-large .wm-banner {
+            border-radius: 8px;
+            padding: 10px 12px;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: color-mix(in srgb, var(--content-color) 5%, transparent);
+        }
+
+        #view-large .wm-banner.urgency-today {
+            background-color: color-mix(in srgb, var(--today-color) 20%, transparent);
+        }
+
+        #view-large .wm-banner.urgency-tomorrow {
+            background-color: color-mix(in srgb, var(--tomorrow-color) 20%, transparent);
+        }
+
+        #view-large .wm-banner-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        #view-large .wm-banner-sublabel {
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .05em;
+            color: color-mix(in srgb, var(--content-color) 50%, transparent);
+            margin-bottom: 2px;
+        }
+
+        #view-large .wm-banner.urgency-today .wm-banner-sublabel {
+            color: var(--today-color);
+        }
+
+        #view-large .wm-banner.urgency-tomorrow .wm-banner-sublabel {
+            color: var(--tomorrow-color);
+        }
+
+        #view-large .wm-banner-names {
+            font-size: 14px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--content-color);
+        }
+
+        #view-large .wm-banner-date {
+            font-size: 11px;
+            color: color-mix(in srgb, var(--content-color) 50%, transparent);
+            margin-top: 2px;
+        }
+
+        #view-large .wm-banner-count {
+            flex-shrink: 0;
+            text-align: right;
+        }
+
+        #view-large .wm-banner-num {
+            font-size: 28px;
+            font-weight: 500;
+            line-height: 1;
+            color: var(--content-color);
+        }
+
+        #view-large .wm-banner.urgency-today .wm-banner-num {
+            color: var(--today-color);
+        }
+
+        #view-large .wm-banner.urgency-tomorrow .wm-banner-num {
+            color: var(--tomorrow-color);
+        }
+
+        #view-large .wm-banner-unit {
+            font-size: 10px;
+            color: color-mix(in srgb, var(--content-color) 50%, transparent);
+            margin-top: 2px;
+        }
+
+        #view-large .wm-banner-badge {
+            display: inline-block;
+            font-size: 12px;
+            font-weight: 600;
+            padding: 4px 10px;
+            border-radius: 6px;
+            line-height: 1.4;
+            white-space: nowrap;
+        }
+
+        #view-large .wm-banner.urgency-today .wm-banner-badge {
+            background-color: color-mix(in srgb, var(--today-color) 20%, transparent);
+            color: var(--today-color);
+        }
+
+        #view-large .wm-banner.urgency-tomorrow .wm-banner-badge {
+            background-color: color-mix(in srgb, var(--tomorrow-color) 20%, transparent);
+            color: var(--tomorrow-color);
+        }
+
+        #view-large .wm-divider {
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--accent-color);
+            text-transform: uppercase;
+            letter-spacing: .06em;
+            padding: 7px 3px 3px;
+            flex-shrink: 0;
+        }
+
+        #view-large .wm-rows {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+            overscroll-behavior: contain;
+            scrollbar-width: thin;
+            -webkit-overflow-scrolling: touch;
+
+            scrollbar-color: color-mix(in srgb, var(--accent-color) 70%, transparent) transparent;
+            touch-action: pan-y;
+        }
+
+        #view-large .wm-rows::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+
+        #view-large .wm-rows::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #view-large .wm-rows::-webkit-scrollbar-thumb {
+            background: color-mix(in srgb, var(--accent) 70%, transparent);
+            border-radius: 999px;
+        }
+
+        #view-large .wm-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            flex-shrink: 0;
+            background: color-mix(in srgb, var(--content-color) 5%, transparent);
+        }
+
+        #view-large .wm-row-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        #view-large .wm-row-name {
+            font-size: 12px;
+            font-weight: 500;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--content-color);
+        }
+
+        #view-large .wm-row-date {
+            font-size: 11px;
+            color: color-mix(in srgb, var(--content-color) 50%, transparent);
+            margin-top: 1px;
+        }
+
+        #view-large .wm-row-count {
+            flex-shrink: 0;
+            text-align: right;
+            min-width: 36px;
+        }
+
+        #view-large .wm-row-num {
+            font-size: 18px;
+            font-weight: 500;
+            line-height: 1;
+            color: var(--content-color);
+        }
+
+        #view-large .wm-row-unit {
+            font-size: 10px;
+            color: color-mix(in srgb, var(--content-color) 50%, transparent);
+            margin-top: 2px;
+        }
+
+        /* ── Leer ────────────────────────────────────────────────────────── */
+        #view-empty {
+            display: none;
+            position: absolute;
+            inset: 0;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            z-index: 10;
+        }
+
+        /* ── Responsive ──────────────────────────────────────────────────── */
+        @media (min-width: 220px) {
+            #view-small {
+                display: none;
+            }
+
+            #view-medium {
+                display: flex;
+            }
+        }
+
+        @media (min-width: 380px) {
+            #view-medium {
+                display: none;
+            }
+
+            #view-large {
+                display: flex;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="card">
+        <div id="content">
+
+            <!-- Small -->
+            <div id="view-small">
+                <div id="small-icons"></div>
+                <div class="wm-day-label" id="small-label"></div>
+            </div>
+
+            <!-- Medium -->
+            <div id="view-medium"></div>
+
+            <!-- Large -->
+            <div id="view-large">
+                <div class="wm-banner" id="large-banner">
+                    <div id="large-banner-icons"></div>
+                    <div class="wm-banner-info">
+                        <div class="wm-banner-sublabel">Nächste Abholung</div>
+                        <div class="wm-banner-names" id="large-banner-names"></div>
+                        <div class="wm-banner-date" id="large-banner-date"></div>
+                    </div>
+                    <div class="wm-banner-count">
+                        <div class="wm-banner-num" id="large-banner-num"></div>
+                        <div class="wm-banner-unit" id="large-banner-unit"></div>
+                    </div>
+                </div>
+                <div class="wm-divider" id="large-divider">Weitere Termine</div>
+                <div class="wm-rows" id="large-rows"></div>
+            </div>
+
+            <!-- Leer -->
+            <div id="view-empty">Keine Abholungen</div>
+
+        </div>
+
+    </div>
+
+    <svg class="wm-svg-defs" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <symbol id="wm-waste" viewBox="0 0 24 24">
+            <path
+                d="M3 6.39C3 5.9 3.35 5.51 3.77 5.51L6.44 5.51C6.97 5.5 7.43 5.11 7.61 4.54C7.62 4.53 7.62 4.51 7.64 4.44L7.76 4.05C7.83 3.81 7.89 3.6 7.97 3.42C8.31 2.68 8.94 2.16 9.66 2.03C9.84 2 10.04 2 10.26 2H13.74C13.96 2 14.16 2 14.34 2.03C15.06 2.16 15.69 2.68 16.03 3.42C16.11 3.6 16.17 3.81 16.24 4.05L16.36 4.44C16.38 4.51 16.38 4.53 16.39 4.54C16.57 5.11 17.13 5.49 17.66 5.51H20.23C20.65 5.51 21 5.9 21 6.39C21 6.87 20.65 7.26 20.23 7.26H3.77C3.35 7.26 3 6.87 3 6.39Z" />
+            <path
+                d="M11.6 22H12.4C15.19 22 16.58 22 17.48 21.11C18.39 20.23 18.48 18.78 18.67 15.87L18.93 11.68C19.03 10.1 19.08 9.32 18.63 8.82C18.18 8.32 17.41 8.32 15.88 8.32H8.12C6.59 8.32 5.82 8.32 5.37 8.82C4.92 9.32 4.97 10.1 5.07 11.68L5.33 15.87C5.52 18.78 5.61 20.23 6.52 21.11C7.42 22 8.81 22 11.6 22ZM10.25 12.19C10.21 11.75 9.84 11.44 9.43 11.48C9.01 11.53 8.71 11.91 8.75 12.35L9.25 17.61C9.29 18.04 9.66 18.36 10.07 18.32C10.49 18.27 10.79 17.89 10.75 17.45L10.25 12.19ZM14.57 11.48C14.99 11.53 15.29 11.91 15.25 12.35L14.75 17.61C14.71 18.04 14.34 18.36 13.93 18.32C13.51 18.27 13.21 17.89 13.25 17.45L13.75 12.19C13.79 11.75 14.16 11.44 14.57 11.48Z"
+                fill-rule="evenodd" clip-rule="evenodd" />
+        </symbol>
+    </svg>
+
+    <script>
+        // ── Initialisierung (Root/Syle Variablen) ────────────────────────────
+
+        const p = new URLSearchParams(location.search);
+        const r = document.documentElement;
+        const m = {
+            margintop: ['--margin-top'],
+            marginside: ['--margin-side'],
+            marginbottom: ['--margin-bottom']
+        };
+        for (const k in m) {
+            const v = p.get(k);
+            if (!v) continue; m[k].forEach(c => r.style.setProperty(c, v));
+        }
+
+        // ── Hilfsfunktionen ──────────────────────────────────────────────────
+
+        function daysLabelSmall(days) {
+            if (days === 0) return 'Heute';
+            if (days === 1) return 'Morgen';
+            return `in ${days} Tagen`;
+        }
+
+        function urgencyClass(days) {
+            if (days === 0) return 'urgency-today';
+            if (days === 1) return 'urgency-tomorrow';
+            return '';
+        }
+
+        function formatDate(dateStr) {
+            const [d, m, y] = dateStr.split('.').map(Number);
+            return new Date(y, m - 1, d).toLocaleDateString('de-DE', {
+                weekday: 'short', day: '2-digit', month: '2-digit', year: 'numeric'
+            }).replace(',', '');
+            // DD.MM.YYYY → "Mo. 29.06.2026"
+        }
+
+        // Gruppiert bereits sortiertes Array nach Datum
+        function groupByDate(pickups) {
+            const groups = [];
+            let lastDate = '';
+            pickups.forEach(p => {
+                if (p.date !== lastDate) {
+                    groups.push({ date: p.date, days: p.days, items: [p] });
+                    lastDate = p.date;
+                } else {
+                    groups[groups.length - 1].items.push(p);
+                }
+            });
+            return groups;
+        }
+
+        // ── Gestackter Icon-Block ────────────────────────────────────────────
+        // Icons von unten-links nach oben-rechts gestapelt.
+        // Einzeltonne: ein größeres Icon zentriert.
+        // stackW/stackH = feste Außenmaße des Containers.
+        function makeIconStack(items, iconSize, stackW, stackH) {
+            const wrap = document.createElement('div');
+            wrap.className = 'wm-icon-stack';
+            wrap.style.width = stackW + 'px';
+            wrap.style.height = stackH + 'px';
+            const title = items.map(p => p.name).join(', ');
+            wrap.title = title; // Desktop hover
+
+            // Touch-Tooltip via CSS :active
+            const stackWrap = document.createElement('div');
+            stackWrap.className = 'wm-stack-wrap';
+            stackWrap.appendChild(wrap);
+            const tooltipDiv = document.createElement('div');
+            tooltipDiv.className = 'wm-stack-tooltip';
+            tooltipDiv.textContent = title;
+            stackWrap.appendChild(tooltipDiv);
+
+            if (items.length === 1) {
+                // Einzeltonne: etwas größeres Icon, zentriert
+                const big = Math.round(iconSize * 1.25);
+                const svg = makeSVG(items[0].color, big);
+                svg.style.left = Math.round((stackW - big) / 2) + 'px';
+                svg.style.top = Math.round((stackH - big) / 2) + 'px';
+                svg.style.filter = 'none';
+                wrap.appendChild(svg);
+            } else {
+                // Stack: unten-links → oben-rechts
+                // Letztes Icon = vorderste Tonne (höchster z-index)
+                const count = items.length;
+                const step = Math.round(iconSize * 0.35); // Versatz pro Stufe
+                const totalW = iconSize + (count - 1) * step;
+                const totalH = iconSize + (count - 1) * step;
+                const startX = Math.round((stackW - totalW) / 2);
+                const startY = Math.round((stackH - totalH) / 2) + (count - 1) * step; // unten starten
+
+                items.forEach((p, i) => {
+                    const svg = makeSVG(p.color, iconSize);
+                    svg.style.left = (startX + i * step) + 'px';
+                    svg.style.top = (startY - i * step) + 'px'; // nach oben wandern
+                    svg.style.zIndex = count - i; // erstes Item = vorne, jedes weitere dahinter
+                    wrap.appendChild(svg);
+                });
+            }
+            return stackWrap;
+        }
+
+        function makeSVG(color, size) {
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('viewBox', '0 0 24 24');
+            svg.style.width = size + 'px';
+            svg.style.height = size + 'px';
+            svg.setAttribute('aria-hidden', 'true');
+            const use = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+            use.setAttribute('href', '#wm-waste');
+            use.style.fill = color;
+            svg.appendChild(use);
+            return svg;
+        }
+
+        // ── Hintergrundklasse setzen (Small-View) ────────────────────────
+        function updateBodyClass(width) {
+            const URGENCY_CLASSES = ["urgency-today", "urgency-tomorrow", "urgency-tonne"];
+            document.body.classList.remove(...URGENCY_CLASSES);
+            if (width < 220) {
+                if (currentTonneColor) {
+                    if (currentSmallDays === 0 && currentLookAhead.offset === 0) {
+                        document.body.classList.add('urgency-tonne');
+                    }
+                } else if (currentUrgency) {
+                    document.body.classList.add(currentUrgency);
+                }
+            }
+        }
+
+        // ── ResizeObserver: Small-Hintergrund nur wenn wirklich klein ────────
+        const resizeObserver = new ResizeObserver(entries => {
+            const width = entries[0].contentRect.width;
+            renderSmallIcons();
+        });
+        resizeObserver.observe(document.documentElement);
+
+        // ── Tap-Handler für Small: LookAhead manuell togglen ─────────────────
+        // Ganzer view-small ist Tap-Zone (Touch-freundlich, kein Button nötig)
+        document.getElementById('small-label').addEventListener('pointerup', () => {
+            // Nur aktiv wenn Small sichtbar und heute eine Abholung ist
+            if (document.getElementById('view-small').offsetParent === null) return;
+            if (!currentPickups.length || currentLookAhead.offset > 0) return;
+
+            // Visuelles Feedback: kurzes Aufhellen
+            const el = document.getElementById('small-icons');
+            el.classList.add('tapped');
+            setTimeout(() => el.classList.remove('tapped'), 200);
+            // SDK informieren
+            requestAction('LookAhead', true);
+        });
+
+        // ── Zustand ──────────────────────────────────────────────────────────
+        let currentUrgency = '';
+        let currentSmallGroup = [];
+        let currentSmallDays = 0;
+        let currentPickups = [];
+        let currentLookAhead = { active: false, offset: 0, pickups: 1 };
+        let currentTonneColor = false; // Tonnenfarbe als Small-Hintergrund
+
+        // ── renderSmallIcons: Icon-Größe nach aktuellem Layout berechnen ──
+        // #view-small kann display:none sein – body-Dimensionen nutzen.
+        // Label wird temporär gerendert um echte Höhe zu messen.
+        function renderSmallIcons() {
+            if (!currentSmallGroup.length) return;
+
+            const contentEl = document.getElementById('content');
+            const w = contentEl ? contentEl.offsetWidth  : document.body.offsetWidth;
+            const h = contentEl ? contentEl.offsetHeight : document.body.offsetHeight;
+            if (!w || !h) return;
+
+            // Label setzen – Badge wenn heute Abholung und LookAhead noch nicht aktiv
+            const labelEl = document.getElementById('small-label');
+            labelEl.innerHTML = '';
+
+            if ((currentSmallDays == 0) && (currentLookAhead.offset == 0)) {
+                // "Heute"-Badge als Einladung zum Tippen
+                const badge = document.createElement('span');
+                badge.className = 'wm-lookahead-badge';
+                badge.textContent = 'Heute';
+                labelEl.appendChild(badge);
+            } else {
+                // Normal: Tage-Label der angezeigten Abholung
+                labelEl.appendChild(document.createTextNode(daysLabelSmall(currentSmallDays)));
+            }
+
+
+            // Echte Label-Höhe messen (funktioniert auch wenn view-small display:none)
+            const labelH = labelEl.scrollHeight || 16;
+            const pad = 0; // 2× 8px padding in #view-small
+            const gap = 6;  // gap zwischen icon und label
+            const areaH = Math.max(16, h - labelH - gap - pad);
+            const areaW = Math.max(16, w - pad);
+            const area = Math.min(areaH, areaW);
+            const count = currentSmallGroup.length;
+            const raw = count > 1 ? Math.round(area / (1 + 0.35 * (count - 1))) : area;
+            // Etwas Puffer abziehen damit Icon+Label nicht bündig am Rand sitzen
+            const iconSize = Math.min(Math.round(raw * 0.88), 80);
+            const stackOff = count > 1 ? Math.round(iconSize * 0.35) * (count - 1) : 0;
+            const stackSize = iconSize + stackOff;
+
+            const smallIcons = document.getElementById('small-icons');
+            smallIcons.innerHTML = '';
+
+            if (currentTonneColor && (currentSmallDays == 0) && (currentLookAhead.offset == 0)) {
+                // Tonnenfarbe als Hintergrund – Icons und Label in content-color
+                const colors = currentSmallGroup.map(p => p.color);
+                const root = document.documentElement;
+                if (colors.length === 1) {
+                    root.style.setProperty('--tonne-color', colors[0]);
+                } else {
+                    // Gradient über alle beteiligten Tonnenfarben (diagonal)
+                    const stops = colors.map((c, i) =>
+                        `${c} ${Math.round(i * 100 / (colors.length - 1))}%`
+                    ).join(', ');
+                    root.style.setProperty('--tonne-color', `linear-gradient(45deg, ${stops})`);
+                }
+                // Icons in content-color statt Tonnenfarbe
+                const contentColor = getComputedStyle(root).getPropertyValue('--content-color').trim() || '#ffffff';
+                smallIcons.appendChild(makeIconStack(
+                    currentSmallGroup.map(p => ({ ...p, color: contentColor })),
+                    iconSize, stackSize, stackSize
+                ));
+            } else {
+                smallIcons.appendChild(makeIconStack(currentSmallGroup, iconSize, stackSize, stackSize));
+            }
+            updateBodyClass(w);
+        }
+
+        // ── Render ───────────────────────────────────────────────────────────
+        function render() {
+            const pickups = currentPickups;
+
+            if (!pickups || pickups.length === 0) {
+                document.getElementById('view-empty').style.display = 'flex';
+                return;
+            } else {
+                document.getElementById('view-empty').style.display = 'none';
+            }
+
+            // ── Small: LookAhead-Logik ───────────────────────────────────────
+            // Standard: erste Gruppe anzeigen
+            // LookAhead aktiv + offset > 0: ab offset genau pickups Einträge
+            let smallGroup;
+            if (currentLookAhead.active && currentLookAhead.offset > 0) {
+                smallGroup = pickups.slice(
+                    currentLookAhead.offset,
+                    currentLookAhead.offset + currentLookAhead.pickups
+                );
+            } else {
+                // erste Gruppe (gleicher Tag)
+                const firstDate = pickups[0].date;
+                smallGroup = pickups.filter(p => p.date === firstDate);
+            }
+
+            const smallDays = smallGroup[0].days;
+            currentUrgency = urgencyClass(smallDays);
+            // Icon und Label setzen – Größe wird im ResizeObserver berechnet
+            currentSmallGroup = smallGroup;
+            currentSmallDays = smallDays;
+            renderSmallIcons();
+
+            // ── Medium ───────────────────────────────────────────────────────
+            // Zeigt immer alle Abholungen, LookAhead hat hier keinen Einfluss
+            const medContainer = document.getElementById('view-medium');
+            medContainer.innerHTML = '';
+            groupByDate(pickups).forEach(g => {
+                const urg = urgencyClass(g.days);
+
+                const row = document.createElement('div');
+                row.className = 'wm-row ' + urg;
+                row.appendChild(makeIconStack(g.items, 22, 44, 30));
+
+                const info = document.createElement('div');
+                info.className = 'wm-row-info';
+                const name = document.createElement('div');
+                name.className = 'wm-row-name';
+                name.textContent = g.items.map(p => p.name).join(', ');
+                const date = document.createElement('div');
+                date.className = 'wm-row-date';
+                date.textContent = formatDate(g.date);
+                info.append(name, date);
+
+                const countEl = document.createElement('div');
+                countEl.className = 'wm-row-count';
+                if (g.days <= 1) {
+                    const badge = document.createElement('div');
+                    badge.className = 'wm-row-badge';
+                    badge.textContent = g.days === 0 ? 'Heute' : 'Morgen';
+                    countEl.appendChild(badge);
+                } else {
+                    const num = document.createElement('div');
+                    num.className = 'wm-row-num';
+                    num.textContent = g.days;
+                    const unit = document.createElement('div');
+                    unit.className = 'wm-row-unit';
+                    unit.textContent = 'Tage';
+                    countEl.append(num, unit);
+                }
+
+                row.append(info, countEl);
+                medContainer.appendChild(row);
+            });
+
+            // ── Large Banner ─────────────────────────────────────────────────
+            // Zeigt immer die erste Gruppe (nächster Termin)
+            const firstDate = pickups[0].date;
+            const nextGroup = pickups.filter(p => p.date === firstDate);
+            const nextDays = nextGroup[0].days;
+            const nextUrgency = urgencyClass(nextDays);
+
+            const banner = document.getElementById('large-banner');
+            banner.className = 'wm-banner ' + nextUrgency;
+
+            const bannerIcons = document.getElementById('large-banner-icons');
+            bannerIcons.innerHTML = '';
+            bannerIcons.appendChild(makeIconStack(nextGroup, 26, 44, 36));
+
+            document.getElementById('large-banner-names').textContent =
+                nextGroup.map(p => p.name).join(', ');
+            document.getElementById('large-banner-date').textContent = formatDate(firstDate);
+
+            const bannerNum = document.getElementById('large-banner-num');
+            const bannerUnit = document.getElementById('large-banner-unit');
+            if (nextDays <= 1) {
+                bannerNum.className = 'wm-banner-badge';
+                bannerNum.textContent = nextDays === 0 ? 'Heute' : 'Morgen';
+                bannerUnit.textContent = '';
+            } else {
+                bannerNum.className = 'wm-banner-num';
+                bannerNum.textContent = nextDays;
+                bannerUnit.textContent = 'Tage';
+            }
+
+            // ── Large Rest ───────────────────────────────────────────────────
+            const largeRows = document.getElementById('large-rows');
+            const largeDivider = document.getElementById('large-divider');
+            largeRows.innerHTML = '';
+            const restGroup = pickups.filter(p => p.date !== firstDate);
+
+            if (restGroup.length === 0) {
+                largeDivider.style.display = 'none';
+            } else {
+                largeDivider.style.display = '';
+                groupByDate(restGroup).forEach(g => {
+                    const row = document.createElement('div');
+                    row.className = 'wm-row';
+                    row.appendChild(makeIconStack(g.items, 20, 44, 28));
+
+                    const info = document.createElement('div');
+                    info.className = 'wm-row-info';
+                    const name = document.createElement('div');
+                    name.className = 'wm-row-name';
+                    name.textContent = g.items.map(p => p.name).join(', ');
+                    const date = document.createElement('div');
+                    date.className = 'wm-row-date';
+                    date.textContent = formatDate(g.date);
+                    info.append(name, date);
+
+                    const countEl = document.createElement('div');
+                    countEl.className = 'wm-row-count';
+                    const num = document.createElement('div');
+                    num.className = 'wm-row-num';
+                    num.textContent = g.days;
+                    const unit = document.createElement('div');
+                    unit.className = 'wm-row-unit';
+                    unit.textContent = 'Tage';
+                    countEl.append(num, unit);
+
+                    row.append(info, countEl);
+                    largeRows.appendChild(row);
+                });
+            }
+        }
+
+        // ── handleMessage (SDK-Datenübergabe) ────────────────────────────────
+        function handleMessage(data) {
+            const decodedData = JSON.parse(data);
+            const root = document.documentElement;
+
+            for (const parameter in decodedData) {
+                console.log('Parameter:', parameter, 'Wert:', decodedData[parameter]);
+                switch (parameter) {
+                    case 'todayColor':
+                        root.style.setProperty('--today-color',
+                            decodedData[parameter] !== ''
+                                ? decodedData[parameter]
+                                : getComputedStyle(root).getPropertyValue('--accent-color').trim()
+                        );
+                        break;
+
+                    case 'tomorrowColor':
+                        root.style.setProperty('--tomorrow-color',
+                            decodedData[parameter] !== ''
+                                ? decodedData[parameter]
+                                : getComputedStyle(root).getPropertyValue('--accent-color').trim()
+                        );
+                        break;
+
+                    case 'tonneColor':
+                        currentTonneColor = decodedData[parameter] === true;
+                        break;
+
+                    case 'lookAhead':
+                        // { active: bool, offset: int, pickups: int }
+                        currentLookAhead = decodedData[parameter];
+                        break;
+
+                    case 'wasteData':
+                        let pickups = decodedData[parameter];
+                        if (typeof pickups === 'string') pickups = JSON.parse(pickups);
+                        if (Array.isArray(pickups)) {
+                            currentPickups = pickups;
+                        } else {
+                            console.error('wasteData ist kein Array:', pickups);
+                        }
+                        break;
+
+                    default:
+                        console.log('Unbekannter Parameter:', parameter);
+                        break;
+                }
+            }
+            // Rendern der Daten
+            render();
+        }
+    </script>
+
+</body>
+
+</html>

@@ -7,7 +7,7 @@
  *
  * @package       traits
  * @author        Heiko Wilknitz <heiko@wilkware.de>
- * @copyright     2020 Heiko Wilknitz
+ * @copyright     2025 Heiko Wilknitz
  * @link          https://wilkware.de
  * @license       https://creativecommons.org/licenses/by-nc-sa/4.0/ CC BY-NC-SA 4.0
  */
@@ -181,7 +181,7 @@ if (!defined('IS_ACTIVE')) {
  */
 require_once __DIR__ . '/../libs/DebugHelper.php';
 require_once __DIR__ . '/../libs/EventHelper.php';
-require_once __DIR__ . '/../libs/ProfileHelper.php';
+require_once __DIR__ . '/../libs/FormatHelper.php';
 require_once __DIR__ . '/../libs/ServiceHelper.php';
 require_once __DIR__ . '/../libs/VariableHelper.php';
 require_once __DIR__ . '/../libs/VisualisationHelper.php';

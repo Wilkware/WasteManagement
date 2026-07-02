@@ -21,8 +21,12 @@ trait VisualisationHelper
 {
     /**
      * Pre-defined waste types with assoziated color and search term.
+     * The search term is used to recognize the waste type by the name of the variable.
+     * The color is used for the icon in the tile visu.
+     *
+     * @var array<int,array{Type:string,Term:string,Color:int,Match:string}>
      */
-    private static $WASTE_TYPES = [
+    private static array $WASTE_TYPES = [
         ['Type' => 'blue',   'Term' => 'Recyclable Waste',      'Color'=> 1155315,  'Match'=> 'papier|pappe|zeitung'],
         ['Type' => 'green',  'Term' => 'Organic Waste',         'Color'=> 5810438,  'Match'=> 'bio|grün|garten|baum|schnittgut'],
         ['Type' => 'yellow', 'Term' => 'Mixed Recycling Waste', 'Color'=> 16761095, 'Match'=> 'gelb|plaste|pvc'],
@@ -32,9 +36,10 @@ trait VisualisationHelper
 
     /**
      * GetWasteValues for form list
-     * @return array List values
+     *
+     * @return list<array{Type:string,Term:mixed,Color:int,Match:string}> List values
      */
-    protected function GetWasteValues()
+    protected function GetWasteValues(): array
     {
         $values = [];
         foreach (self::$WASTE_TYPES as $value) {
@@ -47,25 +52,27 @@ trait VisualisationHelper
     /**
      * Build a html widget for waste dates.
      *
-     * @param array $waste Array with waste names and the next pick-up date.
-     * @param array $custom Array with color mappings
+     * @param array<string,array{ident:string,date:string}> $waste Array with waste names and the next pick-up date.
+     * @param list<array{Type:string,Term:mixed,Color:int,Match:string}> $custom Array with color mappings
      * @param bool $lookahead Flag if look ahead is enabled or not.
+     *
+     * @return void
      */
-    protected function BuildWidget(array $waste, array $custom, bool $lookahead = false)
+    protected function BuildWidget(array $waste, array $custom, bool $lookahead = false): void
     {
-        $this->SendDebug(__FUNCTION__, $waste);
+        $this->LogDebug(__FUNCTION__, $waste);
         // (*) tabel with all infos
         $table = [];
         // (*) build new data array
         foreach ($waste as $key => $value) {
             $id = @$this->GetIDForIdent($value['ident']);
-            if ($id !== false) {
+            if (IPS_VariableExists($id)) {
                 $name = IPS_GetName($id);
-                $type = $this->RecognizeWaste($name, $custom);
-                $date = isset($value['date']) ? $value['date'] : '';
+                $date = $value['date'];
+                ['Type' => $type, 'Color' => $color] = $this->RecognizeWaste($name, $custom);
                 if ($date != '') {
                     $days = $this->CalcDaysToDate($date);
-                    $table[] = ['name' => $name, 'type' => $type, 'date' => $date, 'days' => $days];
+                    $table[] = ['name' => $name, 'type' => $type, 'color' => $color, 'date' => $date, 'days' => $days];
                 }
             }
         }
@@ -80,7 +87,7 @@ trait VisualisationHelper
         {
             return strtotime($a['date']) - strtotime($b['date']);
         });
-        // (*) look ahead update
+        // look ahead update - when is the next pickup entry after today
         $offset = 0;
         if ($lookahead && !$empty) {
             foreach ($table as $row) {
@@ -91,8 +98,8 @@ trait VisualisationHelper
                 }
             }
         }
-        $this->SendDebug(__FUNCTION__, 'LookAhead Offset: ' . $offset);
-        // (*) count how many pickups as next
+        $this->LogDebug(__FUNCTION__, 'LookAhead Offset: ' . $offset);
+        // count how many pickups as next
         $pickups = 0;
         $pudays = $table[$offset]['days'];
         foreach ($table as $pk => $row) {
@@ -105,7 +112,14 @@ trait VisualisationHelper
                 break;
             }
         }
-        $this->SendDebug(__FUNCTION__, 'Counter Pickups: ' . $pickups);
+        $this->LogDebug(__FUNCTION__, 'Counter Pickups: ' . $pickups);
+
+        // save in buffer
+        $content = [];
+        $content['lookAhead'] = ['active' => $lookahead, 'offset' => $offset, 'pickups' => $pickups];
+        $content['wasteData'] = $table;
+        $ret = $this->SetBuffer('WasteData', json_encode($content));
+
         // (*) build svg icons & textM
         $svg = '';
         $wn = '';
@@ -148,19 +162,19 @@ trait VisualisationHelper
             $textM = "$wn<br /><br />" . $this->Translate('Next pickup:') . "<br />$next<br />" . $this->Translate('on') . " $wd $sd";
         }
         // table rows
-        $textL = '';
+        $text = '';
+        $badge = 'green';
         foreach ($table as $row) {
             if ($row['days'] == 0) {
                 $text = $this->Translate('Today');
                 $badge = 'red';
             }
-            if ($row['days'] == 1) {
+            elseif ($row['days'] == 1) {
                 $text = $this->Translate('Tomorrow');
                 $badge = 'yellow';
             }
-            if ($row['days'] >= 2) {
+            elseif ($row['days'] >= 2) {
                 $text = $row['days'] . ' ' . $this->Translate('days');
-                $badge = 'green';
             }
             $textL .= '<tr>';
             $textL .= '<td><svg class="icon icon--' . $row['type'] . '" aria-hidden="true"><use xlink:href="#icon-waste" href="#icon-waste" /></svg></td>';
@@ -258,9 +272,10 @@ trait VisualisationHelper
      *
      * @param string $start Start date
      * @param string $end  End date
+     *
      * @return int Number of days to date
      */
-    private function CalcDaysToDate(string $start, string $end = '')
+    private function CalcDaysToDate(string $start, string $end = ''): int
     {
         if (empty($end)) $end = date('Y-m-d');
         return intval(round(abs(strtotime($end) - strtotime($start)) / (60 * 60 * 24)));
@@ -270,18 +285,27 @@ trait VisualisationHelper
      * Recognize waste type for given name.
      *
      * @param string $name Waste name
-     * @param array $matches Array of predefined colored waste types
-     * @return int Color of associated waste type
+     * @param list<array{Type:string,Term:mixed,Color:int,Match:string}> $matches Array of predefined colored waste types
+     *
+     * @return array{Type:string,Color:string} Color of associated waste type
      */
-    private function RecognizeWaste(string $name, array $matches)
+    private function RecognizeWaste(string $name, array $matches): array
     {
+        $gray = array_values(array_filter($matches, fn (array $m) => $m['Type'] === 'gray'))[0];
+
         foreach ($matches as $match) {
             $pm = '/(' . $match['Match'] . ')/i';
             if (preg_match($pm, $name)) {
-                return $match['Type'];
+                return [
+                    'Type'  => $match['Type'],
+                    'Color' => '#' . sprintf('%06X', $match['Color']),
+                ];
             }
         }
         // Rest or all others
-        return 'gray';
+        return [
+            'Type'  => $gray['Type'],
+            'Color' => '#' . sprintf('%06X', $gray['Color']),
+        ];
     }
 }

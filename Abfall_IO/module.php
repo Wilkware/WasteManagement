@@ -2,64 +2,131 @@
 
 declare(strict_types=1);
 
-// Generell funktions
+/** Generell funktions */
 require_once __DIR__ . '/../libs/_traits.php';
-// ICS Parser
+
+/** ICS Parser */
 require_once __DIR__ . '/../libs/ics-parser/src/ICal/ICal.php';
 require_once __DIR__ . '/../libs/ics-parser/src/ICal/Event.php';
 
 use ICal\ICal;
 
-// CLASS Abfall_IO
-class Abfall_IO extends IPSModule
+/**
+ * CLASS Abfall_IO
+ */
+class Abfall_IO extends IPSModuleStrict
 {
-    use EventHelper;
+    // -------------------------------------------------------------------------
+    // Traits
+    // -------------------------------------------------------------------------
+
     use DebugHelper;
+    use EventHelper;
+    use FormatHelper;
     use ServiceHelper;
     use VariableHelper;
     use VisualisationHelper;
 
-    // Service Provider
+    // -------------------------------------------------------------------------
+    // Services
+    // -------------------------------------------------------------------------
+
+    /** @var string Service Provider */
     private const SERVICE_PROVIDER = 'abpio';
+
+    /** @var string Service User Agent */
     private const SERVICE_USERAGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36';
+
+    /** @var string Service Form Key */
     private const SERVICE_MODUSKEY = 'd6c5855a62cf32a4dadbc2831f0f295f';
+
+    /** @var string Service Base Url */
     private const SERVICE_BASEURL = 'https://api.abfall.io/';
     // https://api.abfallplus.io/graphql
 
-    // IO keys
+    // -------------------------------------------------------------------------
+    // IO Keys
+    // -------------------------------------------------------------------------
+    /** @var string Action Key */
     private const IO_ACTION = 'action';
+
+    /** @var string Client Key */
     private const IO_CLIENT = 'key';
+
+    /** @var string Names Key */
     private const IO_NAMES = 'names';
+
+    /** @var string Place Key */
     private const IO_PLACE = 'f_id_kommune';
+
+    /** @var string District Key */
     private const IO_DISTRICT = 'f_id_bezirk';
+
+    /** @var string Street Key */
     private const IO_STREET = 'f_id_strasse';
+
+    /** @var string Addon Key */
     private const IO_ADDON = 'f_id_strasse_hnr';
+
+    /** @var string Fraction Key */
     private const IO_FRACTIONS = 'f_abfallarten';
 
-    // ACTION Keys
+    // -------------------------------------------------------------------------
+    // Actions
+    // -------------------------------------------------------------------------
+
+    /** @var string Action State Init */
     private const ACTION_CLIENT = 'init';
+
+    /** @var string Action State Kommune/Place */
     private const ACTION_PLACE = 'auswahl_kommune_set';
+
+    /** @var string Action State District */
     private const ACTION_DISTRICT = 'auswahl_bezirk_set';
+
+    /** @var string Action State Query */
     private const ACTION_QUERY = 'auswahl_strasse_qry_set';
+
+    /** @var string Action State Street */
     private const ACTION_STREET = 'auswahl_strasse_set';
+
+    /** @var string Action State Addon */
     private const ACTION_ADDON = 'auswahl_hnr_set';
+
+    /** @var string Action State Fractions */
     private const ACTION_FRACTIONS = 'auswahl_fraktionen_set';
+
+    /** @var string Action State Export */
     private const ACTION_EXPORT = 'export_';
 
-    // Form Elements Positions
-    private const ELEM_IMAGE = 0;
-    private const ELEM_LABEL = 1;
-    private const ELEM_PROVI = 2;
-    private const ELEM_ABPIO = 3;
-    private const ELEM_VISU = 4;
+    // -------------------------------------------------------------------------
+    // Form Elements
+    // -------------------------------------------------------------------------
+
+    /** @var int Lement Postion Provi */
+    private const ELEM_PROVI = 1;
+
+    /** @var int Panael Element MyMDE */
+    private const ELEM_WASTE = 2;
+
+    /** @var int Panael Element Visualisation */
+    private const ELEM_VISU = 3;
+
+    // -------------------------------------------------------------------------
+    // Methods
+    // -------------------------------------------------------------------------
 
     /**
-     * Create.
+     * In contrast to Construct, this function is called only once when creating the instance and starting IP-Symcon.
+     * Therefore, status variables and module properties which the module requires permanently should be created here.
+     *
+     * @return void
      */
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
+
         // Service Provider
         $this->RegisterPropertyString('serviceProvider', self::SERVICE_PROVIDER);
         $this->RegisterPropertyString('serviceCountry', 'de');
@@ -70,89 +137,132 @@ class Abfall_IO extends IPSModule
         $this->RegisterPropertyString('districtID', 'null');
         $this->RegisterPropertyString('streetID', 'null');
         $this->RegisterPropertyString('addonID', 'null');
-        for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+        for ($i = 1; $i <= self::$FRACTIONS; $i++) {
             $this->RegisterPropertyBoolean('fractionID' . $i, false);
         }
+
         // Visualisation
         $this->RegisterPropertyBoolean('settingsTileVisu', false);
         $this->RegisterPropertyString('settingsTileColors', '[]');
+        $this->RegisterPropertyInteger('settingsAccentToday', -1);
+        $this->RegisterPropertyInteger('settingsAccentTomorrow', -1);
+        $this->RegisterPropertyBoolean('settingsTonneColor', true);
+        $this->RegisterPropertyBoolean('settingsHtmlBox', true);
         $this->RegisterPropertyBoolean('settingsLookAhead', false);
         $this->RegisterPropertyString('settingsLookTime', '{"hour":12,"minute":0,"second":0}');
+
         // Advanced Settings
         $this->RegisterPropertyBoolean('settingsActivate', true);
         $this->RegisterPropertyBoolean('settingsVariables', false);
         $this->RegisterPropertyBoolean('settingsStartsWith', false);
         $this->RegisterPropertyInteger('settingsScript', 0);
         $this->RegisterPropertyString('settingsFormat', 'ics');
+
         // Attributes for dynamic configuration forms (> v3.0)
         $this->RegisterAttributeString('io', serialize($this->PrepareIO()));
+
         // Register daily update timer
         $this->RegisterTimer('UpdateTimer', 0, 'ABPIO_Update(' . $this->InstanceID . ');');
+
         // Register daily look ahead timer
         $this->RegisterTimer('LookAheadTimer', 0, 'ABPIO_LookAhead(' . $this->InstanceID . ');');
-        // Buffer for ICS/CSV data
-        //$this->SetBuffer('ics_csv', '');
+
+        // Set visualization type to 1, as we want to offer HTML
+        $this->SetVisualizationType(0);
     }
 
     /**
-     * Configuration Form.
+     * This function is called when deleting the instance during operation and when updating via "Module Control".
+     * The function is not called when exiting IP-Symcon.
      *
-     * @return JSON configuration string.
+     * @return void
      */
-    public function GetConfigurationForm()
+    public function Destroy(): void
     {
+        //Never delete this line!
+        parent::Destroy();
+    }
+
+    /**
+     * The content can be overwritten in order to transfer a self-created configuration page.
+     * This way, content can be generated dynamically.
+     * In this case, the "form.json" on the file system is completely ignored.
+     *
+     * @return string Content of the configuration page.
+     */
+    public function GetConfigurationForm(): string
+    {
+        // Get Basic Form
+        $form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+
+        // Extract Version
+        $ins = IPS_GetInstance($this->InstanceID);
+        $mod = IPS_GetModule($ins['ModuleInfo']['ModuleID']);
+        $lib = IPS_GetLibrary($mod['LibraryID']);
+        $form['actions'][1]['items'][2]['caption'] = sprintf('v%s.%d', $lib['Version'], $lib['Build']);
+
         // Settings
         $activate = $this->ReadPropertyBoolean('settingsActivate');
+
         // Service Values
         $country = $this->ReadPropertyString('serviceCountry');
+
         // IO Values
         $cId = $this->ReadPropertyString('clientID');
         $pId = $this->ReadPropertyString('placeID');
         $dId = $this->ReadPropertyString('districtID');
         $sId = $this->ReadPropertyString('streetID');
         $aId = $this->ReadPropertyString('addonID');
+
         // Debug output
-        $this->SendDebug(__FUNCTION__, 'clientID=' . $cId . ', placeId=' . $pId . ', districtId=' . $dId . ', streetId=' . $sId . ', addonId=' . $aId); // . ', fractIds=' . $fId);
-        // Get Basic Form
-        $jsonForm = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        $this->LogDebug(__FUNCTION__, 'clientID=' . $cId . ', placeId=' . $pId . ', districtId=' . $dId . ', streetId=' . $sId . ', addonId=' . $aId); // . ', fractIds=' . $fId);
+
         // Service Provider
-        $jsonForm['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
-        $jsonForm['elements'][self::ELEM_PROVI]['items'][1]['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
+        $form['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
+        $form['elements'][self::ELEM_PROVI]['items'][1]['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
+
         // Waste Management
-        $jsonForm['elements'][self::ELEM_ABPIO]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
+        $form['elements'][self::ELEM_WASTE]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
+
         // Prompt
         $prompt = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
+
         // go throw thw whole way
         $next = true;
+
         // Build io array
         $io = $this->PrepareIO();
+        $options = [];
+
         // Client
         if ($cId != 'null') {
             $io[self::IO_CLIENT] = $cId;
             $options = $this->ExecuteAction($io);
             if (($options == null) && ($io[self::IO_ACTION] != self::ACTION_QUERY)) {
+                $this->LogDebug(__FUNCTION__, 'clietID ok, but no Options!');
                 $next = false;
             }
         } else {
-            $this->SendDebug(__FUNCTION__, __LINE__);
+            $this->LogDebug(__FUNCTION__, __LINE__);
             $next = false;
         }
+
         // Place
         if ($next) {
             // Streets?
             if ($io[self::IO_ACTION] == self::ACTION_QUERY) {
                 $options = $this->ExecuteAction($io);
-                $this->SendDebug(__FUNCTION__, $io);
+                $this->LogDebug(__FUNCTION__, $io);
             }
             // Fix or Dynamic
             if ($io[self::IO_ACTION] == self::ACTION_PLACE) {
                 if ($options != null) {
                     // Always add the selection prompt
                     array_unshift($options, $prompt);
-                    $jsonForm['elements'][self::ELEM_ABPIO]['items'][1]['items'][0]['options'] = $options;
-                    $jsonForm['elements'][self::ELEM_ABPIO]['items'][1]['items'][0]['visible'] = true;
+                    $form['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['options'] = $options;
+                    $form['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['visible'] = true;
                 } else {
-                    $this->SendDebug(__FUNCTION__, __LINE__);
+                    $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
                 if ($pId != 'null') {
@@ -160,35 +270,36 @@ class Abfall_IO extends IPSModule
                     // than prepeare the next
                     $options = $this->ExecuteAction($io);
                     if ($options == null) {
-                        $this->SendDebug(__FUNCTION__, __LINE__);
+                        $this->LogDebug(__FUNCTION__, __LINE__);
                         $next = false;
                     }
                 } else {
-                    $this->SendDebug(__FUNCTION__, __LINE__);
+                    $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
             } else {
                 $data[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $pId];
-                $jsonForm['elements'][self::ELEM_ABPIO]['items'][1]['items'][0]['options'] = $data;
-                $jsonForm['elements'][self::ELEM_ABPIO]['items'][1]['items'][0]['visible'] = false;
+                $form['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['options'] = $data;
+                $form['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['visible'] = false;
             }
         }
+
         // District
         if ($next) {
             // Streets?
             if ($io[self::IO_ACTION] == self::ACTION_QUERY) {
                 $options = $this->ExecuteAction($io);
-                $this->SendDebug(__FUNCTION__, $io);
+                $this->LogDebug(__FUNCTION__, $io);
             }
             // Fix or Dynamic
             if ($io[self::IO_ACTION] == self::ACTION_DISTRICT) {
                 if ($options != null) {
                     // Always add the selection prompt
                     array_unshift($options, $prompt);
-                    $jsonForm['elements'][self::ELEM_ABPIO]['items'][1]['items'][1]['options'] = $options;
-                    $jsonForm['elements'][self::ELEM_ABPIO]['items'][1]['items'][1]['visible'] = true;
+                    $form['elements'][self::ELEM_WASTE]['items'][1]['items'][1]['options'] = $options;
+                    $form['elements'][self::ELEM_WASTE]['items'][1]['items'][1]['visible'] = true;
                 } else {
-                    $this->SendDebug(__FUNCTION__, __LINE__);
+                    $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
                 if ($dId != 'null') {
@@ -196,35 +307,36 @@ class Abfall_IO extends IPSModule
                     // than prepeare the next
                     $options = $this->ExecuteAction($io);
                     if (($options == null) && ($io[self::IO_ACTION] != self::ACTION_QUERY)) {
-                        $this->SendDebug(__FUNCTION__, __LINE__);
+                        $this->LogDebug(__FUNCTION__, __LINE__);
                         $next = false;
                     }
                 } else {
-                    $this->SendDebug(__FUNCTION__, __LINE__);
+                    $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
             } else {
                 $data[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $dId];
-                $jsonForm['elements'][self::ELEM_ABPIO]['items'][1]['items'][1]['options'] = $data;
-                $jsonForm['elements'][self::ELEM_ABPIO]['items'][1]['items'][1]['visible'] = false;
+                $form['elements'][self::ELEM_WASTE]['items'][1]['items'][1]['options'] = $data;
+                $form['elements'][self::ELEM_WASTE]['items'][1]['items'][1]['visible'] = false;
             }
         }
+
         // Street
         if ($next) {
             // Streets?
             if ($io[self::IO_ACTION] == self::ACTION_QUERY) {
                 $options = $this->ExecuteAction($io);
-                $this->SendDebug(__FUNCTION__, $io);
+                $this->LogDebug(__FUNCTION__, $io);
             }
             // Fix or Dynamic
             if ($io[self::IO_ACTION] == self::ACTION_STREET) {
                 if ($options != null) {
                     // Always add the selection prompt
                     array_unshift($options, $prompt);
-                    $jsonForm['elements'][self::ELEM_ABPIO]['items'][2]['items'][0]['options'] = $options;
-                    $jsonForm['elements'][self::ELEM_ABPIO]['items'][2]['items'][0]['visible'] = true;
+                    $form['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['options'] = $options;
+                    $form['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['visible'] = true;
                 } else {
-                    $this->SendDebug(__FUNCTION__, __LINE__);
+                    $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
                 if ($sId != 'null') {
@@ -232,19 +344,20 @@ class Abfall_IO extends IPSModule
                     // than prepeare the next
                     $options = $this->ExecuteAction($io);
                     if ($options == null) {
-                        $this->SendDebug(__FUNCTION__, __LINE__);
+                        $this->LogDebug(__FUNCTION__, __LINE__);
                         $next = false;
                     }
                 } else {
-                    $this->SendDebug(__FUNCTION__, __LINE__);
+                    $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
             } else {
                 $data[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $sId];
-                $jsonForm['elements'][self::ELEM_ABPIO]['items'][2]['items'][0]['options'] = $data;
-                $jsonForm['elements'][self::ELEM_ABPIO]['items'][2]['items'][0]['visible'] = false;
+                $form['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['options'] = $data;
+                $form['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['visible'] = false;
             }
         }
+
         // Addon
         if ($next) {
             // Fix or Dynamic
@@ -252,10 +365,10 @@ class Abfall_IO extends IPSModule
                 if ($options != null) {
                     // Always add the selection prompt
                     array_unshift($options, $prompt);
-                    $jsonForm['elements'][self::ELEM_ABPIO]['items'][2]['items'][1]['options'] = $options;
-                    $jsonForm['elements'][self::ELEM_ABPIO]['items'][2]['items'][1]['visible'] = true;
+                    $form['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['options'] = $options;
+                    $form['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['visible'] = true;
                 } else {
-                    $this->SendDebug(__FUNCTION__, __LINE__);
+                    $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
                 if ($aId != 'null') {
@@ -263,56 +376,66 @@ class Abfall_IO extends IPSModule
                     // than prepeare the next
                     $options = $this->ExecuteAction($io);
                     if ($options == null) {
-                        $this->SendDebug(__FUNCTION__, __LINE__);
+                        $this->LogDebug(__FUNCTION__, __LINE__);
                         $next = false;
                     }
                 } else {
-                    $this->SendDebug(__FUNCTION__, __LINE__);
+                    $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
             } else {
                 $data[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $aId];
-                $jsonForm['elements'][self::ELEM_ABPIO]['items'][2]['items'][1]['options'] = $data;
-                $jsonForm['elements'][self::ELEM_ABPIO]['items'][2]['items'][1]['visible'] = false;
+                $form['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['options'] = $data;
+                $form['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['visible'] = false;
             }
         }
+
         // Fractions
         if ($next) {
             //$io[self::IO_FRACTIONS] = $fId;
             if ($io[self::IO_ACTION] == self::ACTION_FRACTIONS) {
                 if ($options != null) {
                     // Label
-                    $jsonForm['elements'][self::ELEM_ABPIO]['items'][3]['visible'] = true;
+                    $form['elements'][self::ELEM_WASTE]['items'][3]['visible'] = true;
                     $i = 1;
                     foreach ($options as $fract) {
-                        $jsonForm['elements'][self::ELEM_ABPIO]['items'][$i + 3]['caption'] = $fract['caption'];
-                        $jsonForm['elements'][self::ELEM_ABPIO]['items'][$i + 3]['visible'] = true;
+                        $form['elements'][self::ELEM_WASTE]['items'][$i + 3]['caption'] = $fract['caption'];
+                        $form['elements'][self::ELEM_WASTE]['items'][$i + 3]['visible'] = true;
                         $i++;
                     }
                 } else {
-                    $this->SendDebug(__FUNCTION__, __LINE__);
+                    $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
             } else {
-                $this->SendDebug(__FUNCTION__, __LINE__);
+                $this->LogDebug(__FUNCTION__, __LINE__);
                 $next = false;
             }
         }
+
         // Write IO array
         $this->WriteAttributeString('io', serialize($io));
+
         // Debug output
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
+
         //Only add default element if we do not have anything in persistence
         $colors = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         if (empty($colors)) {
-            $this->SendDebug(__FUNCTION__, 'Translate Waste Visu');
-            $jsonForm['elements'][self::ELEM_VISU]['items'][1]['values'] = $this->GetWasteValues();
+            $this->LogDebug(__FUNCTION__, 'Translate Waste Visu');
+            $form['elements'][self::ELEM_VISU]['items'][1]['values'] = $this->GetWasteValues();
         }
+
         // Return Form
-        return json_encode($jsonForm);
+        return json_encode($form);
     }
 
-    public function ApplyChanges()
+    /**
+     * Is executed when "Apply" is pressed on the configuration page and immediately after the instance has been created.
+     *
+     * @return void
+     */
+    public function ApplyChanges(): void
     {
         //Never delete this line!
         parent::ApplyChanges();
@@ -323,13 +446,17 @@ class Abfall_IO extends IPSModule
         $aId = $this->ReadPropertyString('addonID');
         $activate = $this->ReadPropertyBoolean('settingsActivate');
         $tilevisu = $this->ReadPropertyBoolean('settingsTileVisu');
+        $htmlbox = $this->ReadPropertyBoolean('settingsHtmlBox');
         $loakahead = $this->ReadPropertyBoolean('settingsLookAhead');
-        $this->SendDebug(__FUNCTION__, 'clientID=' . $cId . ', placeId=' . $pId . ', districtId=' . $dId . ', streetId=' . $sId . ', addonId=' . $aId);
+        $this->LogDebug(__FUNCTION__, 'clientID=' . $cId . ', placeId=' . $pId . ', districtId=' . $dId . ', streetId=' . $sId . ', addonId=' . $aId);
+
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
         $this->SetTimerInterval('LookAheadTimer', 0);
+
         // Support for Tile Viso (v7.x)
-        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, '~HTMLBox', 0, $tilevisu);
+        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, '~HTMLBox', 0, $tilevisu && $htmlbox);
+
         // Set status
         if ($cId == 'null') {
             $status = 201;
@@ -338,50 +465,64 @@ class Abfall_IO extends IPSModule
         } else {
             $status = 102;
         }
+
         // All okay
         if ($status == 102) {
+            // Update visualization
+            $this->SetVisualizationType($tilevisu ? 1 : 0);
+            if ($tilevisu) {
+                $this->UpdateVisualizationValue(json_encode([
+                    'todayColor'    => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentToday')),
+                    'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
+                    'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor')
+                ]));
+            }
             $this->CreateVariables();
             if ($activate == true) {
                 // Time neu berechnen
                 $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
-                $this->SendDebug(__FUNCTION__, 'Update Timer aktiviert!');
+                $this->LogDebug(__FUNCTION__, 'Update Timer aktiviert!');
                 if ($loakahead & $tilevisu) {
                     $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
                     if (($time['hour'] == 0) && ($time['minute'] <= 30)) {
-                        $this->SendDebug(__FUNCTION__, 'LookAhead Time zu niedrieg!');
+                        $this->LogDebug(__FUNCTION__, 'LookAhead Time zu niedrieg!');
                     } else {
-                        $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second'], 0);
+                        $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second']);
                     }
                 }
             } else {
                 $status = 104;
             }
         }
+
         //$this->SetBuffer('ics_csv', '');
         $this->SetStatus($status);
     }
 
     /**
-     * RequestAction.
+     * Is called when, for example, a button is clicked in the visualization.
      *
-     *  @param string $ident Ident (function name).
-     *  @param string $value Value.
+     * @param string $ident Ident of the variable
+     * @param mixed $value The value to be set
+     *
+     * @return void
      */
-    public function RequestAction($ident, $value)
+    public function RequestAction(string $ident, mixed $value): void
     {
         // Debug output
-        $this->SendDebug(__FUNCTION__, $ident . ' => ' . $value);
+        $this->LogDebug(__FUNCTION__, $ident . ' => ' . $value);
         eval('$this->' . $ident . '(\'' . $value . '\');');
-        return true;
     }
 
     /**
      * Fix waste name.
      *
-     *  @param string $from Old waste name.
-     *  @param string $to New waste name.
+     * @param string $from Old waste name.
+     * @param string $to New waste name.
+     *
+     * @return void
      */
-    public function FixWasteName(string $from, string $to)
+    public function FixWasteName(string $from, string $to): void
     {
         $io = unserialize($this->ReadAttributeString('io'));
         foreach ($io[self::IO_NAMES] as $ident => $name) {
@@ -389,7 +530,7 @@ class Abfall_IO extends IPSModule
                 $io[self::IO_NAMES][$ident] = $to;
             }
         }
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
         $this->WriteAttributeString('io', serialize($io));
     }
 
@@ -398,35 +539,50 @@ class Abfall_IO extends IPSModule
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
      *
      * ABPIO_LookAhead($id);
+     *
+     * @return void
      */
-    public function LookAhead()
+    public function LookAhead(): void
     {
         // Check instance state
         if ($this->GetStatus() != 102) {
-            $this->SendDebug(__FUNCTION__, 'Status: Instance is not active.');
+            $this->LogDebug(__FUNCTION__, 'Status: Instance is not active.');
             return;
         }
+
+        // Check tile visu
+        if ($this->ReadPropertyBoolean('settingsTileVisu') === false) {
+            $this->LogDebug(__FUNCTION__, 'WARNING: TileVisu is not active.');
+            return;
+        }
+
         // rebuild informations
         $io = unserialize($this->ReadAttributeString('io'));
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
+
         // fractions convert to name => ident
         $i = 1;
         $waste = [];
         foreach ($io[self::IO_NAMES] as $ident => $name) {
-            $this->SendDebug(__FUNCTION__, 'Fraction ident: ' . $ident . ', Name: ' . $name);
+            $this->LogDebug(__FUNCTION__, 'Fraction ident: ' . $ident . ', Name: ' . $name);
             $enabled = $this->ReadPropertyBoolean('fractionID' . $i++);
             if ($enabled) {
                 $date = $this->GetValue($ident);
                 $waste[$name] = ['ident' => $ident, 'date' => $date];
             }
         }
-        $this->SendDebug(__FUNCTION__, $waste);
+        $this->LogDebug(__FUNCTION__, $waste);
+
         // update tile widget
         $list = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         $this->BuildWidget($waste, $list, true);
+
         // Set Timer to the next day
         $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
         $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second']);
+
+        // send a complete update message to the display, as parameters may have changed
+        $this->UpdateVisualizationValue($this->GetFullUpdateMessage());
     }
 
     /**
@@ -434,74 +590,81 @@ class Abfall_IO extends IPSModule
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
      *
      * ABPIO_Update($id);
+     *
+     * @return void
      */
-    public function Update()
+    public function Update(): void
     {
         // Check instance state
         if ($this->GetStatus() != 102) {
-            $this->SendDebug(__FUNCTION__, 'Status: Instance is not active.');
+            $this->LogDebug(__FUNCTION__, 'Status: Instance is not active.');
             return;
         }
         $io = unserialize($this->ReadAttributeString('io'));
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
         $fmt = $this->ReadPropertyString('settingsFormat');
-        $this->SendDebug(__FUNCTION__, 'Formnat: ' . $fmt);
+        $this->LogDebug(__FUNCTION__, 'Format: ' . $fmt);
         $ssw = $this->ReadPropertyBoolean('settingsStartsWith');
-        $this->SendDebug(__FUNCTION__, 'StartsWith: ' . $ssw);
+        $this->LogDebug(__FUNCTION__, 'StartsWith: ' . $ssw);
 
-        //$res = $this->GetBuffer('ics_csv');
-        if (true) {
-            // Extract Token
-            $token = $this->ExecuteInit($io[self::IO_CLIENT]);
-            if ($token == null) {
-                $this->SendDebug(__FUNCTION__, 'Token is null!');
-                return;
+        // Extract Token
+        $token = $this->ExecuteInit($io[self::IO_CLIENT]);
+        if ($token == null) {
+            $this->LogDebug(__FUNCTION__, 'Token is null!');
+            return;
+        }
+        // Build POST Data
+        $request = null;
+        $params = [];
+
+        // Add Token
+        $params[] = $token;
+
+        // Add Form data
+        foreach ($io as $key => $entry) {
+            if ($this->StartsWith($key, 'f_') && strlen($entry)) {
+                $params[] = $key . '=' . $entry;
             }
-            // Build POST Data
-            $request = null;
-            $params = [];
-            // Add Token
-            $params[] = $token;
-            // Add Form data
-            foreach ($io as $key => $entry) {
-                if ($this->StartsWith($key, 'f_') && strlen($entry)) {
-                    $params[] = $key . '=' . $entry;
-                }
-            }
-            // Add Abfallarten
-            $i = 0;
-            foreach ($io[self::IO_NAMES] as $key => $name) {
-                $params[] = 'f_id_abfalltyp_' . $i++ . '=' . $key;
-            }
-            // Add Abfallarten Max Ids
-            $params[] = 'f_abfallarten_index_max=' . $i;
-            // Build Timespan
-            $date = date('Y');
-            $params[] = 'f_zeitraum=' . $date . '0101-' . ($date + 1) . '1231';
-            // Build Request
-            if (!empty($params)) {
-                $request = implode('&', $params);
-            }
-            $this->SendDebug(__FUNCTION__, $request);
-            // Build URL data
-            $url = $this->BuildURL($io['key'], self::ACTION_EXPORT . $fmt);
-            // Send Export request
-            $res = $this->ServiceRequest($url, $request);
-            // Store new ICS/CSV data
-            if ($res !== false) {
-                //$this->SetBuffer('ics_csv', $res);
-                //$this->SendDebug(__FUNCTION__, $res);
-            } else {
-                $this->SendDebug(__FUNCTION__, 'Service Request failed!');
-                return;
-            }
+        }
+
+        // Add Abfallarten
+        $i = 0;
+        foreach ($io[self::IO_NAMES] as $key => $name) {
+            $params[] = 'f_id_abfalltyp_' . $i++ . '=' . $key;
+        }
+
+        // Add Abfallarten Max Ids
+        $params[] = 'f_abfallarten_index_max=' . $i;
+
+        // Build Timespan
+        $date = date('Y');
+        $params[] = 'f_zeitraum=' . $date . '0101-' . ($date + 1) . '1231';
+
+        // Build Request
+        $request = implode('&', $params);
+        $this->LogDebug(__FUNCTION__, $request);
+
+        // Build URL data
+        $url = $this->BuildURL($io['key'], self::ACTION_EXPORT . $fmt);
+
+        // Send Export request
+        $res = $this->ServiceRequest($url, $request);
+
+        // Store new ICS/CSV data
+        if ($res !== false) {
+            //$this->SetBuffer('ics_csv', $res);
+            //$this->LogDebug(__FUNCTION__, $res);
+        } else {
+            $this->LogMessage('Update: Service Request failed!');
+            $this->LogDebug(__FUNCTION__, 'Service Request failed!');
+            return;
         }
 
         // fractions convert to name => ident
         $i = 1;
         $waste = [];
         foreach ($io[self::IO_NAMES] as $ident => $name) {
-            $this->SendDebug(__FUNCTION__, 'Fraction ident: ' . $ident . ', Name: ' . $name);
+            $this->LogDebug(__FUNCTION__, 'Fraction ident: ' . $ident . ', Name: ' . $name);
             $enabled = $this->ReadPropertyBoolean('fractionID' . $i++);
             if ($enabled) {
                 $waste[$name] = ['ident' => $ident, 'date' => ''];
@@ -522,7 +685,7 @@ class Abfall_IO extends IPSModule
                 ]);
                 $ical->initString($res);
             } catch (Exception $e) {
-                $this->SendDebug(__FUNCTION__, 'initICS: ' . $e);
+                $this->LogDebug(__FUNCTION__, 'initICS: ' . $e);
                 return;
             }
 
@@ -530,9 +693,9 @@ class Abfall_IO extends IPSModule
             $events = $ical->events();
 
             // go throw all events
-            $this->SendDebug(__FUNCTION__, 'ICS Events: ' . $ical->eventCount);
+            $this->LogDebug(__FUNCTION__, 'ICS Events: ' . $ical->eventCount);
             foreach ($events as $event) {
-                //$this->SendDebug(__FUNCTION__, 'Event: ' . $event->summary . ' = ' . $event->dtstart);
+                //$this->LogDebug(__FUNCTION__, 'Event: ' . $event->summary . ' = ' . $event->dtstart);
                 // echo $event->printData('%s: %s'.PHP_EOL);
                 if ($event->dtstart < date('Ymd')) {
                     continue;
@@ -544,7 +707,7 @@ class Abfall_IO extends IPSModule
                 if ($ssw == true) {
                     foreach ($waste as $key => $var) {
                         if ($this->StartsWith($name, $key)) {
-                            $this->SendDebug(__FUNCTION__, 'StartWith: ' . $name . ' = ' . $key);
+                            $this->LogDebug(__FUNCTION__, 'StartWith: ' . $name . ' = ' . $key);
                             $name = $key;
                             break;
                         }
@@ -552,7 +715,7 @@ class Abfall_IO extends IPSModule
                 }
                 if (isset($waste[$name]) && $waste[$name]['date'] == '') {
                     $waste[$name]['date'] = $day;
-                    $this->SendDebug(__FUNCTION__, 'Fraction date: ' . $name . ' = ' . $day);
+                    $this->LogDebug(__FUNCTION__, 'Fraction date: ' . $name . ' = ' . $day);
                 }
             }
         }
@@ -567,23 +730,24 @@ class Abfall_IO extends IPSModule
             $now = date('Ymd');
             // each events
             foreach ($csv as $line) {
+                $this->LogDebug(__FUNCTION__, $line);
                 $count = count($line);
                 $name = mb_convert_encoding($line[0], 'UTF-8', 'ISO-8859-1');
-                $this->SendDebug(__FUNCTION__, 'Fraction name: ' . $name . ', count:' . $count);
+                $this->LogDebug(__FUNCTION__, 'Fraction name: ' . $name . ', count:' . $count);
                 for ($i = 1; $i < $count; $i++) {
                     if (empty($line[$i])) {
                         continue;
                     }
                     $day = substr($line[$i], 6) . substr($line[$i], 3, 2) . substr($line[$i], 0, 2);
                     if ($day < $now) {
-                        $this->SendDebug(__FUNCTION__, 'Fraction day: ' . $day);
+                        $this->LogDebug(__FUNCTION__, 'Fraction day: ' . $day);
                         continue;
                     }
                     // Update fraction
                     if ($ssw == true) {
                         foreach ($waste as $key => $var) {
                             if ($this->StartsWith($name, $key)) {
-                                $this->SendDebug(__FUNCTION__, 'StartWith: ' . $name . ' = ' . $key);
+                                $this->LogDebug(__FUNCTION__, 'StartWith: ' . $name . ' = ' . $key);
                                 $name = $key;
                                 break;
                             }
@@ -591,7 +755,7 @@ class Abfall_IO extends IPSModule
                     }
                     if (isset($waste[$name]) && $waste[$name]['date'] == '') {
                         $waste[$name]['date'] = $line[$i];
-                        $this->SendDebug(__FUNCTION__, 'Fraction date: ' . $name . ' = ' . $line[$i]);
+                        $this->LogDebug(__FUNCTION__, 'Fraction date: ' . $name . ' = ' . $line[$i]);
                     }
                 }
             }
@@ -604,7 +768,7 @@ class Abfall_IO extends IPSModule
 
         // build tile widget
         $btw = $this->ReadPropertyBoolean('settingsTileVisu');
-        $this->SendDebug(__FUNCTION__, 'TileVisu: ' . $btw);
+        $this->LogDebug(__FUNCTION__, 'TileVisu: ' . $btw);
         if ($btw == true) {
             $list = json_decode($this->ReadPropertyString('settingsTileColors'), true);
             $this->BuildWidget($waste, $list);
@@ -615,9 +779,9 @@ class Abfall_IO extends IPSModule
         if ($script != 0) {
             if (IPS_ScriptExists($script)) {
                 $rs = IPS_RunScriptEx($script, ['TIMESTAMP' => time(), 'DATA' => json_encode($waste)]);
-                $this->SendDebug(__FUNCTION__, 'Script Execute (Return Value): ' . $rs, 0);
+                $this->LogDebug(__FUNCTION__, 'Script Execute (Return Value): ' . $rs);
             } else {
-                $this->SendDebug(__FUNCTION__, 'Update: Script #' . $script . ' existiert nicht!');
+                $this->LogDebug(__FUNCTION__, 'Update: Script #' . $script . ' existiert nicht!');
             }
         }
 
@@ -626,16 +790,40 @@ class Abfall_IO extends IPSModule
         if ($activate == true) {
             $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
         }
+
+        if ($btw == true) {
+            // send a complete update message to the display, as parameters may have changed
+            $this->UpdateVisualizationValue($this->GetFullUpdateMessage());
+        }
+    }
+
+    /**
+     * If the HTML-SDK is to be used, this function must be overwritten in order to return the HTML content.
+     *
+     * @return string Initial display of a representation via HTML SDK
+     */
+    public function GetVisualizationTile(): string
+    {
+        // Add a script to set the values when loading, analogous to changes at runtime
+        // Although the return from GetFullUpdateMessage is already JSON-encoded, json_encode is still executed a second time
+        // This adds quotation marks to the string and any quotation marks within it are escaped correctly
+        $initialHandling = '<script>handleMessage(' . json_encode($this->GetFullUpdateMessage()) . ');</script>';
+        // Add static HTML from file
+        $module = file_get_contents(__DIR__ . '/module.html');
+        // Important: $initialHandling at the end, as the handleMessage function is only defined in the HTML
+        return $module . $initialHandling;
     }
 
     /**
      * User has selected a new waste management country.
      *
      * @param string $id Country ID.
+     *
+     * @return void
      */
-    protected function OnChangeCountry($id)
+    protected function OnChangeCountry(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $options = $this->GetClientOptions(self::SERVICE_PROVIDER, $id);
         $this->UpdateFormField('clientID', 'options', json_encode($options));
         $this->UpdateFormField('clientID', 'visible', true);
@@ -647,32 +835,34 @@ class Abfall_IO extends IPSModule
      * User has selected a new waste management.
      *
      * @param string $id Client ID .
+     *
+     * @return void
      */
-    protected function OnChangeClient($id)
+    protected function OnChangeClient(string $id): void
     {
         // ACTION: 'init', KEY: $id
         $io = $this->PrepareIO(self::ACTION_CLIENT, $id);
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
         $data = null;
         if ($id != 'null') {
             $data = $this->ExecuteAction($io);
         }
         if ($io[self::IO_ACTION] == self::ACTION_QUERY) {
             $data = $this->ExecuteAction($io);
-            $this->SendDebug(__FUNCTION__, $io);
+            $this->LogDebug(__FUNCTION__, $io);
         }
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
         // Bad fix for cities only!!!
         if ($io[self::IO_ACTION] == self::ACTION_STREET) {
-            $this->SendDebug(__FUNCTION__, 'Hide place & district');
+            $this->LogDebug(__FUNCTION__, 'Hide place & district');
             $this->UpdateFormField('placeID', 'visible', false);
             $this->UpdateFormField('districtID', 'visible', false);
             // Fix Options
             if ($io[self::IO_PLACE] == '') {
-                $this->SendDebug(__FUNCTION__, 'Place == null');
+                $this->LogDebug(__FUNCTION__, 'Place == null');
                 $this->UpdateFormField('placeID', 'value', 'null');
             } else {
-                $this->SendDebug(__FUNCTION__, 'Place == ' . $io[self::IO_PLACE]);
+                $this->LogDebug(__FUNCTION__, 'Place == ' . $io[self::IO_PLACE]);
                 $options[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $io[self::IO_PLACE]];
                 $this->UpdateFormField('placeID', 'options', json_encode($options));
                 $this->UpdateFormField('placeID', 'value', $io[self::IO_PLACE]);
@@ -685,7 +875,7 @@ class Abfall_IO extends IPSModule
                 $this->UpdateFormField('districtID', 'value', $io[self::IO_DISTRICT]);
             }
         }
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
         // Hide or Unhide properties
         $this->UpdateForm($io, $data);
         // Update attribute
@@ -696,10 +886,12 @@ class Abfall_IO extends IPSModule
      * User has selected a new place.
      *
      * @param string $id Place GUID .
+     *
+     * @return void
      */
-    protected function OnChangePlace($id)
+    protected function OnChangePlace(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $io = unserialize($this->ReadAttributeString('io'));
         $this->UpdateIO($io, self::ACTION_PLACE, $id);
         $data = null;
@@ -709,7 +901,7 @@ class Abfall_IO extends IPSModule
         if ($io[self::IO_ACTION] == self::ACTION_QUERY) {
             $data = $this->ExecuteAction($io);
         }
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
         // Hide or Unhide properties
         $this->UpdateForm($io, $data);
         // Update attribute
@@ -719,11 +911,13 @@ class Abfall_IO extends IPSModule
     /**
      * Benutzer hat eine neue Straße oder Ortsteil ausgewählt.
      *
-     * @param string $id istrict GUID .
+     * @param string $id District GUID .
+     *
+     * @return void
      */
-    protected function OnChangeDistrict($id)
+    protected function OnChangeDistrict(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $io = unserialize($this->ReadAttributeString('io'));
         $this->UpdateIO($io, self::ACTION_DISTRICT, $id);
         $data = null;
@@ -743,10 +937,12 @@ class Abfall_IO extends IPSModule
      * Benutzer hat eine neue Straße oder Ortsteil ausgewählt.
      *
      * @param string $id Street GUID .
+     *
+     * @return void
      */
-    protected function OnChangeStreet($id)
+    protected function OnChangeStreet(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $io = unserialize($this->ReadAttributeString('io'));
         $this->UpdateIO($io, self::ACTION_STREET, $id);
         $data = null;
@@ -763,10 +959,12 @@ class Abfall_IO extends IPSModule
      * Benutzer hat eine neue Hausnummer ausgewählt.
      *
      * @param string $id Addon GUID .
+     *
+     * @return void
      */
-    protected function OnChangeAddon($id)
+    protected function OnChangeAddon(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $io = unserialize($this->ReadAttributeString('io'));
         $this->UpdateIO($io, self::ACTION_ADDON, $id);
         $data = null;
@@ -782,11 +980,15 @@ class Abfall_IO extends IPSModule
     /**
      * Hide/unhide form fields.
      *
+     * @param array<string,mixed> $io IO interface data
+     * @param ?list<array<string,string>> $options Selecttable options
+     *
+     * @return void
      */
-    protected function UpdateForm($io, $options)
+    protected function UpdateForm(array $io, ?array $options): void
     {
-        $this->SendDebug(__FUNCTION__, $io);
-        $this->SendDebug(__FUNCTION__, $options);
+        $this->LogDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $options);
         if (($options != null) && ($io['action'] != self::ACTION_FRACTIONS)) {
             // Always add the selection prompt
             $prompt = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
@@ -805,7 +1007,7 @@ class Abfall_IO extends IPSModule
                 $this->UpdateFormField('addonID', 'value', 'null');
                 // Fraction Checkboxes
                 $this->UpdateFormField('fractionLabel', 'visible', false);
-                for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+                for ($i = 1; $i <= self::$FRACTIONS; $i++) {
                     $this->UpdateFormField('fractionID' . $i, 'visible', false);
                     $this->UpdateFormField('fractionID' . $i, 'value', false);
                 }
@@ -826,7 +1028,7 @@ class Abfall_IO extends IPSModule
                 $this->UpdateFormField('addonID', 'value', 'null');
                 // Fraction Checkboxes
                 $this->UpdateFormField('fractionLabel', 'visible', false);
-                for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+                for ($i = 1; $i <= self::$FRACTIONS; $i++) {
                     $this->UpdateFormField('fractionID' . $i, 'visible', false);
                     $this->UpdateFormField('fractionID' . $i, 'value', false);
                 }
@@ -845,7 +1047,7 @@ class Abfall_IO extends IPSModule
                 $this->UpdateFormField('addonID', 'value', 'null');
                 // Fraction Checkboxes
                 $this->UpdateFormField('fractionLabel', 'visible', false);
-                for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+                for ($i = 1; $i <= self::$FRACTIONS; $i++) {
                     $this->UpdateFormField('fractionID' . $i, 'visible', false);
                     $this->UpdateFormField('fractionID' . $i, 'value', false);
                 }
@@ -866,7 +1068,7 @@ class Abfall_IO extends IPSModule
                 $this->UpdateFormField('addonID', 'value', 'null');
                 // Fraction Checkboxes
                 $this->UpdateFormField('fractionLabel', 'visible', false);
-                for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+                for ($i = 1; $i <= self::$FRACTIONS; $i++) {
                     $this->UpdateFormField('fractionID' . $i, 'visible', false);
                     $this->UpdateFormField('fractionID' . $i, 'value', false);
                 }
@@ -881,7 +1083,7 @@ class Abfall_IO extends IPSModule
                 // Elements below
                 // Fraction Checkboxes
                 $this->UpdateFormField('fractionLabel', 'visible', false);
-                for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+                for ($i = 1; $i <= self::$FRACTIONS; $i++) {
                     $this->UpdateFormField('fractionID' . $i, 'visible', false);
                     $this->UpdateFormField('fractionID' . $i, 'value', false);
                 }
@@ -902,11 +1104,12 @@ class Abfall_IO extends IPSModule
     /**
      * Create the variables for the fractions.
      *
+     * @return void
      */
-    protected function CreateVariables()
+    protected function CreateVariables(): void
     {
         $io = unserialize($this->ReadAttributeString('io'));
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
         if (empty($io[self::IO_NAMES])) {
             return;
         }
@@ -915,7 +1118,7 @@ class Abfall_IO extends IPSModule
         $i = 1;
         $ids = explode(',', $io[self::IO_FRACTIONS]);
         foreach ($ids as $fract) {
-            if ($i <= static::$FRACTIONS) {
+            if ($i <= self::$FRACTIONS) {
                 $enabled = $this->ReadPropertyBoolean('fractionID' . $i);
                 $this->MaintainVariable($fract, $io[self::IO_NAMES][$fract], VARIABLETYPE_STRING, '', $i, $enabled || $variable);
             }
@@ -926,16 +1129,17 @@ class Abfall_IO extends IPSModule
     /**
      * Serialize properties to IO interface array
      *
-     * @param string $n next from action
+     * @param ?string $n next from action
      * @param string $c client id value
      * @param string $p place id value
      * @param string $d district id value
      * @param string $s street id value
      * @param string $a addon id value
      * @param string $f fraction id value
-     * @return array IO interface
+     *
+     * @return array<string,mixed> IO interface data
      */
-    protected function PrepareIO($n = null, $c = 'null', $p = 'null', $d = 'null', $s = 'null', $a = 'null', $f = 'null')
+    protected function PrepareIO(?string $n = null, string $c = 'null', string $p = 'null', string $d = 'null', string $s = 'null', string $a = 'null', string $f = 'null'): array
     {
         $io[self::IO_ACTION] = ($n != null) ? $n : self::ACTION_CLIENT;
         $io[self::IO_CLIENT] = ($c != 'null') ? $c : '';
@@ -952,14 +1156,16 @@ class Abfall_IO extends IPSModule
     /**
      * Everthing has changed - update the IO array
      *
-     * @param array $io IO interface array
+     * @param array<string,mixed> $io IO interface data
      * @param string $action new form action
      * @param string $id new selected form value
+     *
+     * @return void
      */
-    protected function UpdateIO(&$io, $action, $id)
+    protected function UpdateIO(array &$io, string $action, string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $action);
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $action);
+        $this->LogDebug(__FUNCTION__, $id);
         // tage over the action
         $io[self::IO_ACTION] = $action;
 
@@ -1006,9 +1212,10 @@ class Abfall_IO extends IPSModule
      *
      * @param string $key Client ID
      * @param string $action Get parameter action.
+     *
      * @return string Action Url
      */
-    protected function BuildURL($key, $action)
+    protected function BuildURL(string $key, string $action): string
     {
         $url = '{{base}}?key={{key}}&modus={{modus}}&waction={{action}}';
         $str = ['base' => self::SERVICE_BASEURL, 'key' => $key, 'modus' => self::SERVICE_MODUSKEY, 'action' => $action];
@@ -1018,19 +1225,20 @@ class Abfall_IO extends IPSModule
                 $url = str_replace($m[0][$i], sprintf('%s', $str[$varname]), $url);
             }
         }
-        $this->SendDebug(__FUNCTION__, $url);
+        $this->LogDebug(__FUNCTION__, $url);
         return $url;
     }
 
     /**
      * Sends the action url to extract the token pair
      *
-     * @param string API key
+     * @param string $key API key
+     *
      * @return string Token for Export.
      */
-    protected function ExecuteInit($key)
+    protected function ExecuteInit(string $key): string
     {
-        $this->SendDebug(__FUNCTION__, $key);
+        $this->LogDebug(__FUNCTION__, $key);
         // Build URL data
         $url = $this->BuildURL($key, self::ACTION_CLIENT);
 
@@ -1048,7 +1256,7 @@ class Abfall_IO extends IPSModule
                 $value = $input->getAttribute('value');
                 if (!$this->StartsWith($name, 'f_')) {
                     $token = $name . '=' . $value;
-                    $this->SendDebug(__FUNCTION__, 'Token: ' . $token);
+                    $this->LogDebug(__FUNCTION__, 'Token: ' . $token);
                 }
             }
         }
@@ -1058,12 +1266,13 @@ class Abfall_IO extends IPSModule
     /**
      * Sends the action url an d data to the service provider
      *
-     * @param $io IO forms array
-     * @return array New selecteable options or null.
+     * @param array<string,mixed> &$io IO interface data
+     *
+     * @return ?list<array<string,string>> New selecteable options or null.
      */
-    protected function ExecuteAction(&$io)
+    protected function ExecuteAction(array &$io): ?array
     {
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
         // Build URL data
         $url = $this->BuildURL($io['key'], $io['action']);
 
@@ -1092,14 +1301,14 @@ class Abfall_IO extends IPSModule
                 if (array_key_exists($name, $io)) {
                     $io[$name] = $value;
                 }
-                $this->SendDebug(__FUNCTION__, 'Hidden: ' . $name . ':' . $value);
+                $this->LogDebug(__FUNCTION__, 'Hidden: ' . $name . ':' . $value);
             }
             $inputs = $res->query("//input[@type='text']");
             foreach ($inputs as $input) {
                 $items = [];
-                $name = $input->getAttribute('name');
+                $name = (string) $input->getAttribute('name');
                 $action = $input->getAttribute('awk-data-onchange-submit-waction');
-                $this->SendDebug(__FUNCTION__, 'Text: ' . $name . ':' . $action);
+                $this->LogDebug(__FUNCTION__, 'Text: ' . $name . ':' . $action);
                 if ($this->StartsWith($name, 'f_qry')) {
                     $io[self::IO_ACTION] = $action;
                     $io[$name] = '';
@@ -1111,6 +1320,7 @@ class Abfall_IO extends IPSModule
                 $items = [];
                 $fractions = [];
                 $name = [];
+                $names = [];
                 foreach ($divs as $div) {
                     $labels = $res->query('.//label/text()', $div);
                     $inputs = $res->query('.//input', $div);
@@ -1134,7 +1344,7 @@ class Abfall_IO extends IPSModule
                     continue;
                 }
                 $io['action'] = $select[$i]->getAttribute('awk-data-onchange-submit-waction');
-                $this->SendDebug(__FUNCTION__, 'select:' . $io['action']);
+                $this->LogDebug(__FUNCTION__, 'select:' . $io['action']);
                 $options = $res->query('.//option', $select[0]);
                 if ($options->length > 0) {
                     $items = [];
@@ -1153,6 +1363,7 @@ class Abfall_IO extends IPSModule
                 break;
             }
         }
+        $this->LogDebug(__FUNCTION__, $data);
         return $data;
     }
 
@@ -1160,14 +1371,15 @@ class Abfall_IO extends IPSModule
      * Sends the API call and transform it to a XPath Document
      *
      * @param string $url Request URL
-     * @param string $request Request parameters
+     * @param ?string $request Request parameters
+     *
      * @return mixed DOM document
      */
-    protected function GetDocument($url, $request)
+    protected function GetDocument(string $url, ?string $request): mixed
     {
         $response = $this->ServiceRequest($url, $request);
         if ($response !== false) {
-            // $this->SendDebug(__FUNCTION__, $response);
+            // $this->LogDebug(__FUNCTION__, $response);
             $dom = new DOMDocument();
             // disable libxml errors
             libxml_use_internal_errors(true);
@@ -1183,19 +1395,19 @@ class Abfall_IO extends IPSModule
     /**
      * Sends the API call
      *
-     * @param string $url Rewquest URL
+     * @param string $url Request URL
      * @param string $request If $request not null, we will send a POST request, else a GET request.
      * @param string $method Over the $method parameter can we force a POST or GET request!
-     * @return mixed False if the response is null, otherwise the response
+     * @return string|bool False if the response is null, otherwise the response
      */
-    protected function ServiceRequest($url, $request, $method = 'GET')
+    protected function ServiceRequest($url, $request, $method = 'GET'): string|bool
     {
         // Return
         $ret = false;
         // CURL
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($curl, CURLOPT_USERAGENT, self::SERVICE_USERAGENT);
         if ($request != null) {
@@ -1207,8 +1419,14 @@ class Abfall_IO extends IPSModule
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($curl);
+
+        // http code
+        $code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        if ($code === 404) {
+            $response = null;
+        }
         curl_close($curl);
-        //$this->SendDebug(__FUNCTION__, $response);
+        //$this->LogDebug(__FUNCTION__, $response);
         if ($response != null) {
             return $response;
         }
@@ -1220,10 +1438,33 @@ class Abfall_IO extends IPSModule
      *
      * @param string $haystack The string to search in.
      * @param string $needle The substring to search for in the haystack.
-     * @param bool Returns true if haystack begins with needle, false otherwise.
+     *
+     * @return bool Returns true if haystack begins with needle, false otherwise.
      */
-    private function StartsWith($haystack, $needle)
+    private function StartsWith(string $haystack, string $needle): bool
     {
         return (string) $needle !== '' && strncmp($haystack, $needle, strlen($needle)) === 0;
+    }
+    /**
+     * Generate a message that updates all elements in the HTML display.
+     *
+     * @return string JSON encoded message information
+     */
+    private function GetFullUpdateMessage(): string
+    {
+        $buffer = $this->GetBuffer('WasteData');
+        if (empty($buffer)) {
+            $buffer = '[]';
+        }
+        $wd = json_decode($buffer, true);
+        $ac = [
+            'todayColor'    => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentToday')),
+            'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
+            'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor'),
+        ];
+        $result = array_merge($ac, $wd);
+
+        $this->LogDebug(__FUNCTION__, $result);
+        return json_encode($result);
     }
 }

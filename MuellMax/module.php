@@ -2,95 +2,189 @@
 
 declare(strict_types=1);
 
-// Generell funktions
+/** Generell funktions */
 require_once __DIR__ . '/../libs/_traits.php';
-// ICS Parser
+
+/** ICS Parser */
 require_once __DIR__ . '/../libs/ics-parser/src/ICal/ICal.php';
 require_once __DIR__ . '/../libs/ics-parser/src/ICal/Event.php';
 
 use ICal\ICal;
 
-// CLASS MuellMax
-class MuellMax extends IPSModule
+/**
+ * Class MuellMax
+ */
+class MuellMax extends IPSModuleStrict
 {
-    use EventHelper;
+    // -------------------------------------------------------------------------
+    // Traits
+    // -------------------------------------------------------------------------
+
     use DebugHelper;
+    use EventHelper;
+    use FormatHelper;
     use ServiceHelper;
     use VariableHelper;
     use VisualisationHelper;
 
-    // Service Provider
+    // -------------------------------------------------------------------------
+    // Services
+    // -------------------------------------------------------------------------
+
+    /** @var string Service Provider */
     private const SERVICE_PROVIDER = 'maxde';
-    private const SERVICE_USERAGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36';
+
+    /** @var string Service Base Url */
     private const SERVICE_BASEURL = 'https://www.muellmax.de/abfallkalender/';
 
-    // IO keys
+    /** @var string Service User Agent */
+    private const SERVICE_USERAGENT = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/81.0.4044.138 Safari/537.36';
+
+    // -------------------------------------------------------------------------
+    // IO Keys
+    // -------------------------------------------------------------------------
+
+    /** @var string IO Action */
     private const IO_ACTION = 'action';
+
+    /** @var string IO Disposal */
     private const IO_DISPOSAL = 'key';
+
+    /** @var string IO Names */
     private const IO_NAMES = 'names';
+
+    /** @var string IO Secure */
     private const IO_SECURE = 'mm_ses';
+
+    /** @var string IO City */
     private const IO_CITY = 'mm_city';
+
+    /** @var string IO Street */
     private const IO_STREET = 'mm_street';
+
+    /** @var string IO Addon */
     private const IO_ADDON = 'mm_addon';
+
+    /** @var string IO Fractions */
     private const IO_FRACTIONS = 'mm_fractions';
 
+    // -------------------------------------------------------------------------
     // ACTION Keys
-    private const ACTION_INIT = 'init';
-    private const ACTION_CITY = 'city';
-    private const ACTION_STREET = 'street';
-    private const ACTION_ADDON = 'addon';
-    private const ACTION_FRACTIONS = 'fractions';
-    private const ACTION_EXPORT = 'export';
+    // -------------------------------------------------------------------------
 
-    // Form Elements Positions
-    private const ELEM_IMAGE = 0;
-    private const ELEM_LABEL = 1;
-    private const ELEM_PROVI = 2;
-    private const ELEM_WASTE = 3;
-    private const ELEM_VISU = 4;
+    /** @var string Action Init */
+    private const ACTION_INIT = 'init';
+
+    /** @var string Action City */
+    private const ACTION_CITY = 'city';
+
+    /** @var string Action Street */
+    private const ACTION_STREET = 'street';
+
+    /** @var string Action Addon */
+    private const ACTION_ADDON = 'addon';
+
+    /** @var string Action Fractions */
+    private const ACTION_FRACTIONS = 'fractions';
+
+    // -------------------------------------------------------------------------
+    // Form Elements
+    // -------------------------------------------------------------------------
+    /** @var int Lement Postion Provi */
+    private const ELEM_PROVI = 1;
+
+    /** @var int Panael Element MyMDE */
+    private const ELEM_WASTE = 2;
+
+    /** @var int Panael Element Visualisation */
+    private const ELEM_VISU = 3;
+
+    // -------------------------------------------------------------------------
+    // Methods
+    // -------------------------------------------------------------------------
 
     /**
-     * Create.
+     * In contrast to Construct, this function is called only once when creating the instance and starting IP-Symcon.
+     * Therefore, status variables and module properties which the module requires permanently should be created here.
+     *
+     * @return void
      */
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
+
         // Service Provider
         $this->RegisterPropertyString('serviceProvider', self::SERVICE_PROVIDER);
         $this->RegisterPropertyString('serviceCountry', 'de');
+
         // Waste Management
         $this->RegisterPropertyString('disposalID', 'null');
         $this->RegisterPropertyString('cityID', 'null');
         $this->RegisterPropertyString('streetID', 'null');
         $this->RegisterPropertyString('addonID', 'null');
-        for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+        for ($i = 1; $i <= self::$FRACTIONS; $i++) {
             $this->RegisterPropertyBoolean('fractionID' . $i, false);
         }
+
         // Visualisation
         $this->RegisterPropertyBoolean('settingsTileVisu', false);
         $this->RegisterPropertyString('settingsTileColors', '[]');
+        $this->RegisterPropertyInteger('settingsAccentToday', -1);
+        $this->RegisterPropertyInteger('settingsAccentTomorrow', -1);
+        $this->RegisterPropertyBoolean('settingsTonneColor', true);
+        $this->RegisterPropertyBoolean('settingsHtmlBox', true);
         $this->RegisterPropertyBoolean('settingsLookAhead', false);
         $this->RegisterPropertyString('settingsLookTime', '{"hour":12,"minute":0,"second":0}');
+
         // Advanced Settings
         $this->RegisterPropertyBoolean('settingsActivate', true);
         $this->RegisterPropertyBoolean('settingsVariables', false);
         $this->RegisterPropertyInteger('settingsScript', 0);
+
         // Attributes for dynamic configuration forms (> v3.0)
         $this->RegisterAttributeString('io', serialize($this->PrepareIO()));
+
         // Register daily update timer
         $this->RegisterTimer('UpdateTimer', 0, 'MAXDE_Update(' . $this->InstanceID . ');');
+
         // Register daily look ahead timer
         $this->RegisterTimer('LookAheadTimer', 0, 'MAXDE_LookAhead(' . $this->InstanceID . ');');
+
+        // Set visualization type to 1, as we want to offer HTML
+        $this->SetVisualizationType(0);
     }
 
     /**
-     * Configuration Form.
+     * This function is called when deleting the instance during operation and when updating via "Module Control".
+     * The function is not called when exiting IP-Symcon.
      *
-     * @return JSON configuration string.
+     * @return void
      */
-    public function GetConfigurationForm()
+    public function Destroy(): void
     {
+        //Never delete this line!
+        parent::Destroy();
+    }
+
+    /**
+     * The content can be overwritten in order to transfer a self-created configuration page.
+     * This way, content can be generated dynamically.
+     * In this case, the "form.json" on the file system is completely ignored.
+     *
+     * @return string Content of the configuration page.
+     */
+    public function GetConfigurationForm(): string
+    {
+        // Get Basic Form
+        $form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+
+        // Extract Version
+        $ins = IPS_GetInstance($this->InstanceID);
+        $mod = IPS_GetModule($ins['ModuleInfo']['ModuleID']);
+        $lib = IPS_GetLibrary($mod['LibraryID']);
+        $form['actions'][1]['items'][2]['caption'] = sprintf('v%s.%d', $lib['Version'], $lib['Build']);
+
         // Settings
         $activate = $this->ReadPropertyBoolean('settingsActivate');
         // Service Values
@@ -101,17 +195,16 @@ class MuellMax extends IPSModule
         $sId = $this->ReadPropertyString('streetID');
         $aId = $this->ReadPropertyString('addonID');
         // Debug output
-        $this->SendDebug(__FUNCTION__, 'disposalID=' . $dId . ', cityID=' . $cId . ', streetId=' . $sId . ', addonId=' . $aId);
-        // Get Basic Form
-        $jsonForm = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        $this->LogDebug(__FUNCTION__, 'disposalID=' . $dId . ', cityID=' . $cId . ', streetId=' . $sId . ', addonId=' . $aId);
         // Service Provider
-        $jsonForm['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
-        $jsonForm['elements'][self::ELEM_PROVI]['items'][1]['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
+        $form['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
+        $form['elements'][self::ELEM_PROVI]['items'][1]['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
         // Waste Management
-        $jsonForm['elements'][self::ELEM_WASTE]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
+        $form['elements'][self::ELEM_WASTE]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
         // Prompt
         $prompt = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
         // go throw the whole way
+        $options = [];
         $args = [];
         $next = true;
         // Build io array
@@ -119,14 +212,14 @@ class MuellMax extends IPSModule
         // Disposal
         if ($dId != 'null') {
             $io[self::IO_DISPOSAL] = $dId;
-            $this->SendDebug(__FUNCTION__, 'ACTION: Init Disposl!');
+            $this->LogDebug(__FUNCTION__, 'ACTION: Init Disposl!');
             $this->ExecuteAction($io);
             if ($io[self::IO_SECURE] == '') {
-                $this->SendDebug(__FUNCTION__, 'Init secure token failed!');
+                $this->LogDebug(__FUNCTION__, 'Init secure token failed!');
                 $next = false;
             }
         } else {
-            $this->SendDebug(__FUNCTION__, __LINE__);
+            $this->LogDebug(__FUNCTION__, __LINE__);
             $next = false;
         }
         // City or Streets
@@ -134,7 +227,7 @@ class MuellMax extends IPSModule
             $args[] = 'mm_ses=' . $io[self::IO_SECURE];
             $args[] = 'mm_aus_ort.x=1';
             $args[] = 'mm_aus_ort.y=1';
-            $this->SendDebug(__FUNCTION__, 'ACTION: City or Street!');
+            $this->LogDebug(__FUNCTION__, 'ACTION: City or Street!');
             $options = $this->ExecuteAction($io, $args);
             // no city only streets
             if ($io[self::IO_ACTION] != self::ACTION_CITY) {
@@ -143,11 +236,11 @@ class MuellMax extends IPSModule
                 $args[] = 'xxx=1';
                 $args[] = 'mm_frm_str_name=';
                 $args[] = 'mm_aus_str_txt_submit=suchen';
-                $this->SendDebug(__FUNCTION__, 'ACTION: No city only streets!');
+                $this->LogDebug(__FUNCTION__, 'ACTION: No city only streets!');
                 $options = $this->ExecuteAction($io, $args);
             }
             if (($io[self::IO_ACTION] != self::ACTION_CITY) && ($io[self::IO_ACTION] != self::ACTION_STREET)) {
-                $this->SendDebug(__FUNCTION__, 'No city or street received: ' . $io[self::IO_ACTION]);
+                $this->LogDebug(__FUNCTION__, 'No city or street received: ' . $io[self::IO_ACTION]);
                 $next = false;
             }
         }
@@ -157,10 +250,10 @@ class MuellMax extends IPSModule
                 if ($options != null) {
                     // Always add the selection prompt
                     array_unshift($options, $prompt);
-                    $jsonForm['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['options'] = $options;
-                    $jsonForm['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['visible'] = true;
+                    $form['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['options'] = $options;
+                    $form['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['visible'] = true;
                 } else {
-                    $this->SendDebug(__FUNCTION__, __LINE__);
+                    $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
                 if ($cId != 'null') {
@@ -171,7 +264,7 @@ class MuellMax extends IPSModule
                     $args[] = 'xxx=1';
                     $args[] = 'mm_frm_ort_sel=' . $io[self::IO_CITY];
                     $args[] = 'mm_aus_ort_submit=weiter';
-                    $this->SendDebug(__FUNCTION__, 'ACTION: City and now streets!');
+                    $this->LogDebug(__FUNCTION__, 'ACTION: City and now streets!');
                     $options = $this->ExecuteAction($io, $args);
                     // prepeare street ?
                     if ($io[self::IO_ACTION] != self::ACTION_STREET) {
@@ -183,17 +276,17 @@ class MuellMax extends IPSModule
                         $options = $this->ExecuteAction($io, $args);
                     }
                     if ($options == null) {
-                        $this->SendDebug(__FUNCTION__, __LINE__);
+                        $this->LogDebug(__FUNCTION__, __LINE__);
                         $next = false;
                     }
                 } else {
-                    $this->SendDebug(__FUNCTION__, __LINE__);
+                    $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
             } else {
                 $data[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $cId];
-                $jsonForm['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['options'] = $data;
-                $jsonForm['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['visible'] = false;
+                $form['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['options'] = $data;
+                $form['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['visible'] = false;
             }
         }
         // Street
@@ -202,10 +295,10 @@ class MuellMax extends IPSModule
                 if ($options != null) {
                     // Always add the selection prompt
                     array_unshift($options, $prompt);
-                    $jsonForm['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['options'] = $options;
-                    $jsonForm['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['visible'] = true;
+                    $form['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['options'] = $options;
+                    $form['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['visible'] = true;
                 } else {
-                    $this->SendDebug(__FUNCTION__, __LINE__);
+                    $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
                 if ($sId != 'null') {
@@ -216,7 +309,7 @@ class MuellMax extends IPSModule
                     $args[] = 'xxx=1';
                     $args[] = 'mm_frm_str_sel=' . $io[self::IO_STREET];
                     $args[] = 'mm_aus_str_sel_submit=weiter';
-                    $this->SendDebug(__FUNCTION__, 'ACTION: Street selected!');
+                    $this->LogDebug(__FUNCTION__, 'ACTION: Street selected!');
                     $options = $this->ExecuteAction($io, $args);
                     // Get Fractions ?
                     if ($io[self::IO_ACTION] != self::ACTION_ADDON) {
@@ -225,34 +318,34 @@ class MuellMax extends IPSModule
                         $args[] = 'mm_ses=' . $io[self::IO_SECURE];
                         $args[] = 'xxx=1';
                         $args[] = 'mm_ica_auswahl=iCalendar-Datei';
-                        $this->SendDebug(__FUNCTION__, 'ACTION: No Addon - get fractions!');
+                        $this->LogDebug(__FUNCTION__, 'ACTION: No Addon - get fractions!');
                         $options = $this->ExecuteAction($io, $args);
                     }
                     if ($options == null) {
-                        $this->SendDebug(__FUNCTION__, __LINE__);
+                        $this->LogDebug(__FUNCTION__, __LINE__);
                         $next = false;
                     }
                 } else {
-                    $this->SendDebug(__FUNCTION__, __LINE__);
+                    $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
             } else {
                 $data[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $sId];
-                $jsonForm['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['options'] = $data;
-                $jsonForm['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['visible'] = false;
+                $form['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['options'] = $data;
+                $form['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['visible'] = false;
             }
         }
         // Addon
         if ($next) {
             if ($io[self::IO_ACTION] == self::ACTION_ADDON) {
-                $this->SendDebug(__FUNCTION__, 'ADDON');
+                $this->LogDebug(__FUNCTION__, 'ADDON');
                 if ($options != null) {
                     // Always add the selection prompt
                     array_unshift($options, $prompt);
-                    $jsonForm['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['options'] = $options;
-                    $jsonForm['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['visible'] = true;
+                    $form['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['options'] = $options;
+                    $form['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['visible'] = true;
                 } else {
-                    $this->SendDebug(__FUNCTION__, __LINE__);
+                    $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
                 if ($aId != 'null') {
@@ -262,7 +355,7 @@ class MuellMax extends IPSModule
                     $args[] = 'xxx=1';
                     $args[] = 'mm_frm_hnr_sel=' . $io[self::IO_ADDON];
                     $args[] = 'mm_aus_hnr_sel_submit=weiter';
-                    $this->SendDebug(__FUNCTION__, 'ACTION: Addon selected!');
+                    $this->LogDebug(__FUNCTION__, 'ACTION: Addon selected!');
                     $options = $this->ExecuteAction($io, $args);
                     // Get Fractions
                     $io[self::IO_ACTION] = self::ACTION_FRACTIONS;
@@ -270,20 +363,20 @@ class MuellMax extends IPSModule
                     $args[] = 'mm_ses=' . $io[self::IO_SECURE];
                     $args[] = 'xxx=1';
                     $args[] = 'mm_ica_auswahl=iCalendar-Datei';
-                    $this->SendDebug(__FUNCTION__, 'ACTION: And now fractions!');
+                    $this->LogDebug(__FUNCTION__, 'ACTION: And now fractions!');
                     $options = $this->ExecuteAction($io, $args);
                     if ($options == null) {
-                        $this->SendDebug(__FUNCTION__, __LINE__);
+                        $this->LogDebug(__FUNCTION__, __LINE__);
                         $next = false;
                     }
                 } else {
-                    $this->SendDebug(__FUNCTION__, __LINE__);
+                    $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
             } else {
                 $data[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $aId];
-                $jsonForm['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['options'] = $data;
-                $jsonForm['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['visible'] = false;
+                $form['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['options'] = $data;
+                $form['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['visible'] = false;
             }
         }
         // Fractions
@@ -291,37 +384,42 @@ class MuellMax extends IPSModule
             if ($io[self::IO_ACTION] == self::ACTION_FRACTIONS) {
                 if ($options != null) {
                     // Label
-                    $jsonForm['elements'][self::ELEM_WASTE]['items'][3]['visible'] = true;
+                    $form['elements'][self::ELEM_WASTE]['items'][3]['visible'] = true;
                     $i = 1;
                     foreach ($options as $fract) {
-                        $jsonForm['elements'][self::ELEM_WASTE]['items'][$i + 3]['caption'] = $fract['caption'];
-                        $jsonForm['elements'][self::ELEM_WASTE]['items'][$i + 3]['visible'] = true;
+                        $form['elements'][self::ELEM_WASTE]['items'][$i + 3]['caption'] = $fract['caption'];
+                        $form['elements'][self::ELEM_WASTE]['items'][$i + 3]['visible'] = true;
                         $i++;
                     }
                 } else {
-                    $this->SendDebug(__FUNCTION__, __LINE__);
+                    $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
             } else {
-                $this->SendDebug(__FUNCTION__, __LINE__);
+                $this->LogDebug(__FUNCTION__, __LINE__);
                 $next = false;
             }
         }
         // Write IO array
         $this->WriteAttributeString('io', serialize($io));
         // Debug output
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
         //Only add default element if we do not have anything in persistence
         $colors = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         if (empty($colors)) {
-            $this->SendDebug(__FUNCTION__, 'Translate Waste Visu');
-            $jsonForm['elements'][self::ELEM_VISU]['items'][1]['values'] = $this->GetWasteValues();
+            $this->LogDebug(__FUNCTION__, 'Translate Waste Visu');
+            $form['elements'][self::ELEM_VISU]['items'][1]['values'] = $this->GetWasteValues();
         }
         // Return Form
-        return json_encode($jsonForm);
+        return json_encode($form);
     }
 
-    public function ApplyChanges()
+    /**
+     * Is executed when "Apply" is pressed on the configuration page and immediately after the instance has been created.
+     *
+     * @return void
+     */
+    public function ApplyChanges(): void
     {
         //Never delete this line!
         parent::ApplyChanges();
@@ -331,13 +429,14 @@ class MuellMax extends IPSModule
         $aId = $this->ReadPropertyString('addonID');
         $activate = $this->ReadPropertyBoolean('settingsActivate');
         $tilevisu = $this->ReadPropertyBoolean('settingsTileVisu');
+        $htmlbox = $this->ReadPropertyBoolean('settingsHtmlBox');
         $loakahead = $this->ReadPropertyBoolean('settingsLookAhead');
-        $this->SendDebug(__FUNCTION__, 'disposalID=' . $dId . ', cityID=' . $cId . ', streetId=' . $sId . ', addonId=' . $aId);
+        $this->LogDebug(__FUNCTION__, 'disposalID=' . $dId . ', cityID=' . $cId . ', streetId=' . $sId . ', addonId=' . $aId);
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
         $this->SetTimerInterval('LookAheadTimer', 0);
         // Support for Tile Viso (v7.x)
-        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, '~HTMLBox', 0, $tilevisu);
+        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, '~HTMLBox', 0, $tilevisu && $htmlbox);
         // Set status
         if ($dId == 'null') {
             $status = 201;
@@ -348,17 +447,26 @@ class MuellMax extends IPSModule
         }
         // All okay
         if ($status == 102) {
+            // Update visualization
+            $this->SetVisualizationType($tilevisu ? 1 : 0);
+            if ($tilevisu) {
+                $this->UpdateVisualizationValue(json_encode([
+                    'todayColor'    => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentToday')),
+                    'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
+                    'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor')
+                ]));
+            }
             $this->CreateVariables();
             if ($activate == true) {
                 // Time neu berechnen
                 $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
-                $this->SendDebug(__FUNCTION__, 'Update Timer aktiviert!');
+                $this->LogDebug(__FUNCTION__, 'Update Timer aktiviert!');
                 if ($loakahead & $tilevisu) {
                     $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
                     if (($time['hour'] == 0) && ($time['minute'] <= 30)) {
-                        $this->SendDebug(__FUNCTION__, 'LookAhead Time zu niedrieg!');
+                        $this->LogDebug(__FUNCTION__, 'LookAhead Time zu niedrieg!');
                     } else {
-                        $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second'], 0);
+                        $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second']);
                     }
                 }
             } else {
@@ -369,17 +477,18 @@ class MuellMax extends IPSModule
     }
 
     /**
-     * RequestAction.
+     * Is called when, for example, a button is clicked in the visualization.
      *
-     *  @param string $ident Ident (function name).
-     *  @param string $value Value.
+     * @param string $ident Ident of the variable
+     * @param mixed $value The value to be set
+     *
+     * @return void
      */
-    public function RequestAction($ident, $value)
+    public function RequestAction(string $ident, mixed $value): void
     {
         // Debug output
-        $this->SendDebug(__FUNCTION__, $ident . ' => ' . $value);
+        $this->LogDebug(__FUNCTION__, $ident . ' => ' . $value);
         eval('$this->' . $ident . '(\'' . $value . '\');');
-        return true;
     }
 
     /**
@@ -387,35 +496,50 @@ class MuellMax extends IPSModule
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
      *
      * MAXDE_LookAhead($id);
+     *
+     * @return void
      */
-    public function LookAhead()
+    public function LookAhead(): void
     {
         // Check instance state
         if ($this->GetStatus() != 102) {
-            $this->SendDebug(__FUNCTION__, 'Status: Instance is not active.');
+            $this->LogDebug(__FUNCTION__, 'Status: Instance is not active.');
             return;
         }
+
+        // Check tile visu
+        if ($this->ReadPropertyBoolean('settingsTileVisu') === false) {
+            $this->LogDebug(__FUNCTION__, 'WARNING: TileVisu is not active.');
+            return;
+        }
+
         // rebuild informations
         $io = unserialize($this->ReadAttributeString('io'));
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
         $i = 1;
         $waste = [];
+
         // fractions convert to name => ident
         foreach ($io[self::IO_NAMES] as $ident => $name) {
-            $this->SendDebug(__FUNCTION__, 'Fraction ident: ' . $ident . ', Name: ' . $name);
+            $this->LogDebug(__FUNCTION__, 'Fraction ident: ' . $ident . ', Name: ' . $name);
             $enabled = $this->ReadPropertyBoolean('fractionID' . $i++);
             if ($enabled) {
                 $date = $this->GetValue($ident);
                 $waste[$name] = ['ident' => $ident, 'date' => $date];
             }
         }
-        $this->SendDebug(__FUNCTION__, $waste);
+        $this->LogDebug(__FUNCTION__, $waste);
+
         // update tile widget
         $list = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         $this->BuildWidget($waste, $list, true);
-        // Set Timer to the next day
+
+        // set timer to the next day
         $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
         $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second']);
+
+        // send a complete update message to the display, as parameters may have changed
+        $this->UpdateVisualizationValue($this->GetFullUpdateMessage());
     }
 
     /**
@@ -423,23 +547,25 @@ class MuellMax extends IPSModule
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
      *
      * MAXDE_Update($id);
+     *
+     * @return void
      */
-    public function Update()
+    public function Update(): void
     {
         // Check instance state
         if ($this->GetStatus() != 102) {
-            $this->SendDebug(__FUNCTION__, 'Status: Instance is not active.');
+            $this->LogDebug(__FUNCTION__, 'Status: Instance is not active.');
             return;
         }
         $io = unserialize($this->ReadAttributeString('io'));
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
 
         // (1) Build io array & init
         $uio = $this->PrepareIO();
         $uio[self::IO_DISPOSAL] = $io[self::IO_DISPOSAL];
         $this->ExecuteAction($uio);
         if ($uio[self::IO_SECURE] == '') {
-            $this->SendDebug(__FUNCTION__, 'Init secure token failed!');
+            $this->LogDebug(__FUNCTION__, 'Init secure token failed!');
             return;
         }
         // (2) Request city or an empty street search field
@@ -495,13 +621,15 @@ class MuellMax extends IPSModule
         $i = 1;
         $waste = [];
         foreach ($io[self::IO_NAMES] as $ident => $name) {
-            $this->SendDebug(__FUNCTION__, 'Fraction ident: ' . $ident . ', Name: ' . $name);
+            $this->LogDebug(__FUNCTION__, 'Fraction ident: ' . $ident . ', Name: ' . $name);
             $enabled = $this->ReadPropertyBoolean('fractionID' . $i++);
             if ($enabled) {
                 $waste[$name] = ['ident' => $ident, 'date' => ''];
                 $args[] = 'mm_frm_fra_' . $ident . '=' . $ident;
             }
         }
+        $this->LogDebug(__FUNCTION__, $waste);
+
         $args[] = 'mm_ica_gen=iCalendar-Datei laden';
         // service request
         $url = $this->BuildURL($io['key']);
@@ -519,15 +647,15 @@ class MuellMax extends IPSModule
             ]);
             $ical->initString($response);
         } catch (Exception $e) {
-            $this->SendDebug(__FUNCTION__, 'initICS: ' . $e);
+            $this->LogDebug(__FUNCTION__, 'initICS: ' . $e);
             return;
         }
         // get all events
         $events = $ical->events();
         // go throw all events
-        $this->SendDebug(__FUNCTION__, 'ICS Events: ' . $ical->eventCount);
+        $this->LogDebug(__FUNCTION__, 'ICS Events: ' . $ical->eventCount);
         foreach ($events as $event) {
-            $this->SendDebug(__FUNCTION__, 'Event: ' . $event->summary . ' = ' . $event->dtstart);
+            $this->LogDebug(__FUNCTION__, 'Event: ' . $event->summary . ' = ' . $event->dtstart);
             // echo $event->printData('%s: %s'.PHP_EOL);
             if ($event->dtstart < date('Ymd')) {
                 continue;
@@ -545,7 +673,7 @@ class MuellMax extends IPSModule
             }
             if (isset($waste[$name]) && $waste[$name]['date'] == '') {
                 $waste[$name]['date'] = $day;
-                $this->SendDebug(__FUNCTION__, 'Fraction date: ' . $name . ' = ' . $day);
+                $this->LogDebug(__FUNCTION__, 'Fraction date: ' . $name . ' = ' . $day);
             }
         }
 
@@ -556,7 +684,7 @@ class MuellMax extends IPSModule
 
         // build tile widget
         $btw = $this->ReadPropertyBoolean('settingsTileVisu');
-        $this->SendDebug(__FUNCTION__, 'TileVisu: ' . $btw);
+        $this->LogDebug(__FUNCTION__, 'TileVisu: ' . $btw);
         if ($btw == true) {
             $list = json_decode($this->ReadPropertyString('settingsTileColors'), true);
             $this->BuildWidget($waste, $list);
@@ -567,9 +695,9 @@ class MuellMax extends IPSModule
         if ($script != 0) {
             if (IPS_ScriptExists($script)) {
                 $rs = IPS_RunScriptEx($script, ['TIMESTAMP' => time(), 'DATA' => json_encode($waste)]);
-                $this->SendDebug(__FUNCTION__, 'Script Execute (Return Value): ' . $rs, 0);
+                $this->LogDebug(__FUNCTION__, 'Script Execute (Return Value): ' . $rs);
             } else {
-                $this->SendDebug(__FUNCTION__, 'Update: Script #' . $script . ' existiert nicht!');
+                $this->LogDebug(__FUNCTION__, 'Update: Script #' . $script . ' existiert nicht!');
             }
         }
 
@@ -578,16 +706,40 @@ class MuellMax extends IPSModule
         if ($activate == true) {
             $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
         }
+
+        if ($btw == true) {
+            // send a complete update message to the display, as parameters may have changed
+            $this->UpdateVisualizationValue($this->GetFullUpdateMessage());
+        }
+    }
+
+    /**
+     * If the HTML-SDK is to be used, this function must be overwritten in order to return the HTML content.
+     *
+     * @return string Initial display of a representation via HTML SDK
+     */
+    public function GetVisualizationTile(): string
+    {
+        // Add a script to set the values when loading, analogous to changes at runtime
+        // Although the return from GetFullUpdateMessage is already JSON-encoded, json_encode is still executed a second time
+        // This adds quotation marks to the string and any quotation marks within it are escaped correctly
+        $initialHandling = '<script>handleMessage(' . json_encode($this->GetFullUpdateMessage()) . ');</script>';
+        // Add static HTML from file
+        $module = file_get_contents(__DIR__ . '/module.html');
+        // Important: $initialHandling at the end, as the handleMessage function is only defined in the HTML
+        return $module . $initialHandling;
     }
 
     /**
      * User has selected a new waste management country.
      *
      * @param string $id Country ID.
+     *
+     * @return void
      */
-    protected function OnChangeCountry($id)
+    protected function OnChangeCountry(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $options = $this->GetClientOptions(self::SERVICE_PROVIDER, $id);
         $this->UpdateFormField('disposalID', 'options', json_encode($options));
         $this->UpdateFormField('disposalID', 'visible', true);
@@ -599,12 +751,14 @@ class MuellMax extends IPSModule
      * User has selected a new waste management.
      *
      * @param string $id Disposal ID .
+     *
+     * @return void
      */
-    protected function OnChangeDisposal($id)
+    protected function OnChangeDisposal(string $id): void
     {
         // ACTION: 'init', KEY: $id
         $io = $this->PrepareIO(self::ACTION_INIT, $id);
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
         $data = null;
         if ($id != 'null') {
             // Init
@@ -625,7 +779,7 @@ class MuellMax extends IPSModule
             $args[] = 'mm_aus_str_txt_submit=suchen';
             $data = $this->ExecuteAction($io, $args);
         }
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
         // Hide or Unhide properties
         $this->UpdateForm($io, $data);
         // Update attribute
@@ -636,10 +790,12 @@ class MuellMax extends IPSModule
      * User has selected a new city.
      *
      * @param string $id City ID .
+     *
+     * @return void
      */
-    protected function OnChangeCity($id)
+    protected function OnChangeCity(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $io = unserialize($this->ReadAttributeString('io'));
         $this->UpdateIO($io, self::ACTION_CITY, $id);
         $data = null;
@@ -658,8 +814,8 @@ class MuellMax extends IPSModule
             $args[] = 'mm_aus_str_txt_submit=suchen';
             $data = $this->ExecuteAction($io, $args);
         } else {
-            $this->SendDebug(__FUNCTION__, 'No street for city!');
-            $this->SendDebug(__FUNCTION__, $io);
+            $this->LogDebug(__FUNCTION__, 'No street for city!');
+            $this->LogDebug(__FUNCTION__, $io);
         }
         // Hide or Unhide properties
         $this->UpdateForm($io, $data);
@@ -671,10 +827,12 @@ class MuellMax extends IPSModule
      * Benutzer hat eine neue Straße ausgewählt.
      *
      * @param string $id Street ID .
+     *
+     * @return void
      */
-    protected function OnChangeStreet($id)
+    protected function OnChangeStreet(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $io = unserialize($this->ReadAttributeString('io'));
         $this->UpdateIO($io, self::ACTION_STREET, $id);
         $data = null;
@@ -704,10 +862,12 @@ class MuellMax extends IPSModule
      * Benutzer hat eine neue Hausnummer ausgewählt.
      *
      * @param string $id Addon ID .
+     *
+     * @return void
      */
-    protected function OnChangeAddon($id)
+    protected function OnChangeAddon(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $io = unserialize($this->ReadAttributeString('io'));
         $this->UpdateIO($io, self::ACTION_ADDON, $id);
         $data = null;
@@ -725,7 +885,7 @@ class MuellMax extends IPSModule
             $args[] = 'mm_ica_auswahl=iCalendar-Datei';
             $data = $this->ExecuteAction($io, $args);
         }
-        $this->SendDebug(__FUNCTION__, $data);
+        $this->LogDebug(__FUNCTION__, $data);
         // Hide or Unhide properties
         $this->UpdateForm($io, $data);
         // Update attribute
@@ -735,11 +895,15 @@ class MuellMax extends IPSModule
     /**
      * Hide/unhide form fields.
      *
+     * @param array<string,mixed> $io IO interface data
+     * @param ?list<array<string,string>> $options Selecttable options
+     *
+     * @return void
      */
-    protected function UpdateForm($io, $options)
+    protected function UpdateForm(array $io, ?array $options): void
     {
-        $this->SendDebug(__FUNCTION__, $io);
-        $this->SendDebug(__FUNCTION__, $options);
+        $this->LogDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $options);
         if (($options != null) && ($io[self::IO_ACTION] != self::ACTION_FRACTIONS)) {
             // Always add the selection prompt
             $prompt = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
@@ -756,7 +920,7 @@ class MuellMax extends IPSModule
                 $this->UpdateFormField('addonID', 'value', 'null');
                 // Fraction Checkboxes
                 $this->UpdateFormField('fractionLabel', 'visible', false);
-                for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+                for ($i = 1; $i <= self::$FRACTIONS; $i++) {
                     $this->UpdateFormField('fractionID' . $i, 'visible', false);
                     $this->UpdateFormField('fractionID' . $i, 'value', false);
                 }
@@ -775,7 +939,7 @@ class MuellMax extends IPSModule
                 $this->UpdateFormField('addonID', 'value', 'null');
                 // Fraction Checkboxes
                 $this->UpdateFormField('fractionLabel', 'visible', false);
-                for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+                for ($i = 1; $i <= self::$FRACTIONS; $i++) {
                     $this->UpdateFormField('fractionID' . $i, 'visible', false);
                     $this->UpdateFormField('fractionID' . $i, 'value', false);
                 }
@@ -796,7 +960,7 @@ class MuellMax extends IPSModule
                 $this->UpdateFormField('addonID', 'value', 'null');
                 // Fraction Checkboxes
                 $this->UpdateFormField('fractionLabel', 'visible', false);
-                for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+                for ($i = 1; $i <= self::$FRACTIONS; $i++) {
                     $this->UpdateFormField('fractionID' . $i, 'visible', false);
                     $this->UpdateFormField('fractionID' . $i, 'value', false);
                 }
@@ -810,7 +974,7 @@ class MuellMax extends IPSModule
                 }
                 // Fraction Checkboxes
                 $this->UpdateFormField('fractionLabel', 'visible', false);
-                for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+                for ($i = 1; $i <= self::$FRACTIONS; $i++) {
                     $this->UpdateFormField('fractionID' . $i, 'visible', false);
                     $this->UpdateFormField('fractionID' . $i, 'value', false);
                 }
@@ -825,7 +989,7 @@ class MuellMax extends IPSModule
                     $f++;
                 }
                 // hide all others
-                for ($i = $f; $i <= static::$FRACTIONS; $i++) {
+                for ($i = $f; $i <= self::$FRACTIONS; $i++) {
                     $this->UpdateFormField('fractionID' . $i, 'visible', false);
                     $this->UpdateFormField('fractionID' . $i, 'value', false);
                 }
@@ -836,11 +1000,12 @@ class MuellMax extends IPSModule
     /**
      * Create the variables for the fractions.
      *
+     * @return void
      */
-    protected function CreateVariables()
+    protected function CreateVariables(): void
     {
         $io = unserialize($this->ReadAttributeString('io'));
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
         if (empty($io[self::IO_NAMES])) {
             return;
         }
@@ -849,7 +1014,7 @@ class MuellMax extends IPSModule
         $i = 1;
         $ids = explode(',', $io[self::IO_FRACTIONS]);
         foreach ($ids as $fract) {
-            if ($i <= static::$FRACTIONS) {
+            if ($i <= self::$FRACTIONS) {
                 $enabled = $this->ReadPropertyBoolean('fractionID' . $i);
                 $this->MaintainVariable($fract, $io[self::IO_NAMES][$fract], VARIABLETYPE_STRING, '', $i, $enabled || $variable);
             }
@@ -860,15 +1025,16 @@ class MuellMax extends IPSModule
     /**
      * Serialize properties to IO interface array
      *
-     * @param string $n next from action
+     * @param ?string $n next from action
      * @param string $d disposal id value
      * @param string $c city id value
      * @param string $s street id value
      * @param string $a addon id value
      * @param string $f fraction id value
-     * @return array IO interface
+     *
+     * @return array<string,mixed> IO interface data
      */
-    protected function PrepareIO($n = null, $d = 'null', $c = 'null', $s = 'null', $a = 'null', $f = 'null')
+    protected function PrepareIO(?string $n = null, string $d = 'null', string $c = 'null', string $s = 'null', string $a = 'null', string $f = 'null'): array
     {
         $io[self::IO_ACTION] = ($n != null) ? $n : self::ACTION_INIT;
         $io[self::IO_DISPOSAL] = ($d != 'null') ? $d : '';
@@ -885,14 +1051,16 @@ class MuellMax extends IPSModule
     /**
      * Everthing has changed - update the IO array
      *
-     * @param array $io IO interface array
+     * @param array<string,mixed> $io IO interface data
      * @param string $action new form action
      * @param string $id new selected form value
+     *
+     * @return void
      */
-    protected function UpdateIO(&$io, $action, $id)
+    protected function UpdateIO(array &$io, string $action, string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $action);
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $action);
+        $this->LogDebug(__FUNCTION__, $id);
         // tage over the action
         $io[self::IO_ACTION] = $action;
 
@@ -930,10 +1098,11 @@ class MuellMax extends IPSModule
     /**
      * Builds the POST/GET Url for the API CALLS
      *
-     * @param string $key Disposal ID
-     * @param string $action Get parameter action.
+     * @param string $key Endpoint key
+     *
+     * @return string Endpoint Url
      */
-    protected function BuildURL($key)
+    protected function BuildURL(string $key): string
     {
         $url = '{{base}}{{key}}/res/{{start}}Start.php';
         $str = ['base' => self::SERVICE_BASEURL, 'key' => strtolower($key), 'start' => $key];
@@ -943,20 +1112,21 @@ class MuellMax extends IPSModule
                 $url = str_replace($m[0][$i], sprintf('%s', $str[$varname]), $url);
             }
         }
-        $this->SendDebug(__FUNCTION__, $url);
+        $this->LogDebug(__FUNCTION__, $url);
         return $url;
     }
 
     /**
      * Sends the action url and data to the service provider
      *
-     * @param $io service array
-     * @param $args forms array
-     * @return array New selecteable options or null.
+     * @param array<string,mixed> $io IO interface data
+     * @param array<string> $args forms array
+     *
+     * @return ?list<array<string,string>> New selecteable options or null.
      */
-    protected function ExecuteAction(&$io, $args = [])
+    protected function ExecuteAction(array &$io, array $args = []): ?array
     {
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
         // Build URL data
         $url = $this->BuildURL($io['key']);
         // GET or POST data
@@ -964,7 +1134,7 @@ class MuellMax extends IPSModule
         if (!empty($args)) {
             $request = implode('&', $args);
         }
-        $this->SendDebug(__FUNCTION__, 'Rerquest: ' . $request);
+        $this->LogDebug(__FUNCTION__, 'Rerquest: ' . $request);
         // Request FORM (xpath)
         $res = $this->GetDocument($url, $request);
         $data = null;
@@ -978,7 +1148,7 @@ class MuellMax extends IPSModule
                 if (array_key_exists($name, $io)) {
                     $io[$name] = $value;
                 }
-                $this->SendDebug(__FUNCTION__, 'Hidden: ' . $name . ':' . $value);
+                $this->LogDebug(__FUNCTION__, 'Hidden: ' . $name . ':' . $value);
             }
             // INIT and disposal has cities
             $select = $res->query("//select[@name='mm_frm_ort_sel']");
@@ -993,9 +1163,9 @@ class MuellMax extends IPSModule
                             continue;
                         }
                         $data[] = ['caption' => $name, 'value' => $value];
-                        //$this->SendDebug(__FUNCTION__, 'City: ' . $name . ':' . $value);
+                        //$this->LogDebug(__FUNCTION__, 'City: ' . $name . ':' . $value);
                     }
-                    $this->SendDebug(__FUNCTION__, 'RETURN : City');
+                    $this->LogDebug(__FUNCTION__, 'RETURN : City');
                     return $data;
                 }
             }
@@ -1012,9 +1182,9 @@ class MuellMax extends IPSModule
                             continue;
                         }
                         $data[] = ['caption' => $name, 'value' => $value];
-                        //$this->SendDebug(__FUNCTION__, 'Street: ' . $name . ':' . $value);
+                        //$this->LogDebug(__FUNCTION__, 'Street: ' . $name . ':' . $value);
                     }
-                    $this->SendDebug(__FUNCTION__, 'RETURN : Street');
+                    $this->LogDebug(__FUNCTION__, 'RETURN : Street');
                     return $data;
                 }
             }
@@ -1031,9 +1201,9 @@ class MuellMax extends IPSModule
                             continue;
                         }
                         $data[] = ['caption' => $name, 'value' => $value];
-                        //$this->SendDebug(__FUNCTION__, 'Addon: ' . $name . ':' . $value);
+                        //$this->LogDebug(__FUNCTION__, 'Addon: ' . $name . ':' . $value);
                     }
-                    $this->SendDebug(__FUNCTION__, 'RETURN : Addon');
+                    $this->LogDebug(__FUNCTION__, 'RETURN : Addon');
                     return $data;
                 }
             }
@@ -1041,9 +1211,10 @@ class MuellMax extends IPSModule
 
             $divs = $res->query("//div[@class='m_artsel_ical']");
             if ($divs->length > 0) {
-                $this->SendDebug(__FUNCTION__, 'Fractions: YES');
+                $this->LogDebug(__FUNCTION__, 'Fractions: YES');
                 $fractions = [];
                 $name = [];
+                $names = [];
                 foreach ($divs as $div) {
                     $inputs = $res->query(".//input[@type='checkbox']", $div);
                     $spans = $res->query(".//span[@class='m_artsel_text']/text()", $div);
@@ -1053,13 +1224,13 @@ class MuellMax extends IPSModule
                     $data[] = ['caption' => $name, 'value' => $inputs->item(0)->getAttribute('value')];
                     $fractions[] = $value;
                     $names[$value] = $name;
-                    $this->SendDebug(__FUNCTION__, 'Fraction: ' . $name . ':' . $value);
+                    $this->LogDebug(__FUNCTION__, 'Fraction: ' . $name . ':' . $value);
                 }
                 $io[self::IO_FRACTIONS] = implode(',', array_unique($fractions));
                 $io[self::IO_NAMES] = $names;
             }
         }
-        $this->SendDebug(__FUNCTION__, 'RETURN : Last');
+        $this->LogDebug(__FUNCTION__, 'RETURN : Last');
         return $data;
     }
 
@@ -1067,14 +1238,15 @@ class MuellMax extends IPSModule
      * Sends the API call and transform it to a XPath Document
      *
      * @param string $url Request URL
-     * @param string $request Request parameters
+     * @param ?string $request Request parameters
+     *
      * @return mixed DOM document
      */
-    protected function GetDocument($url, $request)
+    protected function GetDocument(string $url, ?string $request): mixed
     {
         $response = $this->ServiceRequest($url, $request);
         if ($response !== false) {
-            //$this->SendDebug(__FUNCTION__, $response);
+            //$this->LogDebug(__FUNCTION__, $response);
             $dom = new DOMDocument();
             // disable libxml errors
             libxml_use_internal_errors(true);
@@ -1090,19 +1262,19 @@ class MuellMax extends IPSModule
     /**
      * Sends the API call
      *
-     * @param string $url Rewquest URL
-     * @param string $request If $request not null, we will send a POST request, else a GET request.
+     * @param string $url Request URL
+     * @param ?string $request If $request not null, we will send a POST request, else a GET request.
      * @param string $method Over the $method parameter can we force a POST or GET request!
-     * @return mixed False if the response is null, otherwise the response
+     * @return string|bool False if the response is null, otherwise the response
      */
-    protected function ServiceRequest($url, $request, $method = 'GET')
+    protected function ServiceRequest(string $url, ?string $request, string $method = 'GET'): string|bool
     {
         // Return
         $ret = false;
         // CURL
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
-        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, 0);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
         curl_setopt($curl, CURLOPT_USERAGENT, self::SERVICE_USERAGENT);
         if ($request != null) {
@@ -1115,22 +1287,33 @@ class MuellMax extends IPSModule
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($curl);
         curl_close($curl);
-        //$this->SendDebug(__FUNCTION__, $response);
+        //$this->LogDebug(__FUNCTION__, $response);
         if ($response != null) {
             return $response;
         }
         return $ret;
     }
-
     /**
-     * Checks if a string starts with a given substring
+     * Generate a message that updates all elements in the HTML display.
      *
-     * @param string $haystack The string to search in.
-     * @param string $needle The substring to search for in the haystack.
-     * @param bool Returns true if haystack begins with needle, false otherwise.
+     * @return string JSON encoded message information
      */
-    private function StartsWith($haystack, $needle)
+    private function GetFullUpdateMessage(): string
     {
-        return (string) $needle !== '' && strncmp($haystack, $needle, strlen($needle)) === 0;
+        $buffer = $this->GetBuffer('WasteData');
+        $this->LogDebug(__FUNCTION__, $buffer);
+        if (empty($buffer)) {
+            $buffer = '[]';
+        }
+        $wd = json_decode($buffer, true);
+        $ac = [
+            'todayColor'    => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentToday')),
+            'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
+            'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor'),
+        ];
+        $result = array_merge($ac, $wd);
+
+        $this->LogDebug(__FUNCTION__, $result);
+        return json_encode($result);
     }
 }

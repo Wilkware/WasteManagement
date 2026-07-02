@@ -2,54 +2,74 @@
 
 declare(strict_types=1);
 
-// Generell funktions
+/** Generell funktions */
 require_once __DIR__ . '/../libs/_traits.php';
 
-// Waste Management Configurator
-class WasteManagementConfigurator extends IPSModule
+/**
+ * Class WasteManagementConfigurator
+ *
+ * Lists all available waste management providers and makes them
+ *  available for creation and configuration in Symcon.
+ */
+class WasteManagementConfigurator extends IPSModuleStrict
 {
-    // Helper Traits
+    // -------------------------------------------------------------------------
+    // Traits
+    // -------------------------------------------------------------------------
+
     use DebugHelper;
     use ServiceHelper;
 
+    // -------------------------------------------------------------------------
+    // Methods
+    // -------------------------------------------------------------------------
+
     /**
-     * Overrides the internal IPS_Create($id) function
+     * In contrast to Construct, this function is called only once when creating the instance and starting IP-Symcon.
+     * Therefore, status variables and module properties which the module requires permanently should be created here.
+     *
+     * @return void
      */
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
-        // Properties
-        $this->RegisterPropertyInteger('TargetCategory', 0);
     }
 
     /**
-     * Overrides the internal IPS_ApplyChanges($id) function
+     * This function is called when deleting the instance during operation and when updating via "Module Control".
+     * The function is not called when exiting IP-Symcon.
+     *
+     * @return void
      */
-    public function ApplyChanges()
+    public function Destroy(): void
     {
         //Never delete this line!
-        parent::ApplyChanges();
+        parent::Destroy();
     }
 
     /**
-     * Configuration Form.
+     * The content can be overwritten in order to transfer a self-created configuration page.
+     * This way, content can be generated dynamically.
+     * In this case, the "form.json" on the file system is completely ignored.
      *
-     * @return JSON configuration string.
+     * @return string Content of the configuration page.
      */
-    public function GetConfigurationForm()
+    public function GetConfigurationForm(): string
     {
         $form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
-        // Version check
-        $version = (float) IPS_GetKernelVersion();
-        // Save location
-        $location = $this->GetPathOfCategory($this->ReadPropertyInteger('TargetCategory'));
-        // Enable or disable "TargetCategory" for 6.x
-        if ($version < 7) {
-            $form['elements'][2]['visible'] = true;
-        }
+
+        // Extract Version
+        $ins = IPS_GetInstance($this->InstanceID);
+        $mod = IPS_GetModule($ins['ModuleInfo']['ModuleID']);
+        $lib = IPS_GetLibrary($mod['LibraryID']);
+        $form['actions'][1]['items'][2]['caption'] = sprintf('v%s.%d', $lib['Version'], $lib['Build']);
+
+        // Collect all values
+        $values = [];
+
         // Build configuration list values
-        foreach (static::$PROVIDERS as $key => $value) {
+        foreach (self::$PROVIDERS as $key => $value) {
             $values[] = [
                 'id'            => $value[0],
                 'provider'      => $value[2],
@@ -57,7 +77,7 @@ class WasteManagementConfigurator extends IPSModule
                 'url'           => $value[3],
             ];
         }
-        foreach (static::$PROVIDERS as $key => $value) {
+        foreach (self::$PROVIDERS as $key => $value) {
             $modules = @IPS_GetInstanceListByModuleID($value[1]);
             $count = 0;
             foreach ($modules as $id) {
@@ -72,7 +92,6 @@ class WasteManagementConfigurator extends IPSModule
                         [
                             'moduleID'      => $value[1],
                             'configuration' => ['serviceProvider' => $key],
-                            'location'      => ($version < 7) ? $location : [],
                         ],
                     ],
                 ];
@@ -87,36 +106,27 @@ class WasteManagementConfigurator extends IPSModule
                     [
                         'moduleID'      => $value[1],
                         'configuration' => ['serviceProvider' => $key],
-                        'location'      => ($version < 7) ? $location : [],
                     ],
                 ],
             ];
         }
-        $form['actions'][0]['values'] = $values;
+
+        // Set available values
+        if (!empty($values)) {
+            $form['actions'][0]['values'] = $values;
+        }
 
         return json_encode($form);
     }
 
     /**
-     * Returns the ascending list of category names for a given category id
+     * Is executed when "Apply" is pressed on the configuration page and immediately after the instance has been created.
      *
-     * @param int $categoryId Category ID.
-     * @return array List of reverse catergory names.
+     * @return void
      */
-    private function GetPathOfCategory(int $categoryId): array
+    public function ApplyChanges(): void
     {
-        if ($categoryId === 0) {
-            return [];
-        }
-
-        $path[] = IPS_GetName($categoryId);
-        $parentId = IPS_GetObject($categoryId)['ParentID'];
-
-        while ($parentId > 0) {
-            $path[] = IPS_GetName($parentId);
-            $parentId = IPS_GetObject($parentId)['ParentID'];
-        }
-
-        return array_reverse($path);
+        //Never delete this line!
+        parent::ApplyChanges();
     }
 }

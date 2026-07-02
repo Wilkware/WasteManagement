@@ -2,44 +2,89 @@
 
 declare(strict_types=1);
 
-// Generell funktions
+/** Generell funktions */
 require_once __DIR__ . '/../libs/_traits.php';
 
-// CLASS Abfall_APP
-class Abfall_APP extends IPSModule
+/**
+ * Class Abfall_APP
+ */
+class Abfall_APP extends IPSModuleStrict
 {
-    use EventHelper;
+    // -------------------------------------------------------------------------
+    // Traits
+    // -------------------------------------------------------------------------
+
     use DebugHelper;
+    use EventHelper;
+    use FormatHelper;
     use ServiceHelper;
     use VariableHelper;
     use VisualisationHelper;
 
-    // Service Provider
+    // -------------------------------------------------------------------------
+    // Services
+    // -------------------------------------------------------------------------
+
+    /** @var string Service Provider */
     private const SERVICE_PROVIDER = 'apapp';
+
+    /** @var string Service Base Url */
     private const SERVICE_BASE = 'https://app.abfallplus.de/';
+
+    /** @var string Service Assitant Url */
     private const SERVICE_ASSISTANT = self::SERVICE_BASE . 'assistent/';  # ignore: E501
+
+    /** @var string Service User Agent */
     private const SERVICE_USERAGENT = 'Android / {} 8.1.1 (1915081010) / DM=unknown;DT=vbox86p;SN=Google;SV=8.1.0 (27);MF=unknown';
+
+    /** @var string Service User Assitant Agent */
     private const SERVICE_USERASSISTANT = 'Mozilla/5.0 (Linux; Android 10; K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Abfallwecker';
+
+    /** @var array<int,string> Service Skip Fractions */
     private const SERVICE_H2_SKIP = ['Sondermüll', 'Giftmobil'];
 
-    // Action States
+    // -------------------------------------------------------------------------
+    // Actions
+    // -------------------------------------------------------------------------
+
+    /** @var int Action State Country */
     private const CHANGE_COUNTRY = 0;
+
+    /** @var int Action State Clienty */
     private const CHANGE_CLIENT = 1;
+
+    /** @var int Action State Federal */
     private const CHANGE_FEDERAL = 2;
+
+    /** @var int Action State County */
     private const CHANGE_COUNTY = 3;
+
+    /** @var int Action State Commune */
     private const CHANGE_COMMUNE = 4;
+
+    /** @var int Action State District */
     private const CHANGE_DISTRICT = 5;
+
+    /** @var int Action State Street */
     private const CHANGE_STREET = 6;
+
+    /** @var int Action State Addony */
     private const CHANGE_ADDON = 7;
 
-    // Form Elements Positions
-    private const ELEM_IMAGE = 0;
-    private const ELEM_LABEL = 1;
-    private const ELEM_PROVI = 2;
-    private const ELEM_APAPP = 3;
-    private const ELEM_VISU = 4;
+    // -------------------------------------------------------------------------
+    // Form Elements
+    // -------------------------------------------------------------------------
 
-    // Form Elements Mapping
+    /** @var int Lement Postion Provi */
+    private const ELEM_PROVI = 1;
+
+    /** @var int Panael Element MyMDE */
+    private const ELEM_WASTE = 2;
+
+    /** @var int Panael Element Visualisation */
+    private const ELEM_VISU = 3;
+
+    /** @var array<int,mixed>  Form Elements Mapping */
     private const FORM_MAPPING = [
         self::CHANGE_FEDERAL    => ['bundesland', 'bundesland_id', 'federalID', 1, 0],
         self::CHANGE_COUNTY     => ['landkreis', 'landkreis_id', 'countyID', 1, 1],
@@ -49,13 +94,21 @@ class Abfall_APP extends IPSModule
         self::CHANGE_ADDON      => ['hnr', 'hnr_id', 'addonID', 3, 2],
     ];
 
+    // -------------------------------------------------------------------------
+    // Methods
+    // -------------------------------------------------------------------------
+
     /**
-     * Create.
+     * In contrast to Construct, this function is called only once when creating the instance and starting IP-Symcon.
+     * Therefore, status variables and module properties which the module requires permanently should be created here.
+     *
+     * @return void
      */
-    public function Create()
+    public function Create(): void
     {
         //Never delete this line!
         parent::Create();
+
         // Service Provider
         $this->RegisterPropertyString('serviceProvider', self::SERVICE_PROVIDER);
         $this->RegisterPropertyString('serviceCountry', 'de');
@@ -68,14 +121,20 @@ class Abfall_APP extends IPSModule
         $this->RegisterPropertyString('districtID', 'null');
         $this->RegisterPropertyString('streetID', 'null');
         $this->RegisterPropertyString('addonID', 'null');
-        for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+        for ($i = 1; $i <= self::$FRACTIONS; $i++) {
             $this->RegisterPropertyBoolean('fractionID' . $i, false);
         }
+
         // Visualisation
         $this->RegisterPropertyBoolean('settingsTileVisu', false);
         $this->RegisterPropertyString('settingsTileColors', '[]');
+        $this->RegisterPropertyInteger('settingsAccentToday', -1);
+        $this->RegisterPropertyInteger('settingsAccentTomorrow', -1);
+        $this->RegisterPropertyBoolean('settingsTonneColor', true);
+        $this->RegisterPropertyBoolean('settingsHtmlBox', true);
         $this->RegisterPropertyBoolean('settingsLookAhead', false);
         $this->RegisterPropertyString('settingsLookTime', '{"hour":12,"minute":0,"second":0}');
+
         // Advanced Settings
         $this->RegisterPropertyBoolean('settingsActivate', true);
         $this->RegisterPropertyBoolean('settingsVariables', false);
@@ -88,25 +147,48 @@ class Abfall_APP extends IPSModule
         $this->RegisterTimer('UpdateTimer', 0, 'APAPP_Update(' . $this->InstanceID . ');');
         // Register daily look ahead timer
         $this->RegisterTimer('LookAheadTimer', 0, 'APAPP_LookAhead(' . $this->InstanceID . ');');
+
+        // Set visualization type to 1, as we want to offer HTML
+        $this->SetVisualizationType(0);
     }
 
     /**
-     * Configuration Form.
+     * This function is called when deleting the instance during operation and when updating via "Module Control".
+     * The function is not called when exiting IP-Symcon.
      *
-     * @return JSON configuration string.
+     * @return void
      */
-    public function GetConfigurationForm()
+    public function Destroy(): void
+    {
+        //Never delete this line!
+        parent::Destroy();
+    }
+
+    /**
+     * The content can be overwritten in order to transfer a self-created configuration page.
+     * This way, content can be generated dynamically.
+     * In this case, the "form.json" on the file system is completely ignored.
+     *
+     * @return string Content of the configuration page.
+     */
+    public function GetConfigurationForm(): string
     {
         // Get Basic Form
-        $jsonForm = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+        $form = json_decode(file_get_contents(__DIR__ . '/form.json'), true);
+
+        // Extract Version
+        $ins = IPS_GetInstance($this->InstanceID);
+        $mod = IPS_GetModule($ins['ModuleInfo']['ModuleID']);
+        $lib = IPS_GetLibrary($mod['LibraryID']);
+        $form['actions'][1]['items'][2]['caption'] = sprintf('v%s.%d', $lib['Version'], $lib['Build']);
 
         // Service Values
         $country = $this->ReadPropertyString('serviceCountry');
         // Service Provider
-        $jsonForm['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
-        $jsonForm['elements'][self::ELEM_PROVI]['items'][1]['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
+        $form['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
+        $form['elements'][self::ELEM_PROVI]['items'][1]['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
         // Waste Management
-        $jsonForm['elements'][self::ELEM_APAPP]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
+        $form['elements'][self::ELEM_WASTE]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
 
         $client = $this->ReadPropertyString('clientID');
         // Client
@@ -115,12 +197,15 @@ class Abfall_APP extends IPSModule
             $prompt = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
             // IO Values
             $io = unserialize($this->ReadAttributeString('io'));
+            $this->LogDebug(__FUNCTION__, $io);
             // Update form elements
             foreach (self::FORM_MAPPING as $key => $field) {
                 // display to select?
                 if (isset($io[$field[0]]) && !empty($io[$field[0]])) {
                     $value = $this->ReadPropertyString($field[2]);
                     $options = [];
+                    $this->LogDebug(__FUNCTION__, 'Read: ' . $value);
+
                     foreach ($io[$field[0]] as $data) {
                         $options[] = [
                             'caption'   => $data['name'],
@@ -128,37 +213,42 @@ class Abfall_APP extends IPSModule
                         ];
                     }
                     array_unshift($options, $prompt);
-                    $jsonForm['elements'][self::ELEM_APAPP]['items'][$field[3]]['items'][$field[4]]['options'] = $options;
-                    $jsonForm['elements'][self::ELEM_APAPP]['items'][$field[3]]['items'][$field[4]]['visible'] = true;
-                    $jsonForm['elements'][self::ELEM_APAPP]['items'][$field[3]]['items'][$field[4]]['enabled'] = ($value == 'null');
+                    $form['elements'][self::ELEM_WASTE]['items'][$field[3]]['items'][$field[4]]['options'] = $options;
+                    $form['elements'][self::ELEM_WASTE]['items'][$field[3]]['items'][$field[4]]['visible'] = true;
+                    $form['elements'][self::ELEM_WASTE]['items'][$field[3]]['items'][$field[4]]['enabled'] = ($value == 'null');
                 }
             }
 
             // Fraction Checkboxes
             if (isset($io['abfallarten']) && !empty($io['abfallarten'])) {
                 // Label
-                $jsonForm['elements'][self::ELEM_APAPP]['items'][4]['visible'] = true;
+                $form['elements'][self::ELEM_WASTE]['items'][4]['visible'] = true;
                 $f = 1;
                 foreach ($io['abfallarten'] as $fract) {
-                    $jsonForm['elements'][self::ELEM_APAPP]['items'][$f + 4]['caption'] = $fract['name'];
-                    $jsonForm['elements'][self::ELEM_APAPP]['items'][$f + 4]['visible'] = true;
+                    $form['elements'][self::ELEM_WASTE]['items'][$f + 4]['caption'] = $fract['name'];
+                    $form['elements'][self::ELEM_WASTE]['items'][$f + 4]['visible'] = true;
                     $f++;
                 }
             }
         } else {
-            $this->SendDebug(__FUNCTION__, __LINE__);
+            $this->LogDebug(__FUNCTION__, __LINE__);
         }
         //Only add default element if we do not have anything in persistence
         $colors = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         if (empty($colors)) {
-            $this->SendDebug(__FUNCTION__, 'Translate Waste Visu');
-            $jsonForm['elements'][self::ELEM_VISU]['items'][1]['values'] = $this->GetWasteValues();
+            $this->LogDebug(__FUNCTION__, 'Translate Waste Visu');
+            $form['elements'][self::ELEM_VISU]['items'][1]['values'] = $this->GetWasteValues();
         }
         // Return Form
-        return json_encode($jsonForm);
+        return json_encode($form);
     }
 
-    public function ApplyChanges()
+    /**
+     * Is executed when "Apply" is pressed on the configuration page and immediately after the instance has been created.
+     *
+     * @return void
+     */
+    public function ApplyChanges(): void
     {
         //Never delete this line!
         parent::ApplyChanges();
@@ -171,18 +261,19 @@ class Abfall_APP extends IPSModule
         $street = $this->ReadPropertyString('streetID');
         $addon = $this->ReadPropertyString('addonID');
 
-        $this->SendDebug(__FUNCTION__, 'clientID=' . $client . ', federalID=' . $federal . ', countyID=' . $county . ', communeID=' . $commune . ', districtID=' . $district . ', streetID=' . $street . ', addonID=' . $addon);
+        $this->LogDebug(__FUNCTION__, 'clientID=' . $client . ', federalID=' . $federal . ', countyID=' . $county . ', communeID=' . $commune . ', districtID=' . $district . ', streetID=' . $street . ', addonID=' . $addon);
 
         // Settings
         $activate = $this->ReadPropertyBoolean('settingsActivate');
         $tilevisu = $this->ReadPropertyBoolean('settingsTileVisu');
+        $htmlbox = $this->ReadPropertyBoolean('settingsHtmlBox');
         $loakahead = $this->ReadPropertyBoolean('settingsLookAhead');
 
         // Safty default
         $this->SetTimerInterval('UpdateTimer', 0);
         $this->SetTimerInterval('LookAheadTimer', 0);
         // Support for Tile Viso (v7.x)
-        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, '~HTMLBox', 0, $tilevisu);
+        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, '~HTMLBox', 0, $tilevisu && $htmlbox);
 
         // Set status
         $io = unserialize($this->ReadAttributeString('io'));
@@ -195,17 +286,26 @@ class Abfall_APP extends IPSModule
         }
         // All okay
         if ($status == 102) {
+            // Update visualization
+            $this->SetVisualizationType($tilevisu ? 1 : 0);
+            if ($tilevisu) {
+                $this->UpdateVisualizationValue(json_encode([
+                    'todayColor'    => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentToday')),
+                    'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
+                    'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor')
+                ]));
+            }
             $this->CreateVariables($io);
             if ($activate == true) {
                 // Time neu berechnen
                 $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
-                $this->SendDebug(__FUNCTION__, 'Update Timer aktiviert!');
+                $this->LogDebug(__FUNCTION__, 'Update Timer aktiviert!');
                 if ($loakahead & $tilevisu) {
                     $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
                     if (($time['hour'] == 0) && ($time['minute'] <= 30)) {
-                        $this->SendDebug(__FUNCTION__, 'LookAhead Time zu niedrieg!');
+                        $this->LogDebug(__FUNCTION__, 'LookAhead Time zu niedrieg!');
                     } else {
-                        $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second'], 0);
+                        $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second']);
                     }
                 }
             } else {
@@ -216,17 +316,18 @@ class Abfall_APP extends IPSModule
     }
 
     /**
-     * RequestAction.
+     * Is called when, for example, a button is clicked in the visualization.
      *
-     *  @param string $ident Ident (function name).
-     *  @param string $value Value.
+     * @param string $ident Ident of the variable
+     * @param mixed $value The value to be set
+     *
+     * @return void
      */
-    public function RequestAction($ident, $value)
+    public function RequestAction(string $ident, mixed $value): void
     {
         // Debug output
-        $this->SendDebug(__FUNCTION__, $ident . ' => ' . $value);
+        $this->LogDebug(__FUNCTION__, $ident . ' => ' . $value);
         eval('$this->' . $ident . '(\'' . $value . '\');');
-        return true;
     }
 
     /**
@@ -234,24 +335,33 @@ class Abfall_APP extends IPSModule
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
      *
      * APAPP_LookAhead($id);
+     *
+     * @return void
      */
-    public function LookAhead()
+    public function LookAhead(): void
     {
         // Check instance state
         if ($this->GetStatus() != 102) {
-            $this->SendDebug(__FUNCTION__, 'Status: Instance is not active.');
+            $this->LogDebug(__FUNCTION__, 'Status: Instance is not active.');
             return;
         }
+
+        // Check tile visu
+        if ($this->ReadPropertyBoolean('settingsTileVisu') === false) {
+            $this->LogDebug(__FUNCTION__, 'WARNING: TileVisu is not active.');
+            return;
+        }
+
         // rebuild informations
         $io = unserialize($this->ReadAttributeString('io'));
-        $this->SendDebug(__FUNCTION__, $io);
-        // fractions convert to name => ident
+        $this->LogDebug(__FUNCTION__, $io);
+
         $f = 1;
         $waste = [];
 
         if (isset($io['abfallarten']) && !empty($io['abfallarten'])) {
             foreach ($io['abfallarten'] as $fract) {
-                $this->SendDebug(__FUNCTION__, 'Fraction ident: ' . $fract['value'] . ', Name: ' . $fract['name']);
+                $this->LogDebug(__FUNCTION__, 'Fraction ident: ' . $fract['value'] . ', Name: ' . $fract['name']);
                 $enabled = $this->ReadPropertyBoolean('fractionID' . $f++);
                 if ($enabled) {
                     $date = $this->GetValue((string) $fract['value']);
@@ -259,14 +369,18 @@ class Abfall_APP extends IPSModule
                 }
             }
         }
-        $this->SendDebug(__FUNCTION__, $waste);
+        $this->LogDebug(__FUNCTION__, $waste);
 
         // update tile widget
         $list = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         $this->BuildWidget($waste, $list, true);
+
         // Set Timer to the next day
         $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
         $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second']);
+
+        // send a complete update message to the display, as parameters may have changed
+        $this->UpdateVisualizationValue($this->GetFullUpdateMessage());
     }
 
     /**
@@ -274,42 +388,47 @@ class Abfall_APP extends IPSModule
      * Using the custom prefix this function will be callable from PHP and JSON-RPC through:.
      *
      * APAPP_Update($id);
+     *
+     * @return void
      */
-    public function Update()
+    public function Update(): void
     {
         // Check instance state
         if ($this->GetStatus() != 102) {
-            $this->SendDebug(__FUNCTION__, 'Status: Instance is not active.');
+            $this->LogDebug(__FUNCTION__, 'Status: Instance is not active.');
             return;
         }
         $io = unserialize($this->ReadAttributeString('io'));
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
 
         //$ret = $this->SelectAllWasteTypes($io);
         if (!$this->Validate($io)) {
-            $this->SendDebug(__FUNCTION__, 'Validation failed!');
+            $this->LogDebug(__FUNCTION__, 'Validation failed!');
             return;
         }
         $collection = $this->GetCollectionDates($io);
-        //$this->SendDebug(__FUNCTION__, $collection);
+        //$this->LogDebug(__FUNCTION__, $collection);
         if ($collection === false) {
-            $this->SendDebug(__FUNCTION__, 'Get dates failed!');
+            $this->LogDebug(__FUNCTION__, 'Get dates failed!');
             return;
         }
-        $waste = [];
+
         // fractions convert to name => ident
+        $f = 1;
+        $waste = [];
         if (isset($io['abfallarten']) && !empty($io['abfallarten'])) {
-            $f = 1;
             foreach ($io['abfallarten'] as $fract) {
-                $this->SendDebug(__FUNCTION__, 'Fraction ident: ' . $fract['value'] . ', Name: ' . $fract['name']);
+                $this->LogDebug(__FUNCTION__, 'Fraction ident: ' . $fract['value'] . ', Name: ' . $fract['name']);
                 $enabled = $this->ReadPropertyBoolean('fractionID' . $f++);
                 if ($enabled) {
                     $waste[$fract['name']] = ['ident' =>  $fract['value'], 'date' => ''];
                 }
             }
         }
+
         // Build timestamp
         $today = date('Ymd');
+
         // Iterate dates
         foreach ($collection as $event) {
             // date in past we do not need
@@ -328,7 +447,7 @@ class Abfall_APP extends IPSModule
                 }
             }
         }
-        $this->SendDebug(__FUNCTION__, $waste);
+        $this->LogDebug(__FUNCTION__, $waste);
         // write data to variable
         foreach ($waste as $key => $var) {
             $this->SetValueString((string) $var['ident'], $var['date']);
@@ -336,7 +455,7 @@ class Abfall_APP extends IPSModule
 
         // build tile widget
         $btw = $this->ReadPropertyBoolean('settingsTileVisu');
-        $this->SendDebug(__FUNCTION__, 'TileVisu: ' . $btw);
+        $this->LogDebug(__FUNCTION__, 'TileVisu: ' . $btw);
         if ($btw == true) {
             $list = json_decode($this->ReadPropertyString('settingsTileColors'), true);
             $this->BuildWidget($waste, $list);
@@ -347,9 +466,9 @@ class Abfall_APP extends IPSModule
         if ($script != 0) {
             if (IPS_ScriptExists($script)) {
                 $rs = IPS_RunScriptEx($script, ['TIMESTAMP' => time(), 'DATA' => json_encode($waste)]);
-                $this->SendDebug(__FUNCTION__, 'Script Execute (Return Value): ' . $rs, 0);
+                $this->LogDebug(__FUNCTION__, 'Script Execute (Return Value): ' . $rs);
             } else {
-                $this->SendDebug(__FUNCTION__, 'Update: Script #' . $script . ' existiert nicht!');
+                $this->LogDebug(__FUNCTION__, 'Update: Script #' . $script . ' existiert nicht!');
             }
         }
 
@@ -358,16 +477,40 @@ class Abfall_APP extends IPSModule
         if ($activate == true) {
             $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
         }
+
+        if ($btw == true) {
+            // send a complete update message to the display, as parameters may have changed
+            $this->UpdateVisualizationValue($this->GetFullUpdateMessage());
+        }
+    }
+
+    /**
+     * If the HTML-SDK is to be used, this function must be overwritten in order to return the HTML content.
+     *
+     * @return string Initial display of a representation via HTML SDK
+     */
+    public function GetVisualizationTile(): string
+    {
+        // Add a script to set the values when loading, analogous to changes at runtime
+        // Although the return from GetFullUpdateMessage is already JSON-encoded, json_encode is still executed a second time
+        // This adds quotation marks to the string and any quotation marks within it are escaped correctly
+        $initialHandling = '<script>handleMessage(' . json_encode($this->GetFullUpdateMessage()) . ');</script>';
+        // Add static HTML from file
+        $module = file_get_contents(__DIR__ . '/module.html');
+        // Important: $initialHandling at the end, as the handleMessage function is only defined in the HTML
+        return $module . $initialHandling;
     }
 
     /**
      * User has selected a new waste management country.
      *
      * @param string $id Country ID.
+     *
+     * @return void
      */
-    protected function OnChangeCountry($id)
+    protected function OnChangeCountry(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $options = $this->GetClientOptions(self::SERVICE_PROVIDER, $id);
         $this->UpdateFormField('clientID', 'options', json_encode($options));
         $this->UpdateFormField('clientID', 'visible', true);
@@ -380,19 +523,21 @@ class Abfall_APP extends IPSModule
      * User has selected a new waste management.
      *
      * @param string $id Client ID.
+     *
+     * @return void
      */
-    protected function OnChangeClient($id)
+    protected function OnChangeClient(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $io = [];
         if ($id != 'null') {
             // Build io array
             $io = $this->PrepareIO($id);
             $ret = $this->InitConnection($io);
-            $this->SendDebug(__FUNCTION__, $io);
+            $this->LogDebug(__FUNCTION__, $io);
             if ($ret) {
                 $ret = $this->ExecuteAction($io);
-                $this->SendDebug(__FUNCTION__, $io);
+                $this->LogDebug(__FUNCTION__, $io);
                 if (!$ret) $io = [];
             }
         }
@@ -407,10 +552,12 @@ class Abfall_APP extends IPSModule
      * User has selected a new federal state.
      *
      * @param string $id Federal state ID.
+     *
+     * @return void
      */
-    protected function OnChangeFederal($id)
+    protected function OnChangeFederal(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $io = [];
         if ($id != 'null') {
             // Get io array
@@ -418,7 +565,7 @@ class Abfall_APP extends IPSModule
             // set selection
             $io['bundesland_id'] = $id;
             $ret = $this->ExecuteAction($io);
-            $this->SendDebug(__FUNCTION__, $io);
+            $this->LogDebug(__FUNCTION__, $io);
             if (!$ret) $io = [];
         }
         // Hide or Unhide properties
@@ -431,10 +578,12 @@ class Abfall_APP extends IPSModule
      * User has selected a new county district.
      *
      * @param string $id County ID.
+     *
+     * @return void
      */
-    protected function OnChangeCounty($id)
+    protected function OnChangeCounty(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $io = [];
         if ($id != 'null') {
             // Get io array
@@ -464,7 +613,7 @@ class Abfall_APP extends IPSModule
             // set selection
             //???? $io['landkreis_id'] = $id;
             $ret = $this->ExecuteAction($io);
-            $this->SendDebug(__FUNCTION__, $io);
+            $this->LogDebug(__FUNCTION__, $io);
             if (!$ret) $io = [];
         }
         // Hide or Unhide properties
@@ -477,10 +626,12 @@ class Abfall_APP extends IPSModule
      * User has selected a new commune.
      *
      * @param string $id Commune ID.
+     *
+     * @return void
      */
-    protected function OnChangeCommune($id)
+    protected function OnChangeCommune(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $io = [];
         if ($id != 'null') {
             // Get io array
@@ -521,7 +672,7 @@ class Abfall_APP extends IPSModule
             } else {
                 $ret = $this->ExecuteAction($io);
             }
-            $this->SendDebug(__FUNCTION__, $io);
+            $this->LogDebug(__FUNCTION__, $io);
             if (!$ret) $io = [];
         }
         // Hide or Unhide properties
@@ -534,10 +685,12 @@ class Abfall_APP extends IPSModule
      * User has selected a new commune.
      *
      * @param string $id District ID.
+     *
+     * @return void
      */
-    protected function OnChangeDistrict($id)
+    protected function OnChangeDistrict(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $io = [];
         if ($id != 'null') {
             // Get io array
@@ -573,7 +726,7 @@ class Abfall_APP extends IPSModule
             } else {
                 $ret = $this->ExecuteAction($io);
             }
-            $this->SendDebug(__FUNCTION__, $io);
+            $this->LogDebug(__FUNCTION__, $io);
             if (!$ret) $io = [];
         }
         // Hide or Unhide properties
@@ -585,11 +738,13 @@ class Abfall_APP extends IPSModule
     /**
      * Benutzer hat eine neue Straße oder Ortsteil ausgewählt.
      *
-     * @param string $id Street GUID .
+     * @param string $id Street GUID.
+     *
+     * @return void
      */
-    protected function OnChangeStreet($id)
+    protected function OnChangeStreet(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $io = [];
         if ($id != 'null') {
             // Get io array
@@ -617,7 +772,7 @@ class Abfall_APP extends IPSModule
             } else {
                 $ret = $this->ExecuteAction($io);
             }
-            $this->SendDebug(__FUNCTION__, $io);
+            $this->LogDebug(__FUNCTION__, $io);
             if (!$ret) $io = [];
         }
         // Hide or Unhide properties
@@ -630,10 +785,12 @@ class Abfall_APP extends IPSModule
      * Benutzer hat eine neue Hausnummer ausgewählt.
      *
      * @param string $id Addon GUID .
+     *
+     * @return void
      */
-    protected function OnChangeAddon($id)
+    protected function OnChangeAddon(string $id): void
     {
-        $this->SendDebug(__FUNCTION__, $id);
+        $this->LogDebug(__FUNCTION__, $id);
         $io = [];
         if ($id != 'null') {
             // Get io array
@@ -649,7 +806,7 @@ class Abfall_APP extends IPSModule
                 }
             }
             $ret = $this->SelectAllWasteTypes($io);
-            $this->SendDebug(__FUNCTION__, $io);
+            $this->LogDebug(__FUNCTION__, $io);
             if (!$ret) $io = [];
         }
         // Hide or Unhide properties
@@ -661,13 +818,15 @@ class Abfall_APP extends IPSModule
     /**
      * Hide/unhide form fields.
      *
-     * @param mixed $io
-     * @param mixed $step
+     * @param array<string,mixed> $io IO interface data
+     * @param int $step The step until which the form should be updated (e.g. if step is 2, all fields of step 2 and below will be updated, all above will be hidden).
+     *
+     * @return void
      */
-    protected function UpdateForm($io, $step)
+    protected function UpdateForm(array $io, int $step): void
     {
-        //$this->SendDebug(__FUNCTION__, $io);
-        $this->SendDebug(__FUNCTION__, $step);
+        //$this->LogDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $step);
         // Always add the selection prompt
         $prompt = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
 
@@ -688,7 +847,7 @@ class Abfall_APP extends IPSModule
                     ];
                     if (isset($io[$field[1]]) && ($io[$field[1]] == $data['value'])) {
                         $value = $data['value'];
-                        $this->SendDebug(__FUNCTION__, 'Value:' . $value);
+                        $this->LogDebug(__FUNCTION__, 'Value:' . $value);
                     }
                 }
                 array_unshift($options, $prompt);
@@ -713,7 +872,7 @@ class Abfall_APP extends IPSModule
             }
         } else {
             $this->UpdateFormField('fractionLabel', 'visible', false);
-            for ($i = 1; $i <= static::$FRACTIONS; $i++) {
+            for ($i = 1; $i <= self::$FRACTIONS; $i++) {
                 $this->UpdateFormField('fractionID' . $i, 'visible', false);
                 $this->UpdateFormField('fractionID' . $i, 'value', false);
             }
@@ -723,16 +882,18 @@ class Abfall_APP extends IPSModule
     /**
      * Create the variables for the fractions.
      *
-     * @param array $io IO interface data
+     * @param array<string,mixed> $io IO interface data
+     *
+     * @return void
      */
-    protected function CreateVariables(array $io)
+    protected function CreateVariables(array $io): void
     {
-        $this->SendDebug(__FUNCTION__, $io);
+        $this->LogDebug(__FUNCTION__, $io);
         // how to maintain?
         $variable = $this->ReadPropertyBoolean('settingsVariables');
         $i = 1;
         foreach ($io['abfallarten'] as $fract) {
-            if ($i <= static::$FRACTIONS) {
+            if ($i <= self::$FRACTIONS) {
                 $enabled = $this->ReadPropertyBoolean('fractionID' . $i);
                 $this->MaintainVariable($fract['value'], $fract['name'], VARIABLETYPE_STRING, '', $i, $enabled || $variable);
             }
@@ -744,8 +905,10 @@ class Abfall_APP extends IPSModule
      * Serialize properties to IO interface array
      *
      * @param string $app the client id and domain (id:domain)
+     *
+     * @return array<string,mixed> IO interface data
      */
-    protected function PrepareIO(string $app)
+    protected function PrepareIO(string $app): array
     {
         $cd = explode(':', $app);
 
@@ -774,12 +937,40 @@ class Abfall_APP extends IPSModule
     }
 
     /**
+     * Search for a street
+     *
+     * @param string $search Search term
+     *
+     * @return void
+     */
+    protected function SearchStreet(string $search): void
+    {
+        $this->LogDebug(__FUNCTION__, $search);
+        if (empty($search) || strlen($search) < 2) {
+            return;
+        }
+        // Get io array
+        $io = unserialize($this->ReadAttributeString('io'));
+        $ret = $this->GetStreets($io, $search);
+        if (!$ret) {
+            $this->LogDebug(__FUNCTION__, 'ERROR: Strasse suchen!');
+            return;
+        }
+        $this->UpdateFormField('buttonStreet', 'visible', false);
+        // Hide or Unhide properties
+        $this->UpdateForm($io, self::CHANGE_DISTRICT);
+        // Update attribute
+        $this->WriteAttributeString('io', serialize($io));
+    }
+
+    /**
      * Init a connection to the service (session)
      *
-     * @return array Action steps.
+     * @param array<string,mixed> $io IO interface data
      *
+     * @return bool True if connection is successful, false otherwise.
      */
-    private function InitConnection(array &$io)
+    private function InitConnection(array &$io): bool
     {
         $ret = [];
         //$io['cookies'] = @tempnam("/tmp", 'apa');
@@ -790,7 +981,7 @@ class Abfall_APP extends IPSModule
         ];
         //$response = $this->ServiceRequest($io, "config.xml", self::SERVICE_BASE, $data);
         $response = $this->ServiceRequest($io, 'login/', self::SERVICE_BASE, $data);
-        $this->SendDebug(__FUNCTION__, $response);
+        $this->LogDebug(__FUNCTION__, $response);
 
         if ($response !== false) {
             $dom = new DOMDocument();
@@ -799,8 +990,8 @@ class Abfall_APP extends IPSModule
             libxml_clear_errors();
             // find all INPUTs
             $inputs = $dom->getElementsByTagName('input');
-            if (empty($inputs)) {
-                $this->SendDebug(__FUNCTION__, 'No Inputs found!', 0);
+            if ($inputs->length === 0) {
+                $this->LogDebug(__FUNCTION__, 'No Inputs found!');
                 return false;
             }
             foreach ($inputs as $input) {
@@ -831,16 +1022,17 @@ class Abfall_APP extends IPSModule
     /**
      * Sends requests to the service API.
      *
-     * @param array $io Serialized session data
+     * @param array<string,mixed> $io IO interface data
      * @param string $ending URL ending
      * @param string $base Base URL
-     * @param array|null $data POST data
-     * @param array|null $params GET parameters
+     * @param ?array<string,mixed> $data POST data
+     * @param ?array<string,int> $params GET parameters
      * @param string $method Request methode (GET|POST)
-     * @param array $headers Header content
-     * @return string Response Answer of the service
+     * @param array<string,string> $headers Header content
+     *
+     * @return string|false Response Answer of the service
      */
-    private function ServiceRequest(array &$io, string $ending, string $base, array $data = null, array $params = null, string $method = 'post', array $headers = [])
+    private function ServiceRequest(array &$io, string $ending, string $base, ?array $data = null, ?array $params = null, string $method = 'post', array $headers = []): string|false
     {
         // Build headers
         if ($base == self::SERVICE_ASSISTANT) {
@@ -869,7 +1061,7 @@ class Abfall_APP extends IPSModule
         foreach ($headers as $key => $value) {
             $header[] = "$key: $value";
         }
-        $this->SendDebug(__FUNCTION__, $header);
+        $this->LogDebug(__FUNCTION__, $header);
         // Prepare curl
         $curl = curl_init();
         curl_setopt($curl, CURLOPT_URL, $url);
@@ -901,7 +1093,7 @@ class Abfall_APP extends IPSModule
         $response = curl_exec($curl);
         // Check for errors
         if (curl_errno($curl)) {
-            $this->SendDebug(__FUNCTION__, 'cURL Error: ' . curl_error($curl));
+            $this->LogDebug(__FUNCTION__, 'cURL Error: ' . curl_error($curl));
             curl_close($curl);
             return false;
         }
@@ -916,37 +1108,24 @@ class Abfall_APP extends IPSModule
         return $body;
     }
 
-    private function SearchStreet(string $search)
-    {
-        $this->SendDebug(__FUNCTION__, $search);
-        if (empty($search) || strlen($search) < 2) {
-            return;
-        }
-        // Get io array
-        $io = unserialize($this->ReadAttributeString('io'));
-        $ret = $this->GetStreets($io, $search);
-        if (!$ret) {
-            $this->SendDebug(__FUNCTION__, 'ERROR: Strasse suchen!');
-            return;
-        }
-        $this->UpdateFormField('buttonStreet', 'visible', false);
-        // Hide or Unhide properties
-        $this->UpdateForm($io, self::CHANGE_DISTRICT);
-        // Update attribute
-        $this->WriteAttributeString('io', serialize($io));
-    }
-
-    private function ExecuteAction(array &$io)
+    /**
+     * Execute an action
+     *
+     * @param array<string,mixed> $io IO interface data
+     *
+     * @return bool True if action is successful, false otherwise
+     */
+    private function ExecuteAction(array &$io): bool
     {
         $ret = true;
         $state = array_shift($io['actions']);
-        $this->SendDebug(__FUNCTION__, $state);
+        $this->LogDebug(__FUNCTION__, $state);
         switch ($state) {
             // BUNDESLAND auswählen
             case 'bundesland':
                 $ret = $this->GetFederalStates($io);
                 if (!$ret) {
-                    $this->SendDebug(__FUNCTION__, 'ERROR: Bundesländer auslesen!');
+                    $this->LogDebug(__FUNCTION__, 'ERROR: Bundesländer auslesen!');
                 }
                 break;
                 // LANDKREIS auswählen
@@ -954,28 +1133,28 @@ class Abfall_APP extends IPSModule
             case 'landkreis':
                 $ret = $this->GetCountyDistricts($io, $state);
                 if (!$ret) {
-                    $this->SendDebug(__FUNCTION__, 'ERROR: Landkreise auslesen!');
+                    $this->LogDebug(__FUNCTION__, 'ERROR: Landkreise auslesen!');
                 }
                 break;
                 // KOMMUNE auswählen
             case 'kommune':
                 $ret = $this->GetCommunes($io);
                 if (!$ret) {
-                    $this->SendDebug(__FUNCTION__, 'ERROR: Kommunen auslesen!');
+                    $this->LogDebug(__FUNCTION__, 'ERROR: Kommunen auslesen!');
                 }
                 break;
                 // BEZIRK auswählen
             case 'bezirk':
                 $ret = $this->GetDistricts($io);
                 if (!$ret) {
-                    $this->SendDebug(__FUNCTION__, 'ERROR: Bezirke auslesen!');
+                    $this->LogDebug(__FUNCTION__, 'ERROR: Bezirke auslesen!');
                 }
                 break;
                 // STRASSE auswählen
             case 'strasse':
                 $ret = $this->GetStreets($io);
                 if (!$ret) {
-                    $this->SendDebug(__FUNCTION__, 'ERROR: Strasse muss eingegeben werden!');
+                    $this->LogDebug(__FUNCTION__, 'ERROR: Strasse muss eingegeben werden!');
                     $this->UpdateFormField('buttonStreet', 'visible', true);
                     $ret = true;
                 }
@@ -984,7 +1163,7 @@ class Abfall_APP extends IPSModule
             case 'hnr':
                 $ret = $this->GetAddOns($io);
                 if (!$ret) {
-                    $this->SendDebug(__FUNCTION__, 'ERROR: Hausnummer auslesen!');
+                    $this->LogDebug(__FUNCTION__, 'ERROR: Hausnummer auslesen!');
                 }
                 break;
         }
@@ -994,19 +1173,22 @@ class Abfall_APP extends IPSModule
     /**
      * ExtractOnClicks
      *
-     * @param string $data HTML response
-     * @param bool $hnr
-     * @return array Extracted infos
+     * @param string $data HTML data containing the onclick handlers
+     * @param bool $hnr House number search activated (if true, an additional search for the house number will be performed in the onclick string and added to the result array)
+     *
+     * @return array<mixed> Array of extracted data from the onclick handlers (if $hnr is false, each element is an array of the parameters passed to the onclick handler; if $hnr is true, each element is an array of the parameters passed to the onclick handler plus the house number if found)
      */
-    private function ExtractOnClicks(string $data, bool $hnr = false)
+    private function ExtractOnClicks(string $data, bool $hnr = false): array
     {
         $doc = new DOMDocument('1.0', 'UTF-8');
         libxml_use_internal_errors(true);
         @$doc->loadHTML(mb_convert_encoding($data, 'HTML-ENTITIES', 'UTF-8'));
+
         // Suppress errors due to possible HTML warnings
         libxml_clear_errors();
         $ret = [];
         $links = $doc->getElementsByTagName('a');
+
         // iterate over all links
         foreach ($links as $data) {
             // only with onclick handler
@@ -1048,9 +1230,11 @@ class Abfall_APP extends IPSModule
     /**
      * Reads all available federal states (Bundesländer)
      *
-     * @return array Info array of all state
+     * @param array<string,mixed> $io IO interface data
+     *
+     * @return bool True if federal states are successfully read, false otherwise
      */
-    private function GetFederalStates(array &$io)
+    private function GetFederalStates(array &$io): bool
     {
         // Target url endpoint
         $ending = 'bundesland/';
@@ -1058,7 +1242,7 @@ class Abfall_APP extends IPSModule
         $response = $this->ServiceRequest($io, $ending, self::SERVICE_ASSISTANT, null, null, 'get');
         // Error handling
         if (!$response) {
-            $this->SendDebug(__FUNCTION__, "Error in the request to: $ending");
+            $this->LogDebug(__FUNCTION__, "Error in the request to: $ending");
             return false;
         }
 
@@ -1075,10 +1259,12 @@ class Abfall_APP extends IPSModule
     /**
      * Reads all available country districts (Landkreise)
      *
+     * @param array<string,mixed> $io IO interface data
      * @param string $region name of the url endpoint
-     * @return array Option paires (name/value)
+     *
+     * @return bool True if country districts are successfully read, false otherwise
      */
-    private function GetCountyDistricts(array &$io, string $region = 'landkreis')
+    private function GetCountyDistricts(array &$io, string $region = 'landkreis'): bool
     {
         $data = [];
 
@@ -1092,7 +1278,7 @@ class Abfall_APP extends IPSModule
         $response = $this->ServiceRequest($io, $ending, self::SERVICE_ASSISTANT, $data);
         // Error handling
         if (!$response) {
-            $this->SendDebug(__FUNCTION__, "Error in the request to: $ending");
+            $this->LogDebug(__FUNCTION__, "Error in the request to: $ending");
             return false;
         }
 
@@ -1106,10 +1292,10 @@ class Abfall_APP extends IPSModule
             $io['landkreis'][] = [
                 'value'         => $data[0],
                 'name'          => $data[1],
-                'bundesland_id' => isset($data[5]['set_id_bundesland']) ? $data[5]['set_id_bundesland'] : null,
-                'landkreis_id'  => isset($data[5]['set_id_landkreis']) ? $data[5]['set_id_landkreis'] : null,
-                'kommune_id'    => isset($data[5]['set_id_kommune']) ? $data[5]['set_id_kommune'] : null,
-                'next_step'     => isset($data[5]['next_step']) ? $data[5]['next_step'] : null,
+                'bundesland_id' => $data[5]['set_id_bundesland'] ?? null,
+                'landkreis_id'  => $data[5]['set_id_landkreis'] ?? null,
+                'kommune_id'    => $data[5]['set_id_kommune'] ?? null,
+                'next_step'     => $data[5]['next_step'] ?? null,
             ];
         }
 
@@ -1124,10 +1310,12 @@ class Abfall_APP extends IPSModule
     /**
      * Reads all available communes (Kommunen)
      *
+     * @param array<string,mixed> $io IO interface data
      * @param string $region name of the url endpoint
-     * @return array Option paires (name/value)
+     *
+     * @return bool True if communes are successfully read, false otherwise
      */
-    private function GetCommunes(array &$io, string $region = 'kommune')
+    private function GetCommunes(array &$io, string $region = 'kommune'): bool
     {
         $data = [];
 
@@ -1144,7 +1332,7 @@ class Abfall_APP extends IPSModule
         $response = $this->ServiceRequest($io, $ending, self::SERVICE_ASSISTANT, $data);
         // Error handling
         if (!$response) {
-            $this->SendDebug(__FUNCTION__, "Error in the request to: $ending");
+            $this->LogDebug(__FUNCTION__, "Error in the request to: $ending");
             return false;
         }
 
@@ -1153,9 +1341,9 @@ class Abfall_APP extends IPSModule
             $commune = [
                 'value'         => $data[0],
                 'name'          => $data[1],
-                'bundesland_id' => isset($data[5]['set_id_bundesland']) ? $data[5]['set_id_bundesland'] : null,
-                'landkreis_id'  => isset($data[5]['set_id_landkreis']) ? $data[5]['set_id_landkreis'] : null,
-                'kommune_id'    => isset($data[5]['set_id_kommune']) ? $data[5]['set_id_kommune'] : null,
+                'bundesland_id' => $data[5]['set_id_bundesland'] ?? null,
+                'landkreis_id'  => $data[5]['set_id_landkreis'] ?? null,
+                'kommune_id'    => $data[5]['set_id_kommune'] ?? null,
                 'next_step'     => $data[3],
                 'finished'      => false
             ];
@@ -1176,10 +1364,11 @@ class Abfall_APP extends IPSModule
     /**
      * Reads all available destrictes (Bezirke)
      *
-     * @param string $region name of the url endpoint
-     * @return array Option paires (name/value)
+     * @param array<string,mixed> $io IO interface data
+     *
+     * @return bool True if districts are successfully read, false otherwise
      */
-    private function GetDistricts(array &$io)
+    private function GetDistricts(array &$io): bool
     {
         $data = [];
 
@@ -1199,7 +1388,7 @@ class Abfall_APP extends IPSModule
         $response = $this->ServiceRequest($io, $ending, self::SERVICE_ASSISTANT, $data);
         // Error handling
         if (!$response) {
-            $this->SendDebug(__FUNCTION__, "Error in the request to: $ending");
+            $this->LogDebug(__FUNCTION__, "Error in the request to: $ending");
             return false;
         }
 
@@ -1228,10 +1417,12 @@ class Abfall_APP extends IPSModule
     /**
      * Reads all available communes (Kommunen)
      *
-     * @param string $region name of the url endpoint
-     * @return array Option paires (name/value)
+     * @param array<string,mixed> $io IO interface data
+     * @param ?string $search Search term for streets
+     *
+     * @return bool True if streets are successfully read, false otherwise
      */
-    private function GetStreets(array &$io, string $search = null)
+    private function GetStreets(array &$io, ?string $search = null): bool
     {
         $data = [
             'id_landkreis'   => $io['landkreis_id'],
@@ -1245,10 +1436,10 @@ class Abfall_APP extends IPSModule
         $ending = 'strasse/';  // Ziel-URL
         // Send HTTP request
         $response = $this->ServiceRequest($io, $ending, self::SERVICE_ASSISTANT, $data);
-        $this->SendDebug(__FUNCTION__, $response);
+        $this->LogDebug(__FUNCTION__, $response);
         // Error handling
         if (!$response) {
-            $this->SendDebug(__FUNCTION__, "Error in the request to: $ending");
+            $this->LogDebug(__FUNCTION__, "Error in the request to: $ending");
             return false;
         }
 
@@ -1272,10 +1463,11 @@ class Abfall_APP extends IPSModule
     /**
      * Reads all available addons (Hausnummern)
      *
-     * @param string $region name of the url endpoint
-     * @return array Option paires (name/value)
+     * @param array<string,mixed> $io IO interface data
+     *
+     * @return bool True if addons are successfully read, false otherwise
      */
-    private function GetAddOns(array &$io)
+    private function GetAddOns(array &$io): bool
     {
         $data = [
             'id_landkreis' => $io['landkreis_id'],
@@ -1290,7 +1482,7 @@ class Abfall_APP extends IPSModule
         $response = $this->ServiceRequest($io, $ending, self::SERVICE_ASSISTANT, $data);
         // Error handling
         if (!$response) {
-            $this->SendDebug(__FUNCTION__, "Error in the request to: $ending");
+            $this->LogDebug(__FUNCTION__, "Error in the request to: $ending");
             return false;
         }
 
@@ -1298,8 +1490,8 @@ class Abfall_APP extends IPSModule
         foreach ($this->ExtractOnClicks($response, true) as $data) {
             $io['hnr'][] = [
                 'value'      => $data[0],
-                'name'       => explode('|', $data[0])[0],
-                'strasse_id' => isset($data[6]) ? $data[6] : null,
+                'name'       => explode('|', urldecode($data[0]))[0],
+                'strasse_id' => $data[6] ?? null,
             ];
         }
 
@@ -1309,8 +1501,11 @@ class Abfall_APP extends IPSModule
     /**
      * SelectAllWasteTypes
      *
+     * @param array<string,mixed> $io IO interface data
+     *
+     * @return bool True if waste types are successfully selected, false otherwise
      */
-    private function SelectAllWasteTypes(array &$io)
+    private function SelectAllWasteTypes(array &$io): bool
     {
         $data = [
             'f_id_region'     => $io['region_id'] != null ? $io['region_id'] : '',
@@ -1329,7 +1524,7 @@ class Abfall_APP extends IPSModule
         $response = $this->ServiceRequest($io, $ending, self::SERVICE_ASSISTANT, $data);
         // Error handling
         if (!$response) {
-            $this->SendDebug(__FUNCTION__, "Error in the request to: $ending");
+            $this->LogDebug(__FUNCTION__, "Error in the request to: $ending");
             return false;
         }
 
@@ -1384,9 +1579,11 @@ class Abfall_APP extends IPSModule
     /**
      * Validate all collect information and confirm Datenschutz
      *
-     * @param array $io IO interface values
+     * @param array<string,mixed> $io IO interface values
+     *
+     * @return bool True if validation is successful, false otherwise
      */
-    private function Validate(array &$io)
+    private function Validate(array &$io): bool
     {
         $data = [
             'f_id_bundesland'   => $io['bundesland_id'],
@@ -1411,7 +1608,7 @@ class Abfall_APP extends IPSModule
         $response = $this->ServiceRequest($io, $ending, self::SERVICE_ASSISTANT, $data);
         // Error handling
         if (!$response) {
-            $this->SendDebug(__FUNCTION__, "Error in the request to: $ending");
+            $this->LogDebug(__FUNCTION__, "Error in the request to: $ending");
             return false;
         }
 
@@ -1422,14 +1619,14 @@ class Abfall_APP extends IPSModule
         $response = $this->ServiceRequest($io, $ending, self::SERVICE_ASSISTANT, $data);
         // Error handling
         if (!$response) {
-            $this->SendDebug(__FUNCTION__, "Error in the request to: $ending");
+            $this->LogDebug(__FUNCTION__, "Error in the request to: $ending");
             return false;
         }
         $value = json_decode($response, true);
-        $this->SendDebug(__FUNCTION__, $response);
+        $this->LogDebug(__FUNCTION__, $response);
         // Error handling
         if (!$value['assistantCompleted']) {
-            $this->SendDebug(__FUNCTION__, 'Einrichtung NICHT erfolgreich abgeschlossen!');
+            $this->LogDebug(__FUNCTION__, 'Einrichtung NICHT erfolgreich abgeschlossen!');
             return false;
         }
         return true;
@@ -1438,9 +1635,11 @@ class Abfall_APP extends IPSModule
     /**
      * Get all collection dates of a specific setup
      *
-     * @return array Collection dates
+     * @param array<string,mixed> $io IO interface values
+     *
+     * @return list<array<string,string>>|false Collection dates
      */
-    private function GetCollectionDates(array &$io)
+    private function GetCollectionDates(array &$io): array|false
     {
         // Target url endpoint
         $ending = 'version.xml';  // Ziel-URL
@@ -1448,14 +1647,14 @@ class Abfall_APP extends IPSModule
         $response = $this->ServiceRequest($io, $ending, self::SERVICE_BASE, ['client' => $io['client'], 'app_id' => $io['app_id']]);
         // Error handling
         if (!$response) {
-            $this->SendDebug(__FUNCTION__, "Error in the request to: $ending");
+            $this->LogDebug(__FUNCTION__, "Error in the request to: $ending");
             return false;
         }
         // Send HTTP request
         $response = $this->ServiceRequest($io, $ending, self::SERVICE_BASE, ['client' => $io['client'], 'app_id' => $io['app_id']], ['renew' => 1]);
         // Error handling
         if (!$response) {
-            $this->SendDebug(__FUNCTION__, "Error in the request to: $ending");
+            $this->LogDebug(__FUNCTION__, "Error in the request to: $ending");
             return false;
         }
 
@@ -1469,7 +1668,7 @@ class Abfall_APP extends IPSModule
         $categories = [];
         $dict = $xml->xpath("//key[text()='categories']/following-sibling::array")[0] ?? null;
         if (!$dict) {
-            $this->SendDebug(__FUNCTION__, 'No categories found.');
+            $this->LogDebug(__FUNCTION__, 'No categories found.');
             return false;
         }
 
@@ -1482,7 +1681,7 @@ class Abfall_APP extends IPSModule
         $collections = [];
         $dates = $xml->xpath("//key[text()='dates']/following-sibling::array")[0] ?? null;
         if (!$dates) {
-            $this->SendDebug(__FUNCTION__, 'No collection dates found.');
+            $this->LogDebug(__FUNCTION__, 'No collection dates found.');
             return false;
         }
 
@@ -1504,9 +1703,9 @@ class Abfall_APP extends IPSModule
      * SetCookies
      *
      * @param string $header Request header
-     * @return array Extracted session cookies
+     * @return array<string,string> Extracted session cookies
      */
-    private function SetCookies(string $header)
+    private function SetCookies(string $header): array
     {
         $cookies = [];
         preg_match_all('/^Set-Cookie:\s*([^;]*)/mi', $header, $matches);
@@ -1520,15 +1719,38 @@ class Abfall_APP extends IPSModule
     /**
      * Gets the stored cookies as string
      *
-     * @param array $cookies Session cookies
+     * @param array<string,string> $cookies Session cookies
+     *
      * @return string Cookies
      */
-    private function GetCookies(array $cookies)
+    private function GetCookies(array $cookies): string
     {
         $cookiePairs = [];
         foreach ($cookies as $key => $value) {
             $cookiePairs[] = "$key=$value";
         }
         return implode('; ', $cookiePairs);
+    }
+    /**
+     * Generate a message that updates all elements in the HTML display.
+     *
+     * @return string JSON encoded message information
+     */
+    private function GetFullUpdateMessage(): string
+    {
+        $buffer = $this->GetBuffer('WasteData');
+        if (empty($buffer)) {
+            $buffer = '[]';
+        }
+        $wd = json_decode($buffer, true);
+        $ac = [
+            'todayColor'    => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentToday')),
+            'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
+            'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor'),
+        ];
+        $result = array_merge($ac, $wd);
+
+        $this->LogDebug(__FUNCTION__, $result);
+        return json_encode($result);
     }
 }
