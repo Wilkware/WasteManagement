@@ -1,7 +1,7 @@
 # Abfallwirtschaft (Waste Management)
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Bibliothek-purple.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
+[![Product](https://img.shields.io/badge/Symcon%20Version-8.1-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
 [![Licence](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
 IP-Symcon Modulbibliothek für die Visualisierung von Entsorgungsterminen.  
@@ -37,7 +37,8 @@ __HINWEIS:__ Über diese [Suchseite](https://asmium.de) kann man ganz schnell he
 
 ## Historie
 
-- 2025-06-22: Datenübergabe an Skript, Kleinere Fehlerbehebungen
+- 2026-07-05: Kompatibilität v8.1 , Umstellung auf Strict-Modus, Support für Kachel-Visualisierung
+- 2026-06-22: Datenübergabe an Skript, Kleinere Fehlerbehebungen
 - 2025-05-27: Modul Abfall_APP (App Abfall+)
 - 2025-01-07: Internationalisierte Anbieterauswahl
 - 2024-07-02: Look-Ahead Visualiserung eingebaut

@@ -1,10 +1,10 @@
 # Abfall.IO
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-4.5.20260622-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
+[![Product](https://img.shields.io/badge/Symcon%20Version-8.1-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
+[![Version](https://img.shields.io/badge/Modul%20Version-5.0.20260705-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-[![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/style.yml?branch=main&label=CheckStyle&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
+[![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/ci.yml?branch=main&label=CI&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
 
 IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
 
@@ -14,7 +14,7 @@ IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
 2. [Voraussetzungen](#user-content-2-voraussetzungen)
 3. [Installation](#user-content-3-installation)
 4. [Einrichten der Instanzen in IP-Symcon](#user-content-4-einrichten-der-instanzen-in-ip-symcon)
-5. [Statusvariablen und Profile](#user-content-5-statusvariablen-und-profile)
+5. [Statusvariablen und Darstellungen](#user-content-5-statusvariablen-und-darstellungen)
 6. [Visualisierung](#user-content-6-visualisierung)
 7. [PHP-Befehlsreferenz](#user-content-7-php-befehlsreferenz)
 8. [Versionshistorie](#user-content-8-versionshistorie)
@@ -27,7 +27,7 @@ Derzeit unterstützt das Modul über 60 verschiedene Landkreise und Großstädte
 
 ### 2. Voraussetzungen
 
-* IP-Symcon ab Version 6.4
+* IP-Symcon ab Version 8.1
 
 ### 3. Installation
 
@@ -50,14 +50,14 @@ selber aufräumen. Ich denke aber mal das ein Umzug nicht so häufig vorkommt ;-
 
 _Einstellungsbereich:_
 
-> Online Dienste ...
+> 🔗 Online Dienste ...
 
 Name                    | Beschreibung
 ----------------------- | ----------------------------------
 Anbieter                | 'Abfall.IO (abfallplus.de)'
 Land                    | Landesauswahl (derzeit DE, AT)
 
-> Abfallwirtschaft ...
+> ♻️ Abfallwirtschaft ...
 
 Name                    | Beschreibung
 ----------------------- | ---------------------------------
@@ -68,16 +68,20 @@ Straße/Abfuhrbezirk     | Strasse bzw. Abfuhrbezirk im gewählten Ort
 Hausnummer              | Hausnummer von-bis, oder Alle = gesamte Strasse
 Entsorgungen            | Entsorgungsarten, d.h. was wird im Gebiet an Entsorgung angeboten
 
-> Visualisierung ...
+> ✨ Visualisierung ...
 
 Name                                                    | Beschreibung
 ------------------------------------------------------- | ---------------------------------
-Unterstützung für Tile Visu aktivieren?                 | Aktivierung, ob HTML für Kacheldarstellung erstellt werden soll
+Unterstützung für Tile Visu aktivieren?                 | Aktivierung der Darstellung für Kachel-Visualisierung
 Abfallgruppen                                           | Farbliche Zuordnung der Abfallarten
+Akzentfarbe (Heute)                                     | Highlighting der heutigen Abholung (100% bei kleiner Kachel, 40% bei mittel und großer Kachel)
+Akzentfarbe (Morgen)                                    | Highlighting der morgigen Abholung (100% bei kleiner Kachel, 40% bei mittel und großer Kachel)
+Die Farbe der Tonne als Hintergrund verwenden (Kleine Kachel)? | Übersteuert gewählte Akzentfarbe für Abholung "HEUTE"!
+Unterstützung für das alte Webfrontend (HTMLBox) aktivieren?   | Weiterhin die Visualisierung über HtmlBox unterstützen!
 Vorrausschauende Anzeige für Folgetage aktivieren?      | Aktivierung, ob zu einer bestimmten Zeit die Anzeige umschalten soll auf Folgetermine
 Zeitpunkt                                               | Uhrzeit, wo die Umschaltung erfolgen soll
 
-> Erweiterte Einstellungen ...
+> ⚙️ Erweiterte Einstellungen ...
 
 Name                                                    | Beschreibung
 ------------------------------------------------------- | ---------------------------------
@@ -107,11 +111,13 @@ __Beispiel:__
 
 _Aktionsbereich:_
 
+> 🚀 Aktion ausführen ...
+
 Aktion                  | Beschreibung
 ----------------------- | ---------------------------------
 AKTUALISEREN            | Werte werden neu ermittelt und geschrieben
 
-### 5. Statusvariablen und Profile
+### 5. Statusvariablen und Darstellungen
 
 Die Statusvariablen/Timer werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 
@@ -119,11 +125,11 @@ Name               | Typ       | Beschreibung
 -------------------| --------- | ----------------
 Entsorgungsart(en) | String    | Abhängig vom Entsorgungsgebiet und den angebotenem Service mehrere Variablen, z.B.: Restmüll, Biotonne usw.
 
-Es werden keine zusätzlichen Profile benötigt.
+Es werden keine zusätzlichen Darstellungrn/Profile benötigt.
 
 ### 6. Visualisierung
 
-Man kann die Statusvariablen(Strings) direkt im WF verlinken.  
+Man kann sowohl das gesamte Modul (HTML-SDK Support) als auch nur die Statusvariablen direkt in der Visualisierung verlinken.  
 Aber wie bei der Konfiguration beschrieben, muss man aufpassen wenn die Konfiguration geändert wird. Dann müssen gegebenenfalls die Links neu eingerichtet werden.
 
 ### 7. PHP-Befehlsreferenz
@@ -156,6 +162,15 @@ Die Funktion liefert keinerlei Rückgabewert.
 __Beispiel__: `ABPIO_FixWasteName(12345, 'Hausmüll', 'Hausmüll (2 wöchentlich)');`
 
 ### 8. Versionshistorie
+
+v5.0.20260705
+
+* _NEU_: Support für TileVisu (Kachel-Visualisierung)
+* _NEU_: Kompatibilität auf IPS 8.1 vereinheitlicht
+* _NEU_: Umstellung auf Strict-Modus (IPSModuleStrict)
+* _NEU_: Modulversion wird in Quellcodesektion angezeigt
+* _FIX_: Modulkonfiguration überarbeitet und vereinheitlicht
+* _FIX_: Interne Bibliotheken und Konfiguration überarbeitet und vereinheitlicht
 
 v4.5.20260622
 * _NEU_: Datenübergabe an Skript

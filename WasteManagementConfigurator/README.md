@@ -1,10 +1,10 @@
 # Abfallwirtschafts-Konfigurator (Waste Management Configutrator)
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
-[![Product](https://img.shields.io/badge/Symcon%20Version-6.4-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-4.5.20260622-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
+[![Product](https://img.shields.io/badge/Symcon%20Version-8.1-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
+[![Version](https://img.shields.io/badge/Modul%20Version-5.0.20260705-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
-[![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/style.yml?branch=main&label=CheckStyle&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
+[![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/ci.yml?branch=main&label=CI&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
 
 IP-Symcon Modul für die Verwaltung von Online Diensten zur Bestimmung von Entsorgungsterminen.
 
@@ -14,7 +14,7 @@ IP-Symcon Modul für die Verwaltung von Online Diensten zur Bestimmung von Entso
 2. [Voraussetzungen](#user-content-2-voraussetzungen)
 3. [Installation](#user-content-3-installation)
 4. [Einrichten der Instanzen in IP-Symcon](#user-content-4-einrichten-der-instanzen-in-ip-symcon)
-5. [Statusvariablen und Profile](#user-content-5-statusvariablen-und-profile)
+5. [Statusvariablen und Darstellungen](#user-content-5-statusvariablen-und-darstellungen)
 6. [Visualisierung](#user-content-6-visualisierung)
 7. [PHP-Befehlsreferenz](#user-content-7-php-befehlsreferenz)
 8. [Versionshistorie](#user-content-8-versionshistorie)
@@ -38,7 +38,7 @@ Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
 ### 2. Voraussetzungen
 
-* IP-Symcon ab Version 6.4
+* IP-Symcon ab Version 8.1
 
 ### 3. Installation
 
@@ -58,19 +58,21 @@ Legt man eine entsprechende Zielkategorie fest, werden neu zu erstellende Instan
 
 _Einstellungsbereich:_
 
-Name                    | Beschreibung
------------------------ | ---------------------------------
-Zielkategorie           | Kategorie unter welcher neue Instanzen erzeugt werden (keine Auswahl im Root). Nur bis Version 7!
+Name                         | Beschreibung
+---------------------------- | ---------------------------------
+Erstellen neuer Instanzen in | Kategorie unter welcher neue Instanzen erzeugt werden (keine Auswahl im Root). Nur bis Version 7!
 
 _Aktionsbereich:_
 
-Name                    | Beschreibung
------------------------ | ---------------------------------
-Anbieter                | Konfigurationsliste zum Verwalten der entsprechenden Instanzen
+> 🚀 Aktion ausführen ...
 
-### 5. Statusvariablen und Profile
+Name                         | Beschreibung
+---------------------------- | ---------------------------------
+Anbieter                     | Konfigurationsliste zum Verwalten der entsprechenden Instanzen
 
-Es werden keine zusätzlichen Variablen oder Profile benötigt.
+### 5. Statusvariablen und Darstellungen
+
+Es werden keine zusätzlichen Variablen oder Profile/Darstellungen benötigt.
 
 ### 6. Visualisierung
 
@@ -82,7 +84,16 @@ Das Modul bietet keine direkten Funktionsaufrufe.
 
 ### 8. Versionshistorie
 
+v5.0.20260705
+
+* _NEU_: Kompatibilität auf IPS 8.1 vereinheitlicht
+* _NEU_: Umstellung auf Strict-Modus (IPSModuleStrict)
+* _NEU_: Modulversion wird in Quellcodesektion angezeigt
+* _FIX_: Modulkonfiguration überarbeitet und vereinheitlicht
+* _FIX_: Interne Bibliotheken und Konfiguration überarbeitet und vereinheitlicht
+
 v4.5.20260622
+
 * _NEU_: Letzte Version für Symcon v6.4
 
 v2.1.20240304
