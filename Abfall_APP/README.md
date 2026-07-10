@@ -139,7 +139,7 @@ Es werden keine zusätzlichen Darstellungrn/Profile benötigt.
 Man kann sowohl das gesamte Modul (HTML-SDK Support) als auch nur die Statusvariablen direkt in der Visualisierung verlinken.  
 Aber wie bei der Konfiguration beschrieben, muss man aufpassen wenn die Konfiguration geändert wird. Dann müssen gegebenenfalls die Links neu eingerichtet werden.
 
-#### Hintergrundfarben-Logik:
+#### Hintergrundfarben-Logik (Kleine Kachel):
 
 Tonnenfarbe nutzen | Akzentfarben definiert | Ergebnis
 ------|------|------------------------------------------------------------------
