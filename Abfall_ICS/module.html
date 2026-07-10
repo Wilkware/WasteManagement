@@ -8,6 +8,7 @@
             --today-color: #b42828;
             --tomorrow-color: #b48200;
             --tonne-color: transparent;
+            --tonne-alpha: 100%;
         }
 
         *,
@@ -48,11 +49,11 @@
 
         /* ── Small: Hintergrundtint nur hier ─────────────────────────────── */
         body.urgency-today {
-            background: var(--today-color);
+            background: rgb(from var(--today-color) r g b / var(--tonne-alpha));
         }
 
         body.urgency-tomorrow {
-            background: var(--tomorrow-color);
+            background: rgb(from var(--tomorrow-color) r g b / var(--tonne-alpha));
         }
 
         body.urgency-tonne {
@@ -121,7 +122,7 @@
             bottom: calc(60%);
             left: 50%;
             transform: translateX(-50%);
-            background: color-mix(in srgb, var(--card-color) 95%, transparent);
+            background: rgb(from var(--card-color) r g b / 95%);
             font-size: 12px;
             font-weight: 500;
             padding: 5px 10px;
@@ -156,7 +157,7 @@
             overscroll-behavior: contain;
             -webkit-overflow-scrolling: touch;
             scrollbar-width: thin;
-            scrollbar-color: color-mix(in srgb, var(--accent-color) 70%, transparent) transparent;
+            scrollbar-color: rgb(from var(--accent-color) r g b / 70%) transparent;
             touch-action: pan-y;
         }
 
@@ -166,16 +167,16 @@
             gap: 10px;
             padding: 7px 10px;
             border-radius: 8px;
-            background: color-mix(in srgb, var(--content-color) 5%, transparent);
+            background: rgb(from var(--content-color) r g b / 5%);
             flex: 1;
         }
 
         #view-medium .wm-row.urgency-today {
-            background-color: color-mix(in srgb, var(--today-color) 20%, transparent);
+            background-color: rgb(from var(--today-color) r g b / 20%);
         }
 
         #view-medium .wm-row.urgency-tomorrow {
-            background-color: color-mix(in srgb, var(--tomorrow-color) 20%, transparent);
+            background-color: rgb(from var(--tomorrow-color) r g b / 20%);
         }
 
         #view-medium .wm-row-info {
@@ -194,16 +195,16 @@
 
         #view-medium .wm-row-date {
             font-size: 11px;
-            color: color-mix(in srgb, var(--content-color) 50%, transparent);
+            color: rgb(from var(--content-color) r g b / 50%);
             margin-top: 1px;
         }
 
         #view-medium .wm-row.urgency-today .wm-row-date {
-            color: color-mix(in srgb, var(--today-color) 100%, transparent);
+            color: rgb(from var(--today-color) r g b / 100%);
         }
 
         #view-medium .wm-row.urgency-tomorrow .wm-row-date {
-            color: color-mix(in srgb, var(--tomorrow-color) 100%, transparent);
+            color: rgb(from var(--tomorrow-color) r g b / 100%);
         }
 
         #view-medium .wm-row-count {
@@ -221,7 +222,7 @@
 
         #view-medium .wm-row-unit {
             font-size: 8px;
-            color: color-mix(in srgb, var(--content-color) 50%, transparent);
+            color: rgb(from var(--content-color) r g b / 50%);
             margin-top: 2px;
         }
 
@@ -236,13 +237,13 @@
         }
 
         #view-medium .wm-row.urgency-today .wm-row-badge {
-            background-color: color-mix(in srgb, var(--today-color) 20%, transparent);
-            color: color-mix(in srgb, var(--today-color) 100%, transparent);
+            background-color: rgb(from var(--today-color) r g b / 20%);
+            color: rgb(from var(--today-color) r g b / 100%);
         }
 
         #view-medium .wm-row.urgency-tomorrow .wm-row-badge {
-            background-color: color-mix(in srgb, var(--tomorrow-color) 20%, transparent);
-            color: color-mix(in srgb, var(--tomorrow-color) 100%, transparent);
+            background-color: rgb(from var(--tomorrow-color) r g b / 20%);
+            color: rgb(from var(--tomorrow-color) r g b / 100%);
         }
 
         /* ── Large ───────────────────────────────────────────────────────── */
@@ -261,15 +262,15 @@
             display: flex;
             align-items: center;
             gap: 10px;
-            background: color-mix(in srgb, var(--content-color) 5%, transparent);
+            background: rgb(from var(--content-color) r g b / 5%);
         }
 
         #view-large .wm-banner.urgency-today {
-            background-color: color-mix(in srgb, var(--today-color) 20%, transparent);
+            background-color: rgb(from var(--today-color) r g b / 20%);
         }
 
         #view-large .wm-banner.urgency-tomorrow {
-            background-color: color-mix(in srgb, var(--tomorrow-color) 20%, transparent);
+            background-color: rgb(from var(--tomorrow-color) r g b / 20%);
         }
 
         #view-large .wm-banner-info {
@@ -282,7 +283,7 @@
             font-weight: 600;
             text-transform: uppercase;
             letter-spacing: .05em;
-            color: color-mix(in srgb, var(--content-color) 50%, transparent);
+            color: rgb(from var(--content-color) r g b / 50%);
             margin-bottom: 2px;
         }
 
@@ -305,7 +306,7 @@
 
         #view-large .wm-banner-date {
             font-size: 11px;
-            color: color-mix(in srgb, var(--content-color) 50%, transparent);
+            color: rgb(from var(--content-color) r g b / 50%);
             margin-top: 2px;
         }
 
@@ -331,7 +332,7 @@
 
         #view-large .wm-banner-unit {
             font-size: 10px;
-            color: color-mix(in srgb, var(--content-color) 50%, transparent);
+            color: rgb(from var(--content-color) r g b / 50%);
             margin-top: 2px;
         }
 
@@ -346,12 +347,12 @@
         }
 
         #view-large .wm-banner.urgency-today .wm-banner-badge {
-            background-color: color-mix(in srgb, var(--today-color) 20%, transparent);
+            background-color: rgb(from var(--today-color) r g b / 20%);
             color: var(--today-color);
         }
 
         #view-large .wm-banner.urgency-tomorrow .wm-banner-badge {
-            background-color: color-mix(in srgb, var(--tomorrow-color) 20%, transparent);
+            background-color: rgb(from var(--tomorrow-color) r g b / 20%);
             color: var(--tomorrow-color);
         }
 
@@ -375,7 +376,7 @@
             scrollbar-width: thin;
             -webkit-overflow-scrolling: touch;
 
-            scrollbar-color: color-mix(in srgb, var(--accent-color) 70%, transparent) transparent;
+            scrollbar-color: rgb(from var(--accent-color) r g b / 70%) transparent;
             touch-action: pan-y;
         }
 
@@ -389,7 +390,7 @@
         }
 
         #view-large .wm-rows::-webkit-scrollbar-thumb {
-            background: color-mix(in srgb, var(--accent) 70%, transparent);
+            background: rgb(from var(--accent-color) r g b / 70%);
             border-radius: 999px;
         }
 
@@ -400,7 +401,7 @@
             padding: 10px 12px;
             border-radius: 8px;
             flex-shrink: 0;
-            background: color-mix(in srgb, var(--content-color) 5%, transparent);
+            background: rgb(from var(--content-color) r g b / 5%);
         }
 
         #view-large .wm-row-info {
@@ -419,7 +420,7 @@
 
         #view-large .wm-row-date {
             font-size: 11px;
-            color: color-mix(in srgb, var(--content-color) 50%, transparent);
+            color: rgb(from var(--content-color) r g b / 50%);
             margin-top: 1px;
         }
 
@@ -438,7 +439,7 @@
 
         #view-large .wm-row-unit {
             font-size: 10px;
-            color: color-mix(in srgb, var(--content-color) 50%, transparent);
+            color: rgb(from var(--content-color) r g b / 50%);
             margin-top: 2px;
         }
 
@@ -645,7 +646,7 @@
             document.body.classList.remove(...URGENCY_CLASSES);
             if (width < 220) {
                 if (currentTonneColor) {
-                    if (currentSmallDays === 0 && currentLookAhead.offset === 0) {
+                    if (currentSmallDays === 0 || currentSmallDays === 1) {
                         document.body.classList.add('urgency-tonne');
                     }
                 } else if (currentUrgency) {
@@ -728,16 +729,17 @@
             const smallIcons = document.getElementById('small-icons');
             smallIcons.innerHTML = '';
 
-            if (currentTonneColor && (currentSmallDays == 0) && (currentLookAhead.offset == 0)) {
+            if (currentTonneColor && ((currentSmallDays == 0) || (currentSmallDays == 1))) {
+                console.log('Use tonne color!');
                 // Tonnenfarbe als Hintergrund – Icons und Label in content-color
                 const colors = currentSmallGroup.map(p => p.color);
                 const root = document.documentElement;
                 if (colors.length === 1) {
-                    root.style.setProperty('--tonne-color', colors[0]);
+                    root.style.setProperty('--tonne-color', `rgb(from ${colors[0]} r g b / var(--tonne-alpha)`);
                 } else {
-                    // Gradient über alle beteiligten Tonnenfarben (diagonal)
+                    // Gradient über alle beteiligten Tonnenfarben (diagonal) 
                     const stops = colors.map((c, i) =>
-                        `${c} ${Math.round(i * 100 / (colors.length - 1))}%`
+                        `rgb(from ${c} r g b / var(--tonne-alpha)) ${Math.round(i * 100 / (colors.length - 1))}%`
                     ).join(', ');
                     root.style.setProperty('--tonne-color', `linear-gradient(45deg, ${stops})`);
                 }
@@ -920,6 +922,14 @@
                             decodedData[parameter] !== ''
                                 ? decodedData[parameter]
                                 : getComputedStyle(root).getPropertyValue('--accent-color').trim()
+                        );
+                        break;
+
+                    case 'tonneAlpha':
+                        root.style.setProperty('--tonne-alpha',
+                            decodedData[parameter] !== ''
+                                ? decodedData[parameter]
+                                : '100%'
                         );
                         break;
 

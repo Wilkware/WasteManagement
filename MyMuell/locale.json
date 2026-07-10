@@ -58,6 +58,7 @@
             "HINT: Always separate different search terms with | and do not use spaces!": "HINWEIS: Verschiedene Suchbegriffe immer mit | trennen und keine Leerzeichen verwenden!",
             "Accent Color (Today):": "Akzentfarbe (Heute):",
             "Accent Color (Tomorrow):": "Akzentfarbe (Morgen):",
+            "Color transparency (thumbnail view):": "Farbtransparenz (Kleine Kachel):", 
             "Use the barrel colour as the background (thumbnail view)?": "Die Farbe der Tonne als Hintergrund verwenden (Kleine Kachel)?",
             "HINT: Selecting the transparent color option uses the accent color of the currently selected theme!": "HINWEIS: Eine transparente Farbauswahl bewirkt die Verwendung der Akzentfarbe des eingestellten Themes!",
             "Enable support for the old web front-end (HTMLBox)?": "Unterstützung für das alte Webfrontend (HTMLBox) aktivieren?",

@@ -102,6 +102,7 @@ class Abfall_ICS extends IPSModuleStrict
         $this->RegisterPropertyString('settingsTileColors', '[]');
         $this->RegisterPropertyInteger('settingsAccentToday', -1);
         $this->RegisterPropertyInteger('settingsAccentTomorrow', -1);
+        $this->RegisterPropertyInteger('settingsTonneAlpha', 100);
         $this->RegisterPropertyBoolean('settingsTonneColor', true);
         $this->RegisterPropertyBoolean('settingsHtmlBox', true);
         $this->RegisterPropertyBoolean('settingsLookAhead', false);
@@ -267,6 +268,7 @@ class Abfall_ICS extends IPSModuleStrict
                 $this->UpdateVisualizationValue(json_encode([
                     'todayColor'    => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentToday')),
                     'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
+                    'tonneAlpha'    => $this->ReadPropertyInteger('settingsTonneAlpha') . '%',
                     'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor')
                 ]));
             }
@@ -439,7 +441,7 @@ class Abfall_ICS extends IPSModuleStrict
         $script = $this->ReadPropertyInteger('settingsScript');
         if ($script != 0) {
             if (IPS_ScriptExists($script)) {
-                $rs = IPS_RunScriptEx($script, ['TIMESTAMP' => time(), 'DATA' => json_encode($waste)]);
+                $rs = IPS_RunScriptEx($script, ['TIMESTAMP' => time(), 'INSTANCE' => $this->InstanceID, 'DATA' => json_encode($waste)]);
                 $this->LogDebug(__FUNCTION__, 'Script Execute (Return Value): ' . $rs);
             } else {
                 $this->LogDebug(__FUNCTION__, 'Update: Script #' . $script . ' existiert nicht!');
@@ -716,6 +718,7 @@ class Abfall_ICS extends IPSModuleStrict
         $ac = [
             'todayColor'    => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentToday')),
             'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
+            'tonneAlpha'    => $this->ReadPropertyInteger('settingsTonneAlpha') . '%',
             'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor'),
         ];
         $result = array_merge($ac, $wd);

@@ -2,7 +2,7 @@
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-8.1-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-5.0.20260705-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
+[![Version](https://img.shields.io/badge/Modul%20Version-5.0.20260710-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/ci.yml?branch=main&label=CI&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
 
@@ -73,8 +73,9 @@ Name                                                    | Beschreibung
 ------------------------------------------------------- | ---------------------------------
 Unterstützung für Tile Visu aktivieren?                 | Aktivierung der Darstellung für Kachel-Visualisierung
 Abfallgruppen                                           | Farbliche Zuordnung der Abfallarten
-Akzentfarbe (Heute)                                     | Highlighting der heutigen Abholung (100% bei kleiner Kachel, 40% bei mittel und großer Kachel)
-Akzentfarbe (Morgen)                                    | Highlighting der morgigen Abholung (100% bei kleiner Kachel, 40% bei mittel und großer Kachel)
+Akzentfarbe (Heute)                                     | Highlighting (Kachel-Hintergrund) der heutigen Abholung
+Akzentfarbe (Morgen)                                    | Highlighting (Kachel-Hintergrund) der morgigen Abholung
+Farbtransparenz (Kleine Kachel)                         | Transparenz (100% Vollfarbe) für Tonnen- bzw. Akzentfarbe(n) 
 Die Farbe der Tonne als Hintergrund verwenden (Kleine Kachel)? | Übersteuert gewählte Akzentfarbe für Abholung "HEUTE"!
 Unterstützung für das alte Webfrontend (HTMLBox) aktivieren?   | Weiterhin die Visualisierung über HtmlBox unterstützen!
 Vorrausschauende Anzeige für Folgetage aktivieren?      | Aktivierung, ob zu einer bestimmten Zeit die Anzeige umschalten soll auf Folgetermine
@@ -131,6 +132,15 @@ Es werden keine zusätzlichen Darstellungrn/Profile benötigt.
 Man kann sowohl das gesamte Modul (HTML-SDK Support) als auch nur die Statusvariablen direkt in der Visualisierung verlinken.  
 Aber wie bei der Konfiguration beschrieben, muss man aufpassen wenn die Konfiguration geändert wird. Dann müssen gegebenenfalls die Links neu eingerichtet werden.
 
+#### Hintergrundfarben-Logik:
+
+Tonnenfarbe nutzen | Akzentfarben definiert | Ergebnis
+------|------|------------------------------------------------------------------
+ Ja   | Nein | Heute und Morgen erhält die Tonnenfarbe, danach keine Hintergrundfarbe
+ Ja   | Ja   | Heute und Morgen erhält die Tonnenfarbe, danach keine Hintergrundfarbe
+ Nein | Nein | Keine individuellen Farben → transparent → Akzentfarbe des Themes für heute/morgen
+ Nein | Ja   | Individuelle Akzentfarben werden für heute/morgen verwenden
+
 ### 7. PHP-Befehlsreferenz
 
 ```php
@@ -153,7 +163,7 @@ __Beispiel__: `MAXDE_Update(12345);`
 
 ### 8. Versionshistorie
 
-v5.0.20260705
+v5.0.20260710
 
 * _NEU_: Support für TileVisu (Kachel-Visualisierung)
 * _NEU_: Kompatibilität auf IPS 8.1 vereinheitlicht

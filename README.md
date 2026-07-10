@@ -37,7 +37,7 @@ __HINWEIS:__ Über diese [Suchseite](https://asmium.de) kann man ganz schnell he
 
 ## Historie
 
-- 2026-07-05: Kompatibilität v8.1 , Umstellung auf Strict-Modus, Support für Kachel-Visualisierung
+- 2026-07-10: Kompatibilität v8.1 , Umstellung auf Strict-Modus, Support für Kachel-Visualisierung
 - 2026-06-22: Datenübergabe an Skript, Kleinere Fehlerbehebungen
 - 2025-05-27: Modul Abfall_APP (App Abfall+)
 - 2025-01-07: Internationalisierte Anbieterauswahl

@@ -360,6 +360,16 @@
                             "caption": "Accent Color (Tomorrow):",
                             "allowTransparent": true,
                             "width": "233px"
+                        },
+                        {
+                            "type": "NumberSpinner",
+                            "name": "settingsTonneAlpha",
+                            "caption": "Color transparency (thumbnail view):",
+                            "digits": 0,
+                            "minimum": 0,
+                            "maximum": 100,
+                            "suffix": "%",
+                            "width": "233px"
                         }
                     ]
                 },
