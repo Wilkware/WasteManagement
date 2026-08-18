@@ -14,6 +14,10 @@
 
 declare(strict_types=1);
 
+/** @symcon-namespace */
+
+namespace Wilkware\WasteManagement;
+
 /**
  * Helper class for the debug output.
  */
@@ -155,7 +159,7 @@ trait ServiceHelper
     {
         // Check "order by key"
         if (!is_string($key) && !is_array($key)) {
-            throw new InvalidArgumentException('Order() expects the first parameter to be a valid key or array');
+            throw new \InvalidArgumentException('Order() expects the first parameter to be a valid key or array');
         }
         // Build order-by clausel
         $props = [];

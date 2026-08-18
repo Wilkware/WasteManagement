@@ -14,6 +14,10 @@
 
 declare(strict_types=1);
 
+/** @symcon-namespace */
+
+namespace Wilkware\WasteManagement;
+
 /**
  * Helper class for formating and output json data.
  */

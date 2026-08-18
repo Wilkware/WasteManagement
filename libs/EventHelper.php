@@ -14,6 +14,10 @@
 
 declare(strict_types=1);
 
+/** @symcon-namespace */
+
+namespace Wilkware\WasteManagement;
+
 /**
  * Helper trait to create timer and events.
  */
@@ -31,8 +35,8 @@ trait EventHelper
      */
     protected function UpdateTimerInterval(string $ident, int $hour, int $minute, int $second): void
     {
-        $now = new DateTime();
-        $target = new DateTime();
+        $now = new \DateTime();
+        $target = new \DateTime();
         $target->modify('+1 day');
         $target->setTime($hour, $minute, $second);
         $diff = $target->getTimestamp() - $now->getTimestamp();

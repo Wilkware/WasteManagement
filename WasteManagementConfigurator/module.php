@@ -5,6 +5,10 @@ declare(strict_types=1);
 /** Generell funktions */
 require_once __DIR__ . '/../libs/_traits.php';
 
+/** Namespaced traits */
+use Wilkware\WasteManagement\DebugHelper;
+use Wilkware\WasteManagement\ServiceHelper;
+
 /**
  * Class WasteManagementConfigurator
  *

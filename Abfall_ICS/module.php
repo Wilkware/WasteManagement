@@ -9,7 +9,15 @@ require_once __DIR__ . '/../libs/_traits.php';
 require_once __DIR__ . '/../libs/ics-parser/src/ICal/ICal.php';
 require_once __DIR__ . '/../libs/ics-parser/src/ICal/Event.php';
 
+/** Namespaced traits */
 use ICal\ICal;
+use Wilkware\WasteManagement\DebugHelper;
+use Wilkware\WasteManagement\EventHelper;
+use Wilkware\WasteManagement\FormatHelper;
+use Wilkware\WasteManagement\ServiceHelper;
+use Wilkware\WasteManagement\VariableHelper;
+
+use Wilkware\WasteManagement\VisualisationHelper;
 
 /**
  * CLASS Abfall_ICS

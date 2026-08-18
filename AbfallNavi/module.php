@@ -5,6 +5,14 @@ declare(strict_types=1);
 /** Generell funktions */
 require_once __DIR__ . '/../libs/_traits.php';
 
+/** Namespaced traits */
+use Wilkware\WasteManagement\DebugHelper;
+use Wilkware\WasteManagement\EventHelper;
+use Wilkware\WasteManagement\FormatHelper;
+use Wilkware\WasteManagement\ServiceHelper;
+use Wilkware\WasteManagement\VariableHelper;
+use Wilkware\WasteManagement\VisualisationHelper;
+
 /**
  * Class AbfallNavi
  */
