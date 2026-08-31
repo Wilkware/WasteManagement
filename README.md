@@ -4,7 +4,7 @@
 [![Product](https://img.shields.io/badge/Symcon%20Version-8.1-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
 [![Licence](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 
-IP-Symcon Modulbibliothek für die Visualisierung von Entsorgungsterminen.  
+Symcon Modulbibliothek für die Visualisierung von Entsorgungsterminen.  
 Die Bibliothek nutzt verschieden Online-Dienste um bevorstehende Entsorgungstermine (Entsorgungskalender) in IPS zu integrieren.
 
 Folgende Module beinhaltet diese Bibliothek:
@@ -37,6 +37,7 @@ __HINWEIS:__ Über diese [Suchseite](https://asmium.de) kann man ganz schnell he
 
 ## Historie
 
+- 2026-08-31: Unterstützung von neuen Top-Level-Domains, Automatischer Cache Update für TileVisu
 - 2026-07-10: Kompatibilität v8.1 , Umstellung auf Strict-Modus, Support für Kachel-Visualisierung
 - 2026-06-22: Datenübergabe an Skript, Kleinere Fehlerbehebungen
 - 2025-05-27: Modul Abfall_APP (App Abfall+)
@@ -54,7 +55,7 @@ __HINWEIS:__ Über diese [Suchseite](https://asmium.de) kann man ganz schnell he
 
 ## Entwickler
 
-Seit nunmehr über 10 Jahren fasziniert mich das Thema Haussteuerung. In den letzten Jahren betätige ich mich auch intensiv in der IP-Symcon Community und steuere dort verschiedenste Skript und Module bei. Ihr findet mich dort unter dem Namen @pitti ;-)
+Seit nunmehr über 10 Jahren fasziniert mich das Thema Haussteuerung. In den letzten Jahren betätige ich mich auch intensiv in der Symcon Community und steuere dort verschiedenste Skript und Module bei. Ihr findet mich dort unter dem Namen @pitti ;-)
 
 [![GitHub](https://img.shields.io/badge/GitHub-@wilkware-181717.svg?style=for-the-badge&logo=github)](https://wilkware.github.io/)
 

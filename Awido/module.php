@@ -54,7 +54,7 @@ class Awido extends IPSModuleStrict
     // -------------------------------------------------------------------------
 
     /**
-     * In contrast to Construct, this function is called only once when creating the instance and starting IP-Symcon.
+     * In contrast to Construct, this function is called only once when creating the instance and starting Symcon.
      * Therefore, status variables and module properties which the module requires permanently should be created here.
      *
      * @return void
@@ -112,7 +112,7 @@ class Awido extends IPSModuleStrict
 
     /**
      * This function is called when deleting the instance during operation and when updating via "Module Control".
-     * The function is not called when exiting IP-Symcon.
+     * The function is not called when exiting Symcon.
      *
      * @return void
      */
@@ -791,7 +791,15 @@ class Awido extends IPSModuleStrict
     {
         $buffer = $this->GetBuffer('WasteData');
         if (empty($buffer)) {
-            $buffer = '[]';
+            $this->Update();
+
+            // Read the buffer again
+            $buffer = $this->GetBuffer('WasteData');
+
+            // If there is still no data available, return an empty result
+            if (empty($buffer)) {
+                $buffer = '[]';
+            }
         }
         $wd = json_decode($buffer, true);
         $ac = [

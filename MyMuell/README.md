@@ -2,18 +2,18 @@
 
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-8.1-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-5.0.20260710-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
+[![Version](https://img.shields.io/badge/Modul%20Version-5.1.20260831-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/ci.yml?branch=main&label=CI&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
 
-IP-Symcon Modul für die Visualisierung von Entsorgungsterminen.
+Symcon Modul für die Visualisierung von Entsorgungsterminen.
 
 ## Inhaltverzeichnis
 
 1. [Funktionsumfang](#user-content-1-funktionsumfang)
 2. [Voraussetzungen](#user-content-2-voraussetzungen)
 3. [Installation](#user-content-3-installation)
-4. [Einrichten der Instanzen in IP-Symcon](#user-content-4-einrichten-der-instanzen-in-ip-symcon)
+4. [Einrichten der Instanzen](#user-content-4-einrichten-der-instanzen)
 5. [Statusvariablen und Darstellungen](#user-content-5-statusvariablen-und-darstellungen)
 6. [Visualisierung](#user-content-6-visualisierung)
 7. [PHP-Befehlsreferenz](#user-content-7-php-befehlsreferenz)
@@ -27,7 +27,7 @@ Derzeit unterstützt das Modul über 400 verschiedene Gebiete. Wenn jemand noch 
 
 ### 2. Voraussetzungen
 
-* IP-Symcon ab Version 8.1
+* Symcon ab Version 8.1
 
 ### 3. Installation
 
@@ -35,7 +35,7 @@ Derzeit unterstützt das Modul über 400 verschiedene Gebiete. Wenn jemand noch 
 * Alternativ Über das Modul-Control folgende URL hinzufügen.  
 `https://github.com/Wilkware/WasteManagement` oder `git://github.com/Wilkware/WasteManagement.git`
 
-### 4. Einrichten der Instanzen in IP-Symcon
+### 4. Einrichten der Instanzen
 
 * Unter "Instanz hinzufügen" ist das _'MyMuell_-Modul (Alias: _Abfallwirtschaft (MyMüll.de)'_ oder _'Entsorgungskalender (MyMüll.de)'_)  unter dem Hersteller _'(Geräte)'_ aufgeführt.
 
@@ -161,6 +161,11 @@ __Beispiel__: `MYMDE_Update(12345);`
 
 ### 8. Versionshistorie
 
+v5.1.20260831
+
+* _NEU_: Automatischer Cache Update für TileVisu (Restart Symcon)
+* _FIX_: Support neuer Top-Level-Doamins
+
 v5.0.20260710
 * _NEU_: Support für TileVisu (Kachel-Visualisierung)
 * _NEU_: Kompatibilität auf IPS 8.1 vereinheitlicht
@@ -230,7 +235,7 @@ Vielen Dank!
 
 ## Entwickler
 
-Seit nunmehr über 10 Jahren fasziniert mich das Thema Haussteuerung. In den letzten Jahren betätige ich mich auch intensiv in der IP-Symcon Community und steuere dort verschiedenste Skript und Module bei. Ihr findet mich dort unter dem Namen @pitti ;-)
+Seit nunmehr über 10 Jahren fasziniert mich das Thema Haussteuerung. In den letzten Jahren betätige ich mich auch intensiv in der Symcon Community und steuere dort verschiedenste Skript und Module bei. Ihr findet mich dort unter dem Namen @pitti ;-)
 
 [![GitHub](https://img.shields.io/badge/GitHub-@wilkware-181717.svg?style=for-the-badge&logo=github)](https://wilkware.github.io/)
 
