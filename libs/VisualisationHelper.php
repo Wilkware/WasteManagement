@@ -167,8 +167,8 @@ trait VisualisationHelper
         }
         // table rows
         $text = '';
-        $badge = 'green';
         foreach ($table as $row) {
+            $badge = 'green';
             if ($row['days'] == 0) {
                 $text = $this->Translate('Today');
                 $badge = 'red';

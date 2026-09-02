@@ -478,7 +478,7 @@ class Abfall_IO extends IPSModuleStrict
         // All okay
         if ($status == 102) {
             // Update visualization
-            $this->SetVisualizationType($tilevisu ? 1 : 0);
+            $this->SetVisualizationType($tilevisu ? 2 : 0);
             if ($tilevisu) {
                 $this->UpdateVisualizationValue(json_encode([
                     'todayColor'    => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentToday')),
