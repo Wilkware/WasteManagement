@@ -264,7 +264,7 @@ class Awido extends IPSModuleStrict
             $status = 205;
         } elseif ($activate == true) {
             // Update visualization
-            $this->SetVisualizationType($tilevisu ? 2 : 0);
+            $this->SetVisualizationType($tilevisu ? ((float) IPS_GetKernelVersion() < 9.1 ? 1 : 2) : 0);
             if ($tilevisu) {
                 $this->UpdateVisualizationValue(json_encode([
                     'todayColor'    => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentToday')),

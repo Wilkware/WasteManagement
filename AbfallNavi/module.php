@@ -461,7 +461,7 @@ class AbfallNavi extends IPSModuleStrict
         // All okay
         if ($status == 102) {
             // Update visualization
-            $this->SetVisualizationType($tilevisu ? 2 : 0);
+            $this->SetVisualizationType($tilevisu ? ((float) IPS_GetKernelVersion() < 9.1 ? 1 : 2) : 0);
             if ($tilevisu) {
                 $this->UpdateVisualizationValue(json_encode([
                     'todayColor'    => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentToday')),
