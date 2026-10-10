@@ -13,11 +13,12 @@ Symcon Modul für die Visualisierung von Entsorgungsterminen.
 1. [Funktionsumfang](#user-content-1-funktionsumfang)
 2. [Voraussetzungen](#user-content-2-voraussetzungen)
 3. [Installation](#user-content-3-installation)
-4. [Einrichten der Instanzen](#user-content-4-einrichten-der-instanzen)
-5. [Statusvariablen und Darstellungen](#user-content-5-statusvariablen-und-darstellungen)
-6. [Visualisierung](#user-content-6-visualisierung)
-7. [PHP-Befehlsreferenz](#user-content-7-php-befehlsreferenz)
-8. [Versionshistorie](#user-content-8-versionshistorie)
+4. [Einrichtung](#user-content-4-einrichtung)
+5. [Statusvariablen](#user-content-5-statusvariablen)
+6. [Darstellungen](#user-content-6-darstellungen)
+7. [Visualisierung](#user-content-7-visualisierung)
+8. [Befehlsreferenz](#user-content-8-befehlsreferenz)
+9. [Versionshistorie](#user-content-9-versionshistorie)
 
 ### 1. Funktionsumfang
 
@@ -31,26 +32,26 @@ Derzeit unterstützt das Modul 15 verschiedene Landkreise und Großstädte. Wenn
 
 ### 3. Installation
 
-* Über den Modul Store das Modul Abfallwirtschaft (ehem. Awido) installieren.
-* Alternativ Über das Modul-Control folgende URL hinzufügen.  
+* Über den Modul Store die Bibliothek _Abfallwirtschaft_ installieren.
+* Alternativ über das Modul Control folgende URL hinzufügen.  
 `https://github.com/Wilkware/WasteManagement` oder `git://github.com/Wilkware/WasteManagement.git`
 
-### 4. Einrichten der Instanzen
+### 4. Einrichtung
 
-* Unter "Instanz hinzufügen" ist das _'MuellMax'_-Modul (Alias: _'Abfallwirtschaft (MüllMax)'_ oder _'Entsorgungskalender (MüllMax)'_)  unter dem Hersteller _'(Geräte)'_ aufgeführt.
+* Unter 'Instanz hinzufügen' ist das _MuellMax_-Modul (Alias: _Abfallwirtschaft (MüllMax)_, _Entsorgungskalender (MüllMax)_) unter dem Hersteller '(Geräte)' aufgeführt.
 
 __Konfigurationsseite__:
 
 Entsprechend der gewählten Auswahl verändert sich das Formular dynamisch.
 Eine komplette Neuauswahl erreicht man durch Auswahl "Bitte wählen ..." an der gewünschten Stelle.
 
-VORSTICHT: eine Änderung der Auswahl bedingt ein Update bzw. ein Neuanlegen der Statusvariablen!!!
+VORSICHT: eine Änderung der Auswahl bedingt ein Update bzw. ein Neuanlegen der Statusvariablen!!!
 Alte Variablen, welche es im anderen Landkreis gab werden nicht gelöscht! Hat man diese in einem WF verlinkt muss man danach
 selber aufräumen. Ich denke aber mal das ein Umzug nicht so häufig vorkommt ;-)
 
 _Einstellungsbereich:_
 
-> 🔗 Online Dienste ...
+> 🔗 Online Dienst ...
 
 Name                    | Beschreibung
 ----------------------- | ----------------------------------
@@ -115,19 +116,22 @@ _Aktionsbereich:_
 
 Aktion                  | Beschreibung
 ----------------------- | ---------------------------------
-AKTUALISEREN            | Werte werden neu ermittelt und geschrieben
+AKTUALISIEREN           | Werte werden neu ermittelt und geschrieben
 
-### 5. Statusvariablen und Darstellungen
+### 5. Statusvariablen
 
-Die Statusvariablen/Timer werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
+Die Statusvariablen werden automatisch angelegt. Das Löschen einzelner kann zu Fehlfunktionen führen.
 
-Name               | Typ       | Beschreibung
--------------------| --------- | ----------------
-Entsorgungsart(en) | String    | Abhängig vom Entsorgungsgebiet und den angebotenem Service mehrere Variablen, z.B.: Restmüll, Biotonne usw.
+Name                 | Typ     | Beschreibung
+-------------------- | ------- | ------------------------------
+Entsorgungsart(en)   | String  | Abhängig vom Entsorgungsgebiet und dem angebotenen Service mehrere Variablen, z.B.: Restmüll, Biotonne usw.
+Abholung             | String  | HTML-Darstellung der Entsorgungstermine für das alte Webfrontend (nur bei aktivierter Unterstützung für Tile Visu und HTMLBox)
 
-Es werden keine zusätzlichen Darstellungrn/Profile benötigt.
+### 6. Darstellungen
 
-### 6. Visualisierung
+Es werden keine Darstellungen oder Profile benötigt.
+
+### 7. Visualisierung
 
 Man kann sowohl das gesamte Modul (HTML-SDK Support) als auch nur die Statusvariablen direkt in der Visualisierung verlinken.  
 Aber wie bei der Konfiguration beschrieben, muss man aufpassen wenn die Konfiguration geändert wird. Dann müssen gegebenenfalls die Links neu eingerichtet werden.
@@ -141,7 +145,7 @@ Tonnenfarbe nutzen | Akzentfarben definiert | Ergebnis
  Nein | Nein | Keine individuellen Farben → transparent → Akzentfarbe des Themes für heute/morgen
  Nein | Ja   | Individuelle Akzentfarben werden für heute/morgen verwenden
 
-### 7. PHP-Befehlsreferenz
+### 8. Befehlsreferenz
 
 ```php
 void MAXDE_LookAhead(int $InstanzID);
@@ -161,7 +165,7 @@ Die Funktion liefert keinerlei Rückgabewert.
 
 __Beispiel__: `MAXDE_Update(12345);`
 
-### 8. Versionshistorie
+### 9. Versionshistorie
 
 v5.2.20260902
 

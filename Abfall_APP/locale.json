@@ -2,7 +2,7 @@
     "translations": {
         "de": {
             "Waste management (Abfall.APP)": "Abfallwirtschaft (Abfall.APP)",
-            "Waste disposal calendar (Abfall.APP)": "Entsorgungskalender (Abfall.IO)",
+            "Waste disposal calendar (Abfall.APP)": "Entsorgungskalender (Abfall.APP)",
             "Abfall•APP – Disposal calendar": "Abfall•APP – Entsorgungskalender",
             "This module uses the data provided by the abfall+ app service to display upcoming disposal dates.": "Dieses Modul nutzt die vom Online-Dienst Abfall+ bereitgestellten Daten zur Darstellung der bevorstehenden Entsorgungstermine.",
             "🔗 Online service ...": "🔗 Online Dienst ...",

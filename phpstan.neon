@@ -1,6 +1,6 @@
 parameters:
     level: 6 # 0 is the loosest and 10 is the strictest
-    phpVersion: 80200 # PHP 8.2
+    phpVersion: 80300 # PHP 8.3.0
 
     # Analyse your module directory
     paths:
@@ -18,6 +18,8 @@ parameters:
             
     # Supress call to an undefined method OR function not found
     ignoreErrors:
+        - identifier: trait.unused
+
 
     # Supress ignore errors
     reportUnmatchedIgnoredErrors: false

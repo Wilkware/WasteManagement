@@ -3,7 +3,7 @@
         "de": {
             "Waste management (MyMüll.de)": "Abfallwirtschaft (MyMüll.de)",
             "Waste disposal calendar (MyMüll.de)": "Entsorgungskalender (MyMüll.de)",
-            "\nMyMüll – Disposal calendar\n ": "\nMyMüll – Entsorgungskalender\n ",
+            "MyMüll – Disposal calendar": "MyMüll – Entsorgungskalender",
             "This module uses the data provided by the MyMüll online service to display upcoming disposal dates.": "Dieses Modul nutzt die vom Online-Dienst MyMüll bereitgestellten Daten zur Darstellung der bevorstehenden Entsorgungstermine.",
             "🔗 Online service ...": "🔗 Online Dienst ...",
             "Provider:": "Anbieter:",

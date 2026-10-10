@@ -3,7 +3,7 @@
         "de": {
             "Waste management (Abfall.ICS)": "Abfallwirtschaft (Abfall.ICS)",
             "Waste disposal calendar (Abfall.ICS)": "Entsorgungskalender (Abfall.ICS)",
-            "Abfall.ICS – Disposal calendar ": "Abfall.ICS – Entsorgungskalender",
+            "Abfall.ICS – Disposal calendar": "Abfall.ICS – Entsorgungskalender",
             "This module uses the data provided as an iCalendar file (ICS) to display the upcoming disposal dates.": "Dieses Modul nutzt die als iCalendar Datei (ICS) bereitgestellten Daten zur Darstellung der bevorstehenden Entsorgungstermine.",
             "🔗 Online service ...": "🔗 Online Dienst ...",
             "Provider:": "Anbieter:",

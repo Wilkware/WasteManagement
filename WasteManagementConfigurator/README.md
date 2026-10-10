@@ -1,5 +1,6 @@
 # Abfallwirtschafts-Konfigurator (Waste Management Configutrator)
 
+[![Home](https://img.shields.io/badge/Home-wilkware.de-0b1830.svg?style=flat-square)](https://wilkware.de/module/abfallwirtschaft/configurator/)
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-8.1-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
 [![Version](https://img.shields.io/badge/Modul%20Version-5.2.20260902-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
@@ -13,11 +14,12 @@ Symcon Modul für die Verwaltung von Online Diensten zur Bestimmung von Entsorgu
 1. [Funktionsumfang](#user-content-1-funktionsumfang)
 2. [Voraussetzungen](#user-content-2-voraussetzungen)
 3. [Installation](#user-content-3-installation)
-4. [Einrichten der Instanzen](#user-content-4-einrichten-der-instanzen)
-5. [Statusvariablen und Darstellungen](#user-content-5-statusvariablen-und-darstellungen)
-6. [Visualisierung](#user-content-6-visualisierung)
-7. [PHP-Befehlsreferenz](#user-content-7-php-befehlsreferenz)
-8. [Versionshistorie](#user-content-8-versionshistorie)
+4. [Einrichtung](#user-content-4-einrichtung)
+5. [Statusvariablen](#user-content-5-statusvariablen)
+6. [Darstellungen](#user-content-6-darstellungen)
+7. [Visualisierung](#user-content-7-visualisierung)
+8. [Befehlsreferenz](#user-content-8-befehlsreferenz)
+9. [Versionshistorie](#user-content-9-versionshistorie)
 
 ### 1. Funktionsumfang
 
@@ -42,13 +44,13 @@ Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
 ### 3. Installation
 
-* Über den Modul Store das Modul Abfallwirtschaft (ehem. Awido) installieren.
-* Alternativ Über das Modul-Control folgende URL hinzufügen.  
+* Über den Modul Store die Bibliothek _Abfallwirtschaft_ installieren.
+* Alternativ über das Modul Control folgende URL hinzufügen.  
 `https://github.com/Wilkware/WasteManagement` oder `git://github.com/Wilkware/WasteManagement.git`
 
-### 4. Einrichten der Instanzen
+### 4. Einrichtung
 
-* Unter "Instanz hinzufügen" ist das _'Waste Management Configurator'_-Modul (Alias: _'Abfallwirtschaft Konfigurator'_) unter dem Hersteller '(Konfigurator)' aufgeführt.
+* Unter 'Instanz hinzufügen' ist das _Abfallwirtschaft Konfigurator_-Modul unter dem Hersteller '(Konfigurator)' aufgeführt.
 
 __Konfigurationsseite__:
 
@@ -70,19 +72,23 @@ Name                         | Beschreibung
 ---------------------------- | ---------------------------------
 Anbieter                     | Konfigurationsliste zum Verwalten der entsprechenden Instanzen
 
-### 5. Statusvariablen und Darstellungen
+### 5. Statusvariablen
 
-Es werden keine zusätzlichen Variablen oder Profile/Darstellungen benötigt.
+Es werden keine Statusvariablen angelegt.
 
-### 6. Visualisierung
+### 6. Darstellungen
+
+Es werden keine Darstellungen oder Profile benötigt.
+
+### 7. Visualisierung
 
 Es ist keine weitere Steuerung oder gesonderte Darstellung integriert.
 
-### 7. PHP-Befehlsreferenz
+### 8. Befehlsreferenz
 
 Das Modul bietet keine direkten Funktionsaufrufe.
 
-### 8. Versionshistorie
+### 9. Versionshistorie
 
 v5.2.20260902
 
