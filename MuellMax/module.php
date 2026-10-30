@@ -731,8 +731,8 @@ class MuellMax extends IPSModuleStrict
             return;
         }
         $this->SetStatus(102);
-        // get all events
-        $events = $ical->events();
+        // get all events (sorted, the first future date per fraction wins)
+        $events = $ical->sortEventsWithOrder($ical->events());
         // go through all events
         $this->LogDebug(__FUNCTION__, 'ICS Events: ' . $ical->eventCount);
         foreach ($events as $event) {

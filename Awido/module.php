@@ -494,8 +494,10 @@ class Awido extends IPSModuleStrict
             $this->SetStatus(102);
         }
 
-        // go through the calendar data
-        foreach ($data->calendar as $day) {
+        // go through the calendar data (sorted, the first future date per fraction wins)
+        $calendar = (array) $data->calendar;
+        usort($calendar, fn (object $a, object $b): int => strcmp((string) $a->dt, (string) $b->dt));
+        foreach ($calendar as $day) {
             // only pickup dates, no holidays
             if ($day->fr == '') {
                 continue;

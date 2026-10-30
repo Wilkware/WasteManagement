@@ -524,6 +524,9 @@ class Abfall_APP extends IPSModuleStrict
         // Build timestamp
         $today = date('Ymd');
 
+        // Service does not guarantee chronological order (e.g. next year's dates first)
+        usort($collection, fn (array $a, array $b): int => strcmp($a['date'], $b['date']));
+
         // Iterate dates
         foreach ($collection as $event) {
             // date in past we do not need
@@ -1797,6 +1800,11 @@ class Abfall_APP extends IPSModuleStrict
             $name = trim(str_replace(['![CDATA[', ']]'], '', (string) $category->xpath("key[text()='name']/following-sibling::string")[0]));
             $categories[$id] = $name;
         }
+        // Plausibility check: the service sometimes delivers placeholder categories (random names), never write them as dates
+        if (!$this->CheckCategories($categories, $io['abfallarten'] ?? [])) {
+            $this->LogDebug(__FUNCTION__, 'Implausible categories: ' . implode(', ', array_slice($categories, 0, 5)) . ' ...');
+            return false;
+        }
         // Extract pick-up dates
         $collections = [];
         $dates = $xml->xpath("//key[text()='dates']/following-sibling::array")[0] ?? null;
@@ -1816,7 +1824,32 @@ class Abfall_APP extends IPSModuleStrict
                 'date' => $pickup_date
             ];
         }
+        $this->LogDebug(__FUNCTION__, 'Categories: ' . count($categories) . ', dates: ' . count($collections));
         return $collections;
+    }
+
+    /**
+     * Checks whether the delivered categories match the configured waste types.
+     *
+     * @param array<string,string> $categories Category id => name (from struktur.xml)
+     * @param array<int,array<string,string>> $fractions Configured waste types (value, name)
+     *
+     * @return bool True if at least one waste type is found with the same id and name
+     */
+    private function CheckCategories(array $categories, array $fractions): bool
+    {
+        $names = [];
+        foreach ($fractions as $fract) {
+            $names[(string) $fract['value']] = mb_strtolower(trim((string) $fract['name']));
+        }
+        foreach ($categories as $id => $name) {
+            // category id → "<region>-<ident>-<variant>"
+            $ident = explode('-', (string) $id)[1] ?? '';
+            if (isset($names[$ident]) && str_starts_with(mb_strtolower($name), $names[$ident])) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**

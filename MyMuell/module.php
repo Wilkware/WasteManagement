@@ -416,6 +416,8 @@ class MyMuell extends IPSModuleStrict
         // Collect DATA
         $data = ($json !== false) ? json_decode($json, true) : null;
         if (is_array($data)) {
+            // sorted, the first date per fraction wins
+            usort($data, fn (array $a, array $b): int => strtotime($a['day']) <=> strtotime($b['day']));
             foreach ($data as $entry) {
                 if ((!isset($waste[$entry['trash_name']])) && (in_array($entry['title'], $io[self::IO_NAMES]))) {
                     $waste[$entry['trash_name']] = ['ident' => $entry['trash_name'], 'date' => date('d.m.Y', strtotime($entry['day'])), 'title' => $entry['title']];
