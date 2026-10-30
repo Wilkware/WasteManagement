@@ -1,0 +1,427 @@
+{
+    "elements": [
+        {
+            "type": "RowLayout",
+            "items": [
+                {
+                    "type": "Image",
+                    "image": "data:image/png;base64,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",
+                    "link": true,
+                    "onClick": "echo 'https://wilkware.de';"
+                },
+                {
+                    "type": "ColumnLayout",
+                    "items": [
+                        {
+                            "type": "Label",
+                            "label": "sector27 – Disposal calendar",
+                            "bold": true
+                        },
+                        {
+                            "type": "Label",
+                            "label": "This module uses the data provided by the sector27 online service to display upcoming disposal dates."
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "🔗 Online service ...",
+            "items": [
+                {
+                    "type": "Select",
+                    "name": "serviceProvider",
+                    "caption": "Provider:",
+                    "width": "450px",
+                    "enabled": false,
+                    "options": [
+                        {
+                            "label": "Please select ...",
+                            "value": "null"
+                        }
+                    ]
+                },
+                {
+                    "type": "Select",
+                    "name": "serviceCountry",
+                    "caption": "Country:",
+                    "width": "450px",
+                    "onChange": "IPS_RequestAction($id,'OnChangeCountry',$serviceCountry);",
+                    "options": [
+                        {
+                            "label": "Germany",
+                            "value": "de"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "♻️ Waste management ...",
+            "items": [
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "Select",
+                            "name": "disposalID",
+                            "caption": "Disposal area:",
+                            "width": "450px",
+                            "onChange": "IPS_RequestAction($id,'OnChangeDisposal',$disposalID);",
+                            "options": [
+                                {
+                                    "label": "Please select ...",
+                                    "value": "null"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "ValidationTextBox",
+                            "name": "streetSearch",
+                            "caption": "Street search:",
+                            "width": "450px",
+                            "visible": false
+                        },
+                        {
+                            "type": "Button",
+                            "name": "searchButton",
+                            "caption": "Search",
+                            "visible": false,
+                            "onClick": "IPS_RequestAction($id,'OnSearchStreet',json_encode(['city' => $disposalID, 'search' => $streetSearch]));"
+                        }
+                    ]
+                },
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "Select",
+                            "name": "streetID",
+                            "caption": "Street:",
+                            "width": "450px",
+                            "visible": false,
+                            "onChange": "IPS_RequestAction($id,'OnChangeStreet',$streetID);",
+                            "options": [
+                                {
+                                    "label": "Please select ...",
+                                    "value": "null"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "type": "Label",
+                    "name": "fractionLabel",
+                    "caption": "The following disposals are offered:",
+                    "visible": false
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "fractionID1",
+                    "caption": "Residual waste",
+                    "visible": false
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "fractionID2",
+                    "caption": "Biowaste",
+                    "visible": false
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "fractionID3",
+                    "caption": "Paper",
+                    "visible": false
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "fractionID4",
+                    "caption": "Yellow bin",
+                    "visible": false
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "✨ Visualisation ...",
+            "items": [
+                {
+                    "type": "CheckBox",
+                    "name": "settingsTileVisu",
+                    "caption": "Activate support for Tile Visu?"
+                },
+                {
+                    "type": "List",
+                    "name": "settingsTileColors",
+                    "caption": "Waste groups:",
+                    "add": false,
+                    "delete": false,
+                    "changeOrder": false,
+                    "rowCount": 5,
+                    "columns": [
+                        {
+                            "name": "Type",
+                            "caption": "Waste Type:",
+                            "save": true,
+                            "visible": false
+                        },
+                        {
+                            "name": "Term",
+                            "caption": "Generic term:",
+                            "save": true,
+                            "width": "200px"
+                        },
+                        {
+                            "name": "Color",
+                            "caption": "Barrel colour:",
+                            "width": "150px",
+                            "edit": {
+                                "type": "SelectColor",
+                                "allowTransparent": false
+                            }
+                        },
+                        {
+                            "name": "Match",
+                            "caption": "Search term:",
+                            "width": "auto",
+                            "add": "",
+                            "edit": {
+                                "type": "ValidationTextBox"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "type": "Label",
+                    "label": "HINT: Always separate different search terms with | and do not use spaces!",
+                    "italic": true
+                },
+                {
+                    "type": "Select",
+                    "name": "settingsTileMaxView",
+                    "caption": "Largest view (larger tiles):",
+                    "width": "450px",
+                    "options": [
+                        {
+                            "caption": "Icons only",
+                            "value": 0
+                        },
+                        {
+                            "caption": "Compact list",
+                            "value": 1
+                        },
+                        {
+                            "caption": "Large view (default)",
+                            "value": 2
+                        }
+                    ]
+                },
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "SelectColor",
+                            "name": "settingsAccentToday",
+                            "caption": "Accent Color (Today):",
+                            "allowTransparent": true,
+                            "width": "225px"
+                        },
+                        {
+                            "type": "SelectColor",
+                            "name": "settingsAccentTomorrow",
+                            "caption": "Accent Color (Tomorrow):",
+                            "allowTransparent": true,
+                            "width": "233px"
+                        },
+                        {
+                            "type": "NumberSpinner",
+                            "name": "settingsTonneAlpha",
+                            "caption": "Color transparency (thumbnail view):",
+                            "digits": 0,
+                            "minimum": 0,
+                            "maximum": 100,
+                            "suffix": "%",
+                            "width": "233px"
+                        }
+                    ]
+                },
+                {
+                    "type": "Label",
+                    "label": "HINT: Selecting the transparent color option uses the accent color of the currently selected theme!",
+                    "italic": true
+                },
+                {
+                    "type": "CheckBox",
+                    "caption": "Use the barrel colour as the background (thumbnail view)?",
+                    "name": "settingsTonneColor",
+                    "value": true
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "settingsHtmlBox",
+                    "caption": "Enable support for the old web front-end (HTMLBox)?"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "settingsLookAhead",
+                    "caption": "Activate predictive display for the following days?"
+                },
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "SelectTime",
+                            "name": "settingsLookTime",
+                            "caption": "Time:",
+                            "width": "250px"
+                        },
+                        {
+                            "type": "Label",
+                            "caption": "\nTimes before 0:30 am will not be considered!",
+                            "italic": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "⚙️ Advanced settings ...",
+            "items": [
+                {
+                    "type": "CheckBox",
+                    "name": "settingsActivate",
+                    "caption": "Activate daily update?"
+                },
+                {
+                    "type": "CheckBox",
+                    "name": "settingsVariables",
+                    "caption": "Create variables for non-selected disposals?"
+                },
+                {
+                    "type": "SelectScript",
+                    "name": "settingsScript",
+                    "caption": "Subsequent execution of a script:",
+                    "width": "450px"
+                }
+            ]
+        }
+    ],
+    "actions": [
+        {
+            "type": "ExpansionPanel",
+            "caption": "🚀 Execute action ...",
+            "items": [
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "Button",
+                            "name": "updateButton",
+                            "caption": "Update",
+                            "onClick": "SECDE_Update($id);",
+                            "visible": true
+                        },
+                        {
+                            "type": "Button",
+                            "name": "lookAheadButton",
+                            "caption": "Look ahead",
+                            "onClick": "SECDE_LookAhead($id);",
+                            "visible": true
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "type": "ExpansionPanel",
+            "caption": "🎗️ Source code, donation and licence ...",
+            "items": [
+                {
+                    "type": "Label",
+                    "caption": "The software is free of charge for non-commercial use, I would appreciate a donation if you like the module.",
+                    "bold": true
+                },
+                {
+                    "type": "RowLayout",
+                    "items": [
+                        {
+                            "type": "Image",
+                            "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTk2Ljc1IiBoZWlnaHQ9IjI4IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkdJVEhVQjogQFdJTEtXQVJFIj48dGl0bGU+R0lUSFVCOiBAV0lMS1dBUkU8L3RpdGxlPjxnIHNoYXBlLXJlbmRlcmluZz0iY3Jpc3BFZGdlcyI+PHJlY3Qgd2lkdGg9Ijg3LjUiIGhlaWdodD0iMjgiIGZpbGw9IiM1NTUiLz48cmVjdCB4PSI4Ny41IiB3aWR0aD0iMTA5LjI1IiBoZWlnaHQ9IjI4IiBmaWxsPSIjMTgxNzE3Ii8+PC9nPjxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJWZXJkYW5hLEdlbmV2YSxEZWphVnUgU2FucyxzYW5zLXNlcmlmIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBmb250LXNpemU9IjEwMCI+PGltYWdlIHg9IjkiIHk9IjciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgeGxpbms6aHJlZj0iZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCbWFXeHNQU0ozYUdsMFpYTnRiMnRsSWlCeWIyeGxQU0pwYldjaUlIWnBaWGRDYjNnOUlqQWdNQ0F5TkNBeU5DSWdlRzFzYm5NOUltaDBkSEE2THk5M2QzY3Vkek11YjNKbkx6SXdNREF2YzNabklqNDhkR2wwYkdVK1IybDBTSFZpUEM5MGFYUnNaVDQ4Y0dGMGFDQmtQU0pOTVRJZ0xqSTVOMk10Tmk0Mk15QXdMVEV5SURVdU16Y3pMVEV5SURFeUlEQWdOUzR6TURNZ015NDBNemdnT1M0NElEZ3VNakExSURFeExqTTROUzQyTGpFeE15NDRNaTB1TWpVNExqZ3lMUzQxTnpjZ01DMHVNamcxTFM0d01TMHhMakEwTFM0d01UVXRNaTR3TkMwekxqTXpPQzQzTWpRdE5DNHdOREl0TVM0Mk1TMDBMakEwTWkweExqWXhRelF1TkRJeUlERTRMakEzSURNdU5qTXpJREUzTGpjZ015NDJNek1nTVRjdU4yTXRNUzR3T0RjdExqYzBOQzR3T0RRdExqY3lPUzR3T0RRdExqY3lPU0F4TGpJd05TNHdPRFFnTVM0NE16Z2dNUzR5TXpZZ01TNDRNemdnTVM0eU16WWdNUzR3TnlBeExqZ3pOU0F5TGpnd09TQXhMak13TlNBekxqUTVOUzQ1T1RndU1UQTRMUzQzTnpZdU5ERTNMVEV1TXpBMUxqYzJMVEV1TmpBMUxUSXVOalkxTFM0ekxUVXVORFkyTFRFdU16TXlMVFV1TkRZMkxUVXVPVE1nTUMweExqTXhMalEyTlMweUxqTTRJREV1TWpNMUxUTXVNakl0TGpFek5TMHVNekF6TFM0MU5DMHhMalV5TXk0eE1EVXRNeTR4TnpZZ01DQXdJREV1TURBMUxTNHpNaklnTXk0eklERXVNak11T1RZdExqSTJOeUF4TGprNExTNHpPVGtnTXkwdU5EQTFJREV1TURJdU1EQTJJREl1TURRdU1UTTRJRE1nTGpRd05TQXlMakk0TFRFdU5UVXlJRE11TWpnMUxURXVNak1nTXk0eU9EVXRNUzR5TXk0Mk5EVWdNUzQyTlRNdU1qUWdNaTQ0TnpNdU1USWdNeTR4TnpZdU56WTFMamcwSURFdU1qTWdNUzQ1TVNBeExqSXpJRE11TWpJZ01DQTBMall4TFRJdU9EQTFJRFV1TmpJMUxUVXVORGMxSURVdU9USXVOREl1TXpZdU9ERWdNUzR3T1RZdU9ERWdNaTR5TWlBd0lERXVOakEyTFM0d01UVWdNaTQ0T1RZdExqQXhOU0F6TGpJNE5pQXdJQzR6TVRVdU1qRXVOamt1T0RJMUxqVTNRekl3TGpVMk5TQXlNaTR3T1RJZ01qUWdNVGN1TlRreUlESTBJREV5TGpJNU4yTXdMVFl1TmpJM0xUVXVNemN6TFRFeUxURXlMVEV5SWk4K1BDOXpkbWMrIi8+PHRleHQgdHJhbnNmb3JtPSJzY2FsZSguMSkiIHg9IjUyMi41IiB5PSIxNzUiIHRleHRMZW5ndGg9IjQ2NSIgZmlsbD0iI2ZmZiI+R0lUSFVCPC90ZXh0Pjx0ZXh0IHRyYW5zZm9ybT0ic2NhbGUoLjEpIiB4PSIxNDIxLjI1IiB5PSIxNzUiIHRleHRMZW5ndGg9Ijg1Mi41IiBmaWxsPSIjZmZmIiBmb250LXdlaWdodD0iYm9sZCI+QFdJTEtXQVJFPC90ZXh0PjwvZz48L3N2Zz4=",
+                            "onClick": "echo 'https://wilkware.github.io/';"
+                        },
+                        {
+                            "type": "Image",
+                            "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMTcxLjI1IiBoZWlnaHQ9IjI4IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IlBBWVBBTDogU1BFTkRFTiI+PHRpdGxlPlBBWVBBTDogU1BFTkRFTjwvdGl0bGU+PGcgc2hhcGUtcmVuZGVyaW5nPSJjcmlzcEVkZ2VzIj48cmVjdCB3aWR0aD0iODUuNSIgaGVpZ2h0PSIyOCIgZmlsbD0iIzU1NSIvPjxyZWN0IHg9Ijg1LjUiIHdpZHRoPSI4NS43NSIgaGVpZ2h0PSIyOCIgZmlsbD0iIzAwNDU3YyIvPjwvZz48ZyBmaWxsPSIjZmZmIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iVmVyZGFuYSxHZW5ldmEsRGVqYVZ1IFNhbnMsc2Fucy1zZXJpZiIgdGV4dC1yZW5kZXJpbmc9Imdlb21ldHJpY1ByZWNpc2lvbiIgZm9udC1zaXplPSIxMDAiPjxpbWFnZSB4PSI5IiB5PSI3IiB3aWR0aD0iMTQiIGhlaWdodD0iMTQiIHhsaW5rOmhyZWY9ImRhdGE6aW1hZ2Uvc3ZnK3htbDtiYXNlNjQsUEhOMlp5QjJhV1YzUW05NFBTSXdJREFnTWpRZ01qUWlJSGh0Ykc1elBTSm9kSFJ3T2k4dmQzZDNMbmN6TG05eVp5OHlNREF3TDNOMlp5SStQSEJoZEdnZ1pEMGlUVEU1TGpjeE5TQTJMakV6TTJNdU1qUTVMVEV1T0RZMklEQXRNeTR4TVMwdU9UazVMVFF1TWpZMlF6RTNMall6TkM0Mk1qSWdNVFV1TnpJeElEQWdNVE11TXpBM0lEQklOaTR5TXpWakxTNDBNVGdnTUMwdU9URTJMalEwTkMweElDNDRPRGxNTWk0ek1qTWdNakF1TmpJeVl6QWdMak0xTmk0eU5TNDRMalkyTlM0NGFEUXVNekk0YkMwdU1qVWdNUzQ1TlRaakxTNHdPRFF1TXpVMUxqRTJOaTQyTWpJdU5EazRMall5TW1nekxqWTJNMk11TkRFM0lEQWdMamd6TWkwdU1qWTNMamt4TlMwdU56RXhkaTB1TWpZM2JDNDNORGt0TkM0Mk1qSjJMUzR4TnpoakxqQTRNeTB1TkRRMExqVXRMamd1T1RFMUxTNDRhQzQxWXpNdU5UYzRJREFnTmk0ek1qVXRNUzQxTVNBM0xqRTFOaTAxTGprMU5TNDBNVGd0TVM0NE5qY3VNalV5TFRNdU16YzRMUzQzTkRjdE5DNDBORFV0TGpJMUxTNHpOVFV0TGpZMk5pMHVOakl5TFRFdExqZzRPU0lnWm1sc2JEMGlJekF3T1dOa1pTSXZQanh3WVhSb0lHUTlJazB4T1M0M01UVWdOaTR4TXpOakxqSTBPUzB4TGpnMk5pQXdMVE11TVRFdExqazVPUzAwTGpJMk5rTXhOeTQyTXpRdU5qSXlJREUxTGpjeU1TQXdJREV6TGpNd055QXdTRFl1TWpNMVl5MHVOREU0SURBdExqa3hOaTQwTkRRdE1TQXVPRGc1VERJdU16SXpJREl3TGpZeU1tTXdJQzR6TlRZdU1qVXVPQzQyTmpVdU9HZzBMak15T0d3eExqRTJOQzAzTGpNM09DMHVNRGd6TGpJMk4yTXVNRGcwTFM0MU16TXVOUzB1T0RnNUxqazVPQzB1T0RnNWFESXVNRGhqTkM0d056a2dNQ0EzTGpJME1TMHhMamMzT0NBNExqSTBMVFl1TnpVMUxTNHdPRE10TGpJMk55QXdMUzR6TlRZZ01DMHVOVE0wSWlCbWFXeHNQU0lqTURFeU1UWTVJaTgrUEhCaGRHZ2daRDBpVFRrdU5UWXpJRFl1TVRNell5NHdPREl0TGpJMk5pNHlOUzB1TlRNekxqUTVPQzB1TnpFdU1UWTJJREFnTGpJMUxTNHdPUzQwTVRZdExqQTVhRFV1TkRrMFl5NDJOallnTUNBeExqTXpMakE1SURFdU9ETXVNVGM0TGpFMk5pQXdJQzR6TXpNZ01DQXVORGs0TGpBNE9TNHhOamd1TURnNUxqTXpOQzR3T0RrdU5ERTRMakUzT0dndU1qVmpMakkwT0M0d09Ea3VORGszTGpJMk5pNDNORGd1TXpVMUxqSTBPQzB4TGpnMk5pQXdMVE11TVRFdExqazVPUzAwTGpNMU5VTXhOeTQzTVRjdU5UTXpJREUxTGpnd05DQXdJREV6TGpNNUlEQklOaTR5TXpWakxTNDBNVGdnTUMwdU9URTJMak0xTmkweElDNDRPRGxNTWk0ek1qTWdNakF1TmpJeVl6QWdMak0xTmk0eU5TNDRMalkyTlM0NGFEUXVNekk0YkRFdU1UWTBMVGN1TXpjNElERXVNRGcwTFRjdU9URjZJaUJtYVd4c1BTSWpNREF6TURnM0lpOCtQQzl6ZG1jKyIvPjx0ZXh0IHRyYW5zZm9ybT0ic2NhbGUoLjEpIiB4PSI1MTIuNSIgeT0iMTc1IiB0ZXh0TGVuZ3RoPSI0NDUiIGZpbGw9IiNmZmYiPlBBWVBBTDwvdGV4dD48dGV4dCB0cmFuc2Zvcm09InNjYWxlKC4xKSIgeD0iMTI4My43NSIgeT0iMTc1IiB0ZXh0TGVuZ3RoPSI2MTcuNSIgZmlsbD0iI2ZmZiIgZm9udC13ZWlnaHQ9ImJvbGQiPlNQRU5ERU48L3RleHQ+PC9nPjwvc3ZnPg==",
+                            "onClick": "echo 'https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=8816166';"
+                        },
+                        {
+                            "type": "Image",
+                            "image": "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHhtbG5zOnhsaW5rPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5L3hsaW5rIiB3aWR0aD0iMjI5LjUiIGhlaWdodD0iMjgiIHJvbGU9ImltZyIgYXJpYS1sYWJlbD0iTElDRU5TRTogQ0MgQlktTkMtU0EgNC4wIj48dGl0bGU+TElDRU5TRTogQ0MgQlktTkMtU0EgNC4wPC90aXRsZT48ZyBzaGFwZS1yZW5kZXJpbmc9ImNyaXNwRWRnZXMiPjxyZWN0IHdpZHRoPSI5Mi43NSIgaGVpZ2h0PSIyOCIgZmlsbD0iIzU1NSIvPjxyZWN0IHg9IjkyLjc1IiB3aWR0aD0iMTM2Ljc1IiBoZWlnaHQ9IjI4IiBmaWxsPSIjZWY5NDIxIi8+PC9nPjxnIGZpbGw9IiNmZmYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZvbnQtZmFtaWx5PSJWZXJkYW5hLEdlbmV2YSxEZWphVnUgU2FucyxzYW5zLXNlcmlmIiB0ZXh0LXJlbmRlcmluZz0iZ2VvbWV0cmljUHJlY2lzaW9uIiBmb250LXNpemU9IjEwMCI+PGltYWdlIHg9IjkiIHk9IjciIHdpZHRoPSIxNCIgaGVpZ2h0PSIxNCIgeGxpbms6aHJlZj0iZGF0YTppbWFnZS9zdmcreG1sO2Jhc2U2NCxQSE4yWnlCbWFXeHNQU0lqUlVZNU5ESXhJaUJ5YjJ4bFBTSnBiV2NpSUhacFpYZENiM2c5SWpBZ01DQXlOQ0F5TkNJZ2VHMXNibk05SW1oMGRIQTZMeTkzZDNjdWR6TXViM0puTHpJd01EQXZjM1puSWo0OGRHbDBiR1UrUTNKbFlYUnBkbVVnUTI5dGJXOXVjend2ZEdsMGJHVStQSEJoZEdnZ1pEMGlUVEV4TGprNE15QXdZeTB6TGpJNU1pQXdMVFl1TVRrZ01TNHlNVGN0T0M0ME1qZ2dNeTQwT0RWRE1TNHlOU0ExTGpneE9TQXdJRGd1T0RRMElEQWdNVEpqTUNBekxqRTRPU0F4TGpJeE55QTJMakUwT0NBekxqVXlNaUE0TGpRMVF6VXVPREkzSURJeUxqYzFJRGd1T0RJeUlESTBJREV4TGprNE15QXlOR016TGpFMklEQWdOaTR5TWpJdE1TNHlOU0E0TGpVNU15MHpMalU0TTBNeU1pNDRNVFVnTVRndU1qRTBJREkwSURFMUxqSTROeUF5TkNBeE1tTXdMVE11TWpVMUxURXVNVGcyTFRZdU1qRTBMVE11TkRVNExUZ3VORGd6UXpFNExqSXpPQ0F4TGpJeE55QXhOUzR5TnpVZ01DQXhNUzQ1T0RNZ01IcHRMakF6TXlBeUxqRTNZekl1TnlBd0lEVXVNVEF6SURFdU1ESWdOaTQ1T0NBeUxqZzVNeUF4TGpnME15QXhMamcwTVNBeUxqZ3pJRFF1TWpjMElESXVPRE1nTmk0NU16Y2dNQ0F5TGpZNU5pMHVPVFUwSURVdU1EWXpMVEl1TnprNElEWXVPRGN5TFRFdU9UUXpJREV1T1RBMkxUUXVORFEwSURJdU9USTJMVGN1TURFeUlESXVPVEkyTFRJdU5qQXhJREF0TlM0d016Z3RNUzR3TVRrdE5pNDVNVFF0TWk0NE9UTXRNUzQ0TnpjdE1TNDROelV0TWk0NU15MDBMak0wTFRJdU9UTXROaTQ1TURVZ01DMHlMalU1TnlBeExqQTFNeTAxTGpBMk15QXlMamt6TFRZdU9UY2dNUzQ0TkRRdE1TNDROelFnTkM0eU1UUXRNaTQ0TmlBMkxqa3hOQzB5TGpnMmVrMDRMalk0SURndU1qYzRRell1TnpJeklEZ3VNamM0SURVdU1UWTFJRGt1TmpZZ05TNHhOalVnTVRKak1DQXlMak00SURFdU5EWTFJRE11TnpJeUlETXVOVGd4SURNdU56SXlJREV1TXpVNElEQWdNaTQxTVRZdExqYzBOQ0F6TGpFMU5TMHhMamczTkd3dE1TNDBPVEV0TGpjMU9HTXRMak16TXk0M09UZ3RMamd6T1NBeExqQXpOeTB4TGpRM09DQXhMakF6TnkweExqRXdOU0F3TFRFdU5qRXRMamt4TnkweExqWXhMVEl1TVRJMklEQXRNUzR5TVM0ME1qWXRNaTR4TWpjZ01TNDJNUzB5TGpFeU55NHpNaUF3SUM0NU5pNHhOek1nTVM0ek16SXVPVGRzTVM0MU9UY3RMamd6T0dNdExqWTRMVEV1TWpNMkxURXVPRE0zTFRFdU56STRMVE11TVRneExURXVOekk0ZW0wMkxqa3pNaUF3WXkweExqazFOeUF3TFRNdU5URTBJREV1TXpneUxUTXVOVEUwSURNdU56SXlJREFnTWk0ek9DQXhMalEyTkNBekxqY3lNaUF6TGpVNElETXVOekl5SURFdU16VTVJREFnTWk0MU1UWXRMamMwTkNBekxqRTFOUzB4TGpnM05Hd3RNUzQwT1MwdU56VTRZeTB1TXpNekxqYzVPQzB1T0RRZ01TNHdNemN0TVM0ME56Z2dNUzR3TXpjdE1TNHhNRFVnTUMweExqWXhNUzB1T1RFM0xURXVOakV4TFRJdU1USTJJREF0TVM0eU1TNDBNall0TWk0eE1qY2dNUzQyTVMweUxqRXlOeTR6TWlBd0lDNDVOaTR4TnpNZ01TNHpNekl1T1Rkc01TNDFPVGN0TGpnek9HTXRMalk0TFRFdU1qTTJMVEV1T0RNM0xURXVOekk0TFRNdU1UZ3hMVEV1TnpJNGVpSXZQand2YzNablBnPT0iLz48dGV4dCB0cmFuc2Zvcm09InNjYWxlKC4xKSIgeD0iNTQ4Ljc1IiB5PSIxNzUiIHRleHRMZW5ndGg9IjUxNy41IiBmaWxsPSIjZmZmIj5MSUNFTlNFPC90ZXh0Pjx0ZXh0IHRyYW5zZm9ybT0ic2NhbGUoLjEpIiB4PSIxNjExLjI1IiB5PSIxNzUiIHRleHRMZW5ndGg9IjExMjcuNSIgZmlsbD0iI2ZmZiIgZm9udC13ZWlnaHQ9ImJvbGQiPkNDIEJZLU5DLVNBIDQuMDwvdGV4dD48L2c+PC9zdmc+",
+                            "onClick": "echo 'https://creativecommons.org/licenses/by-nc-sa/4.0/';"
+                        }
+                    ]
+                },
+                {
+                    "type": "Label",
+                    "name": "Version",
+                    "color": 8421504
+                }
+            ]
+        },
+        {
+            "name": "EchoPopup",
+            "type": "PopupAlert",
+            "visible": false,
+            "popup": {
+                "items": [
+                    {
+                        "type": "Label",
+                        "name": "EchoMessage",
+                        "caption": ""
+                    }
+                ]
+            }
+        }
+    ],
+    "status": [
+        {
+            "code": 101,
+            "icon": "inactive",
+            "caption": "Creating instance."
+        },
+        {
+            "code": 102,
+            "icon": "active",
+            "caption": "Instance active."
+        },
+        {
+            "code": 104,
+            "icon": "inactive",
+            "caption": "Instance inactive."
+        },
+        {
+            "code": 201,
+            "icon": "inactive",
+            "caption": "Please select a valid refuse management!"
+        },
+        {
+            "code": 202,
+            "icon": "inactive",
+            "caption": "Please select a street!"
+        },
+        {
+            "code": 203,
+            "icon": "error",
+            "caption": "Service request failed (see log/debug)!"
+        }
+    ]
+}

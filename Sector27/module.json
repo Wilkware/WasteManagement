@@ -1,0 +1,15 @@
+{
+    "id": "{7A9CE295-F3E3-4299-9A2D-8DFE75EB085D}",
+    "name": "Sector27",
+    "url": "https://wilkware.de/module/abfallwirtschaft/",
+    "type": 3,
+    "vendor": "",
+    "aliases": [
+        "Waste management (sector27)",
+        "Waste disposal calendar (sector27)"
+    ],
+    "parentRequirements": [],
+    "childRequirements": [],
+    "implemented": [],
+    "prefix": "SECDE"
+}

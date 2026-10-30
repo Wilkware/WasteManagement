@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-/** Generell funktions */
+/** General functions */
 require_once __DIR__ . '/../libs/_traits.php';
 
 /** ICS Parser */
@@ -14,9 +14,9 @@ use ICal\ICal;
 use Wilkware\WasteManagement\DebugHelper;
 use Wilkware\WasteManagement\EventHelper;
 use Wilkware\WasteManagement\FormatHelper;
+use Wilkware\WasteManagement\FormHelper;
 use Wilkware\WasteManagement\ServiceHelper;
 use Wilkware\WasteManagement\VariableHelper;
-
 use Wilkware\WasteManagement\VisualisationHelper;
 
 /**
@@ -31,6 +31,7 @@ class MuellMax extends IPSModuleStrict
     use DebugHelper;
     use EventHelper;
     use FormatHelper;
+    use FormHelper;
     use ServiceHelper;
     use VariableHelper;
     use VisualisationHelper;
@@ -96,16 +97,11 @@ class MuellMax extends IPSModuleStrict
     private const ACTION_FRACTIONS = 'fractions';
 
     // -------------------------------------------------------------------------
-    // Form Elements
+    // Status Codes
     // -------------------------------------------------------------------------
-    /** @var int Lement Postion Provi */
-    private const ELEM_PROVI = 1;
 
-    /** @var int Panael Element MyMDE */
-    private const ELEM_WASTE = 2;
-
-    /** @var int Panael Element Visualisation */
-    private const ELEM_VISU = 3;
+    /** @var int Status Service Error */
+    private const STATUS_SERVICE_ERROR = 203;
 
     // -------------------------------------------------------------------------
     // Methods
@@ -142,6 +138,7 @@ class MuellMax extends IPSModuleStrict
         $this->RegisterPropertyInteger('settingsAccentTomorrow', -1);
         $this->RegisterPropertyInteger('settingsTonneAlpha', 100);
         $this->RegisterPropertyBoolean('settingsTonneColor', true);
+        $this->RegisterPropertyInteger('settingsTileMaxView', 2);
         $this->RegisterPropertyBoolean('settingsHtmlBox', true);
         $this->RegisterPropertyBoolean('settingsLookAhead', false);
         $this->RegisterPropertyString('settingsLookTime', '{"hour":12,"minute":0,"second":0}');
@@ -160,7 +157,7 @@ class MuellMax extends IPSModuleStrict
         // Register daily look ahead timer
         $this->RegisterTimer('LookAheadTimer', 0, 'MAXDE_LookAhead(' . $this->InstanceID . ');');
 
-        // Set visualization type to 1, as we want to offer HTML
+        // Set visualization type to 0 (no visualization until enabled in ApplyChanges)
         $this->SetVisualizationType(0);
     }
 
@@ -192,7 +189,10 @@ class MuellMax extends IPSModuleStrict
         $ins = IPS_GetInstance($this->InstanceID);
         $mod = IPS_GetModule($ins['ModuleInfo']['ModuleID']);
         $lib = IPS_GetLibrary($mod['LibraryID']);
-        $form['actions'][1]['items'][2]['caption'] = sprintf('v%s.%d', $lib['Version'], $lib['Build']);
+        $this->ModifyFormElement($form['actions'], 'Version', function (array &$element) use ($lib): void
+        {
+            $element['caption'] = sprintf('v%s.%d', $lib['Version'], $lib['Build']);
+        });
 
         // Settings
         $activate = $this->ReadPropertyBoolean('settingsActivate');
@@ -206,13 +206,22 @@ class MuellMax extends IPSModuleStrict
         // Debug output
         $this->LogDebug(__FUNCTION__, 'disposalID=' . $dId . ', cityID=' . $cId . ', streetId=' . $sId . ', addonId=' . $aId);
         // Service Provider
-        $form['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
-        $form['elements'][self::ELEM_PROVI]['items'][1]['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
+        $this->ModifyFormElement($form['elements'], 'serviceProvider', function (array &$element): void
+        {
+            $element['options'] = $this->GetProviderOptions();
+        });
+        $this->ModifyFormElement($form['elements'], 'serviceCountry', function (array &$element): void
+        {
+            $element['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
+        });
         // Waste Management
-        $form['elements'][self::ELEM_WASTE]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
+        $this->ModifyFormElement($form['elements'], 'disposalID', function (array &$element) use ($country): void
+        {
+            $element['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
+        });
         // Prompt
         $prompt = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
-        // go throw the whole way
+        // go through the whole way
         $options = [];
         $args = [];
         $next = true;
@@ -221,7 +230,7 @@ class MuellMax extends IPSModuleStrict
         // Disposal
         if ($dId != 'null') {
             $io[self::IO_DISPOSAL] = $dId;
-            $this->LogDebug(__FUNCTION__, 'ACTION: Init Disposl!');
+            $this->LogDebug(__FUNCTION__, 'ACTION: Init disposal!');
             $this->ExecuteAction($io);
             if ($io[self::IO_SECURE] == '') {
                 $this->LogDebug(__FUNCTION__, 'Init secure token failed!');
@@ -259,15 +268,18 @@ class MuellMax extends IPSModuleStrict
                 if ($options != null) {
                     // Always add the selection prompt
                     array_unshift($options, $prompt);
-                    $form['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['options'] = $options;
-                    $form['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['visible'] = true;
+                    $this->ModifyFormElement($form['elements'], 'cityID', function (array &$element) use ($options): void
+                    {
+                        $element['options'] = $options;
+                        $element['visible'] = true;
+                    });
                 } else {
                     $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
                 if ($cId != 'null') {
                     $io[self::IO_CITY] = $cId;
-                    // than prepeare the next
+                    // then prepare the next
                     unset($args);
                     $args[] = 'mm_ses=' . $io[self::IO_SECURE];
                     $args[] = 'xxx=1';
@@ -275,7 +287,7 @@ class MuellMax extends IPSModuleStrict
                     $args[] = 'mm_aus_ort_submit=weiter';
                     $this->LogDebug(__FUNCTION__, 'ACTION: City and now streets!');
                     $options = $this->ExecuteAction($io, $args);
-                    // prepeare street ?
+                    // prepare street?
                     if ($io[self::IO_ACTION] != self::ACTION_STREET) {
                         unset($args);
                         $args[] = 'mm_ses=' . $io[self::IO_SECURE];
@@ -294,8 +306,11 @@ class MuellMax extends IPSModuleStrict
                 }
             } else {
                 $data[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $cId];
-                $form['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['options'] = $data;
-                $form['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['visible'] = false;
+                $this->ModifyFormElement($form['elements'], 'cityID', function (array &$element) use ($data): void
+                {
+                    $element['options'] = $data;
+                    $element['visible'] = false;
+                });
             }
         }
         // Street
@@ -304,15 +319,18 @@ class MuellMax extends IPSModuleStrict
                 if ($options != null) {
                     // Always add the selection prompt
                     array_unshift($options, $prompt);
-                    $form['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['options'] = $options;
-                    $form['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['visible'] = true;
+                    $this->ModifyFormElement($form['elements'], 'streetID', function (array &$element) use ($options): void
+                    {
+                        $element['options'] = $options;
+                        $element['visible'] = true;
+                    });
                 } else {
                     $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
                 }
                 if ($sId != 'null') {
                     $io[self::IO_STREET] = $sId;
-                    // than prepeare the next
+                    // then prepare the next
                     unset($args);
                     $args[] = 'mm_ses=' . $io[self::IO_SECURE];
                     $args[] = 'xxx=1';
@@ -340,8 +358,11 @@ class MuellMax extends IPSModuleStrict
                 }
             } else {
                 $data[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $sId];
-                $form['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['options'] = $data;
-                $form['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['visible'] = false;
+                $this->ModifyFormElement($form['elements'], 'streetID', function (array &$element) use ($data): void
+                {
+                    $element['options'] = $data;
+                    $element['visible'] = false;
+                });
             }
         }
         // Addon
@@ -351,8 +372,11 @@ class MuellMax extends IPSModuleStrict
                 if ($options != null) {
                     // Always add the selection prompt
                     array_unshift($options, $prompt);
-                    $form['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['options'] = $options;
-                    $form['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['visible'] = true;
+                    $this->ModifyFormElement($form['elements'], 'addonID', function (array &$element) use ($options): void
+                    {
+                        $element['options'] = $options;
+                        $element['visible'] = true;
+                    });
                 } else {
                     $this->LogDebug(__FUNCTION__, __LINE__);
                     $next = false;
@@ -384,8 +408,11 @@ class MuellMax extends IPSModuleStrict
                 }
             } else {
                 $data[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => $aId];
-                $form['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['options'] = $data;
-                $form['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['visible'] = false;
+                $this->ModifyFormElement($form['elements'], 'addonID', function (array &$element) use ($data): void
+                {
+                    $element['options'] = $data;
+                    $element['visible'] = false;
+                });
             }
         }
         // Fractions
@@ -393,11 +420,17 @@ class MuellMax extends IPSModuleStrict
             if ($io[self::IO_ACTION] == self::ACTION_FRACTIONS) {
                 if ($options != null) {
                     // Label
-                    $form['elements'][self::ELEM_WASTE]['items'][3]['visible'] = true;
+                    $this->ModifyFormElement($form['elements'], 'fractionLabel', function (array &$element): void
+                    {
+                        $element['visible'] = true;
+                    });
                     $i = 1;
                     foreach ($options as $fract) {
-                        $form['elements'][self::ELEM_WASTE]['items'][$i + 3]['caption'] = $fract['caption'];
-                        $form['elements'][self::ELEM_WASTE]['items'][$i + 3]['visible'] = true;
+                        $this->ModifyFormElement($form['elements'], 'fractionID' . $i, function (array &$element) use ($fract): void
+                        {
+                            $element['caption'] = $fract['caption'];
+                            $element['visible'] = true;
+                        });
                         $i++;
                     }
                 } else {
@@ -417,7 +450,10 @@ class MuellMax extends IPSModuleStrict
         $colors = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         if (empty($colors)) {
             $this->LogDebug(__FUNCTION__, 'Translate Waste Visu');
-            $form['elements'][self::ELEM_VISU]['items'][1]['values'] = $this->GetWasteValues();
+            $this->ModifyFormElement($form['elements'], 'settingsTileColors', function (array &$element): void
+            {
+                $element['values'] = $this->GetWasteValues();
+            });
         }
         // Return Form
         return json_encode($form);
@@ -441,11 +477,11 @@ class MuellMax extends IPSModuleStrict
         $htmlbox = $this->ReadPropertyBoolean('settingsHtmlBox');
         $loakahead = $this->ReadPropertyBoolean('settingsLookAhead');
         $this->LogDebug(__FUNCTION__, 'disposalID=' . $dId . ', cityID=' . $cId . ', streetId=' . $sId . ', addonId=' . $aId);
-        // Safty default
+        // Safety default
         $this->SetTimerInterval('UpdateTimer', 0);
         $this->SetTimerInterval('LookAheadTimer', 0);
-        // Support for Tile Viso (v7.x)
-        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, '~HTMLBox', 0, $tilevisu && $htmlbox);
+        // Support for Tile Visu (v7.x)
+        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, ['PRESENTATION' => VARIABLE_PRESENTATION_WEB_CONTENT], 0, $tilevisu && $htmlbox);
         // Set status
         if ($dId == 'null') {
             $status = 201;
@@ -463,18 +499,19 @@ class MuellMax extends IPSModuleStrict
                     'todayColor'    => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentToday')),
                     'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
                     'tonneAlpha'    => $this->ReadPropertyInteger('settingsTonneAlpha') . '%',
-                    'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor')
+                    'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor'),
+                    'tileMaxView'   => $this->ReadPropertyInteger('settingsTileMaxView')
                 ]));
             }
             $this->CreateVariables();
             if ($activate == true) {
-                // Time neu berechnen
+                // Recalculate time
                 $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
-                $this->LogDebug(__FUNCTION__, 'Update Timer aktiviert!');
-                if ($loakahead & $tilevisu) {
+                $this->LogDebug(__FUNCTION__, 'Update timer activated!');
+                if ($loakahead && $tilevisu) {
                     $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
                     if (($time['hour'] == 0) && ($time['minute'] <= 30)) {
-                        $this->LogDebug(__FUNCTION__, 'LookAhead Time zu niedrieg!');
+                        $this->LogDebug(__FUNCTION__, 'LookAhead time too early!');
                     } else {
                         $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second']);
                     }
@@ -498,7 +535,30 @@ class MuellMax extends IPSModuleStrict
     {
         // Debug output
         $this->LogDebug(__FUNCTION__, $ident . ' => ' . $value);
-        eval('$this->' . $ident . '(\'' . $value . '\');');
+        // Dispatch form actions (no eval, values can contain user input)
+        switch ($ident) {
+            case 'OnChangeCountry':
+                $this->OnChangeCountry((string) $value);
+                break;
+            case 'OnChangeDisposal':
+                $this->OnChangeDisposal((string) $value);
+                break;
+            case 'OnChangeCity':
+                $this->OnChangeCity((string) $value);
+                break;
+            case 'OnChangeStreet':
+                $this->OnChangeStreet((string) $value);
+                break;
+            case 'OnChangeAddon':
+                $this->OnChangeAddon((string) $value);
+                break;
+            case 'LookAhead':
+                // Tap on the 'Today' badge of the tile
+                $this->LookAhead();
+                break;
+            default:
+                $this->LogDebug(__FUNCTION__, 'Unknown ident: ' . $ident);
+        }
     }
 
     /**
@@ -511,8 +571,8 @@ class MuellMax extends IPSModuleStrict
      */
     public function LookAhead(): void
     {
-        // Check instance state
-        if ($this->GetStatus() != 102) {
+        // Check instance state (after a service error the variables still hold valid dates)
+        if (!in_array($this->GetStatus(), [102, self::STATUS_SERVICE_ERROR])) {
             $this->LogDebug(__FUNCTION__, 'Status: Instance is not active.');
             return;
         }
@@ -562,8 +622,8 @@ class MuellMax extends IPSModuleStrict
      */
     public function Update(): void
     {
-        // Check instance state
-        if ($this->GetStatus() != 102) {
+        // Check instance state (a previous service error must not block the retry)
+        if (!in_array($this->GetStatus(), [102, self::STATUS_SERVICE_ERROR])) {
             $this->LogDebug(__FUNCTION__, 'Status: Instance is not active.');
             return;
         }
@@ -576,6 +636,8 @@ class MuellMax extends IPSModuleStrict
         $this->ExecuteAction($uio);
         if ($uio[self::IO_SECURE] == '') {
             $this->LogDebug(__FUNCTION__, 'Init secure token failed!');
+            $this->LogMessage('Could not retrieve collection dates from service (see debug for details)!', KL_ERROR);
+            $this->SetServiceError(self::STATUS_SERVICE_ERROR);
             return;
         }
         // (2) Request city or an empty street search field
@@ -645,6 +707,12 @@ class MuellMax extends IPSModuleStrict
         $url = $this->BuildURL($io['key']);
         $request = implode('&', $args);
         $response = $this->ServiceRequest($url, $request);
+        if (!is_string($response) || ($response === '')) {
+            $this->LogDebug(__FUNCTION__, 'Service Request failed!');
+            $this->LogMessage('Could not retrieve collection dates from service (see debug for details)!', KL_ERROR);
+            $this->SetServiceError(self::STATUS_SERVICE_ERROR);
+            return;
+        }
         try {
             $ical = new ICal(false, [
                 'defaultSpan'                 => 2,     // Default value
@@ -658,11 +726,14 @@ class MuellMax extends IPSModuleStrict
             $ical->initString($response);
         } catch (Exception $e) {
             $this->LogDebug(__FUNCTION__, 'initICS: ' . $e);
+            $this->LogMessage('Could not retrieve collection dates from service (see debug for details)!', KL_ERROR);
+            $this->SetServiceError(self::STATUS_SERVICE_ERROR);
             return;
         }
+        $this->SetStatus(102);
         // get all events
         $events = $ical->events();
-        // go throw all events
+        // go through all events
         $this->LogDebug(__FUNCTION__, 'ICS Events: ' . $ical->eventCount);
         foreach ($events as $event) {
             $this->LogDebug(__FUNCTION__, 'Event: ' . $event->summary . ' = ' . $event->dtstart);
@@ -670,7 +741,7 @@ class MuellMax extends IPSModuleStrict
             if ($event->dtstart < date('Ymd')) {
                 continue;
             }
-            // YYYYMMDD umwandeln in DD.MM.YYYY
+            // convert YYYYMMDD into DD.MM.YYYY
             $day = substr($event->dtstart, 6) . '.' . substr($event->dtstart, 4, 2) . '.' . substr($event->dtstart, 0, 4);
             // Update fraction
             $name = $event->summary;
@@ -707,7 +778,7 @@ class MuellMax extends IPSModuleStrict
                 $rs = IPS_RunScriptEx($script, ['TIMESTAMP' => time(), 'INSTANCE' => $this->InstanceID, 'DATA' => json_encode($waste)]);
                 $this->LogDebug(__FUNCTION__, 'Script Execute (Return Value): ' . $rs);
             } else {
-                $this->LogDebug(__FUNCTION__, 'Update: Script #' . $script . ' existiert nicht!');
+                $this->LogDebug(__FUNCTION__, 'Update: Script #' . $script . ' does not exist!');
             }
         }
 
@@ -834,7 +905,7 @@ class MuellMax extends IPSModuleStrict
     }
 
     /**
-     * Benutzer hat eine neue Straße ausgewählt.
+     * User has selected a new street.
      *
      * @param string $id Street ID .
      *
@@ -869,7 +940,7 @@ class MuellMax extends IPSModuleStrict
     }
 
     /**
-     * Benutzer hat eine neue Hausnummer ausgewählt.
+     * User has selected a new house number.
      *
      * @param string $id Addon ID .
      *
@@ -1026,7 +1097,7 @@ class MuellMax extends IPSModuleStrict
         foreach ($ids as $fract) {
             if ($i <= self::$FRACTIONS) {
                 $enabled = $this->ReadPropertyBoolean('fractionID' . $i);
-                $this->MaintainVariable($fract, $io[self::IO_NAMES][$fract], VARIABLETYPE_STRING, '', $i, $enabled || $variable);
+                $this->MaintainVariable($fract, $io[self::IO_NAMES][$fract], VARIABLETYPE_STRING, ['ICON' => 'trash-can', 'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION], $i, $enabled || $variable);
             }
             $i++;
         }
@@ -1144,7 +1215,7 @@ class MuellMax extends IPSModuleStrict
         if (!empty($args)) {
             $request = implode('&', $args);
         }
-        $this->LogDebug(__FUNCTION__, 'Rerquest: ' . $request);
+        $this->LogDebug(__FUNCTION__, 'Request: ' . $request);
         // Request FORM (xpath)
         $res = $this->GetDocument($url, $request);
         $data = null;
@@ -1283,6 +1354,8 @@ class MuellMax extends IPSModuleStrict
         $ret = false;
         // CURL
         $curl = curl_init();
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, self::$CONNECT_TIMEOUT);
+        curl_setopt($curl, CURLOPT_TIMEOUT, self::$TIMEOUT);
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 0);
@@ -1296,7 +1369,6 @@ class MuellMax extends IPSModuleStrict
         curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
         curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
         $response = curl_exec($curl);
-        curl_close($curl);
         //$this->LogDebug(__FUNCTION__, $response);
         if ($response != null) {
             return $response;
@@ -1328,6 +1400,7 @@ class MuellMax extends IPSModuleStrict
             'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
             'tonneAlpha'    => $this->ReadPropertyInteger('settingsTonneAlpha') . '%',
             'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor'),
+            'tileMaxView'   => $this->ReadPropertyInteger('settingsTileMaxView'),
         ];
         $result = array_merge($ac, $wd);
 

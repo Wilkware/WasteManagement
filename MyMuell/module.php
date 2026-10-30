@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-/** Generell funktions */
+/** General functions */
 require_once __DIR__ . '/../libs/_traits.php';
 
 /** Namespaced traits */
 use Wilkware\WasteManagement\DebugHelper;
 use Wilkware\WasteManagement\EventHelper;
 use Wilkware\WasteManagement\FormatHelper;
+use Wilkware\WasteManagement\FormHelper;
 use Wilkware\WasteManagement\ServiceHelper;
 use Wilkware\WasteManagement\VariableHelper;
 use Wilkware\WasteManagement\VisualisationHelper;
@@ -25,6 +26,7 @@ class MyMuell extends IPSModuleStrict
     use DebugHelper;
     use EventHelper;
     use FormatHelper;
+    use FormHelper;
     use ServiceHelper;
     use VariableHelper;
     use VisualisationHelper;
@@ -43,17 +45,11 @@ class MyMuell extends IPSModuleStrict
     private const IO_NAMES = 'names';
 
     // -------------------------------------------------------------------------
-    // Form Elements
+    // Status Codes
     // -------------------------------------------------------------------------
 
-    /** @var int Lement Postion Provi */
-    private const ELEM_PROVI = 1;
-
-    /** @var int Panael Element MyMDE */
-    private const ELEM_WASTE = 2;
-
-    /** @var int Panael Element Visualisation */
-    private const ELEM_VISU = 3;
+    /** @var int Status Service Error */
+    private const STATUS_SERVICE_ERROR = 203;
 
     // -------------------------------------------------------------------------
     // Methods
@@ -92,6 +88,7 @@ class MyMuell extends IPSModuleStrict
         $this->RegisterPropertyInteger('settingsAccentTomorrow', -1);
         $this->RegisterPropertyInteger('settingsTonneAlpha', 100);
         $this->RegisterPropertyBoolean('settingsTonneColor', true);
+        $this->RegisterPropertyInteger('settingsTileMaxView', 2);
         $this->RegisterPropertyBoolean('settingsHtmlBox', true);
         $this->RegisterPropertyBoolean('settingsLookAhead', false);
         $this->RegisterPropertyString('settingsLookTime', '{"hour":12,"minute":0,"second":0}');
@@ -107,7 +104,7 @@ class MyMuell extends IPSModuleStrict
         // Register daily look ahead timer
         $this->RegisterTimer('LookAheadTimer', 0, 'MYMDE_LookAhead(' . $this->InstanceID . ');');
 
-        // Set visualization type to 1, as we want to offer HTML
+        // Set visualization type to 0 (no visualization until enabled in ApplyChanges)
         $this->SetVisualizationType(0);
     }
 
@@ -139,7 +136,10 @@ class MyMuell extends IPSModuleStrict
         $ins = IPS_GetInstance($this->InstanceID);
         $mod = IPS_GetModule($ins['ModuleInfo']['ModuleID']);
         $lib = IPS_GetLibrary($mod['LibraryID']);
-        $form['actions'][1]['items'][2]['caption'] = sprintf('v%s.%d', $lib['Version'], $lib['Build']);
+        $this->ModifyFormElement($form['actions'], 'Version', function (array &$element) use ($lib): void
+        {
+            $element['caption'] = sprintf('v%s.%d', $lib['Version'], $lib['Build']);
+        });
 
         // Settings
         $activate = $this->ReadPropertyBoolean('settingsActivate');
@@ -156,11 +156,20 @@ class MyMuell extends IPSModuleStrict
         $this->LogDebug(__FUNCTION__, 'domainID=' . $dId . ',cityID=' . $cId . ', areaId=' . $aId);
 
         // Service Provider
-        $form['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
-        $form['elements'][self::ELEM_PROVI]['items'][1]['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
+        $this->ModifyFormElement($form['elements'], 'serviceProvider', function (array &$element): void
+        {
+            $element['options'] = $this->GetProviderOptions();
+        });
+        $this->ModifyFormElement($form['elements'], 'serviceCountry', function (array &$element): void
+        {
+            $element['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
+        });
 
         // Waste Management
-        $form['elements'][self::ELEM_WASTE]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
+        $this->ModifyFormElement($form['elements'], 'domainID', function (array &$element) use ($country): void
+        {
+            $element['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
+        });
 
         // Prompt
         $prompt = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
@@ -170,8 +179,11 @@ class MyMuell extends IPSModuleStrict
             if ($options != null) {
                 // Always add the selection prompt
                 array_unshift($options, $prompt);
-                $form['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['options'] = $options;
-                $form['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['visible'] = true;
+                $this->ModifyFormElement($form['elements'], 'cityID', function (array &$element) use ($options): void
+                {
+                    $element['options'] = $options;
+                    $element['visible'] = true;
+                });
             }
         } else {
             $this->LogDebug(__FUNCTION__, __LINE__);
@@ -184,8 +196,11 @@ class MyMuell extends IPSModuleStrict
             if ($options != null) {
                 // Always add the selection prompt
                 array_unshift($options, $prompt);
-                $form['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['options'] = $options;
-                $form['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['visible'] = true;
+                $this->ModifyFormElement($form['elements'], 'areaID', function (array &$element) use ($options): void
+                {
+                    $element['options'] = $options;
+                    $element['visible'] = true;
+                });
             }
         } else {
             $aId = null;
@@ -196,11 +211,17 @@ class MyMuell extends IPSModuleStrict
             $options = $this->RequestFractions($dId, $cId, $aId);
             if ($options != null) {
                 // Label
-                $form['elements'][self::ELEM_WASTE]['items'][3]['visible'] = true;
+                $this->ModifyFormElement($form['elements'], 'fractionLabel', function (array &$element): void
+                {
+                    $element['visible'] = true;
+                });
                 $i = 1;
                 foreach ($options as $fract) {
-                    $form['elements'][self::ELEM_WASTE]['items'][$i + 3]['caption'] = $fract['caption'];
-                    $form['elements'][self::ELEM_WASTE]['items'][$i + 3]['visible'] = true;
+                    $this->ModifyFormElement($form['elements'], 'fractionID' . $i, function (array &$element) use ($fract): void
+                    {
+                        $element['caption'] = $fract['caption'];
+                        $element['visible'] = true;
+                    });
                     $i++;
                 }
             }
@@ -210,7 +231,10 @@ class MyMuell extends IPSModuleStrict
         $colors = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         if (empty($colors)) {
             $this->LogDebug(__FUNCTION__, 'Translate Waste Visu');
-            $form['elements'][self::ELEM_VISU]['items'][1]['values'] = $this->GetWasteValues();
+            $this->ModifyFormElement($form['elements'], 'settingsTileColors', function (array &$element): void
+            {
+                $element['values'] = $this->GetWasteValues();
+            });
         }
 
         // Return Form
@@ -234,11 +258,11 @@ class MyMuell extends IPSModuleStrict
         $htmlbox = $this->ReadPropertyBoolean('settingsHtmlBox');
         $loakahead = $this->ReadPropertyBoolean('settingsLookAhead');
         $this->LogDebug(__FUNCTION__, 'domainID=' . $dId . 'cityID=' . $cId . ', areaID=' . $aId);
-        // Safty default
+        // Safety default
         $this->SetTimerInterval('UpdateTimer', 0);
         $this->SetTimerInterval('LookAheadTimer', 0);
-        // Support for Tile Viso (v7.x)
-        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, '~HTMLBox', 0, $tilevisu && $htmlbox);
+        // Support for Tile Visu (v7.x)
+        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, ['PRESENTATION' => VARIABLE_PRESENTATION_WEB_CONTENT], 0, $tilevisu && $htmlbox);
         // Set status
         if ($dId == 'null') {
             $status = 201;
@@ -258,18 +282,19 @@ class MyMuell extends IPSModuleStrict
                     'todayColor'    => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentToday')),
                     'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
                     'tonneAlpha'    => $this->ReadPropertyInteger('settingsTonneAlpha') . '%',
-                    'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor')
+                    'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor'),
+                    'tileMaxView'   => $this->ReadPropertyInteger('settingsTileMaxView')
                 ]));
             }
             $this->CreateVariables($dId, $cId, $aId);
             if ($activate == true) {
-                // Time neu berechnen
+                // Recalculate time
                 $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
-                $this->LogDebug(__FUNCTION__, 'Update Timer aktiviert!');
-                if ($loakahead & $tilevisu) {
+                $this->LogDebug(__FUNCTION__, 'Update timer activated!');
+                if ($loakahead && $tilevisu) {
                     $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
                     if (($time['hour'] == 0) && ($time['minute'] <= 30)) {
-                        $this->LogDebug(__FUNCTION__, 'LookAhead Time zu niedrieg!');
+                        $this->LogDebug(__FUNCTION__, 'LookAhead time too early!');
                     } else {
                         $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second']);
                     }
@@ -293,7 +318,27 @@ class MyMuell extends IPSModuleStrict
     {
         // Debug output
         $this->LogDebug(__FUNCTION__, $ident . ' => ' . $value);
-        eval('$this->' . $ident . '(\'' . $value . '\');');
+        // Dispatch form actions (no eval, values can contain user input)
+        switch ($ident) {
+            case 'OnChangeCountry':
+                $this->OnChangeCountry((string) $value);
+                break;
+            case 'OnChangeDomain':
+                $this->OnChangeDomain((string) $value);
+                break;
+            case 'OnChangeCity':
+                $this->OnChangeCity((string) $value);
+                break;
+            case 'OnChangeArea':
+                $this->OnChangeArea((string) $value);
+                break;
+            case 'LookAhead':
+                // Tap on the 'Today' badge of the tile
+                $this->LookAhead();
+                break;
+            default:
+                $this->LogDebug(__FUNCTION__, 'Unknown ident: ' . $ident);
+        }
     }
 
     /**
@@ -306,8 +351,8 @@ class MyMuell extends IPSModuleStrict
      */
     public function LookAhead(): void
     {
-        // Check instance state
-        if ($this->GetStatus() != 102) {
+        // Check instance state (after a service error the variables still hold valid dates)
+        if (!in_array($this->GetStatus(), [102, self::STATUS_SERVICE_ERROR])) {
             $this->LogDebug(__FUNCTION__, 'STATUS: Instance is not active.');
             return;
         }
@@ -353,8 +398,8 @@ class MyMuell extends IPSModuleStrict
      */
     public function Update(): void
     {
-        // Check instance state
-        if ($this->GetStatus() != 102) {
+        // Check instance state (a previous service error must not block the retry)
+        if (!in_array($this->GetStatus(), [102, self::STATUS_SERVICE_ERROR])) {
             $this->LogDebug(__FUNCTION__, 'Status: Instance is not active.');
             return;
         }
@@ -367,20 +412,22 @@ class MyMuell extends IPSModuleStrict
         // Build URL data
         $url = $this->BuildURL('dates', $dId, $cId, $aId);
         // Request Data
-        $json = @file_get_contents($url);
+        $json = $this->GetUrlContent($url);
         // Collect DATA
-        if ($json !== false) {
-            $data = json_decode($json, true);
+        $data = ($json !== false) ? json_decode($json, true) : null;
+        if (is_array($data)) {
             foreach ($data as $entry) {
                 if ((!isset($waste[$entry['trash_name']])) && (in_array($entry['title'], $io[self::IO_NAMES]))) {
                     $waste[$entry['trash_name']] = ['ident' => $entry['trash_name'], 'date' => date('d.m.Y', strtotime($entry['day'])), 'title' => $entry['title']];
                 }
             }
         } else {
-            $this->LogMessage($this->Translate('Could not load json data!'), KL_ERROR);
-            $this->LogDebug(__FUNCTION__, 'Error: Could not load json data!');
+            $this->LogDebug(__FUNCTION__, 'ERROR: Could not load json data!');
+            $this->LogMessage('Could not retrieve collection dates from service (see debug for details)!', KL_ERROR);
+            $this->SetServiceError(self::STATUS_SERVICE_ERROR);
             return;
         }
+        $this->SetStatus(102);
         $this->LogDebug(__FUNCTION__, $waste);
 
         // write data to variable
@@ -403,7 +450,7 @@ class MyMuell extends IPSModuleStrict
                 $rs = IPS_RunScriptEx($script, ['TIMESTAMP' => time(), 'INSTANCE' => $this->InstanceID, 'DATA' => json_encode($waste)]);
                 $this->LogDebug(__FUNCTION__, 'Script Execute (Return Value): ' . $rs);
             } else {
-                $this->LogDebug(__FUNCTION__, 'Update: Script #' . $script . ' existiert nicht!');
+                $this->LogDebug(__FUNCTION__, 'Update: Script #' . $script . ' does not exist!');
             }
         }
 
@@ -621,7 +668,7 @@ class MyMuell extends IPSModuleStrict
         foreach ($options as $fract) {
             if ($i <= self::$FRACTIONS) {
                 $enabled = $this->ReadPropertyBoolean('fractionID' . $i);
-                $this->MaintainVariable($fract['value'], $fract['caption'], VARIABLETYPE_STRING, '', $i, $enabled || $variable);
+                $this->MaintainVariable($fract['value'], $fract['caption'], VARIABLETYPE_STRING, ['ICON' => 'trash-can', 'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION], $i, $enabled || $variable);
                 if ($enabled) {
                     $names[$fract['value']] = $fract['caption'];
                 }
@@ -673,12 +720,12 @@ class MyMuell extends IPSModuleStrict
         // Build URL data
         $url = $this->BuildURL('cities', $domain);
         // Request Data
-        $res = @file_get_contents($url);
+        $res = $this->GetUrlContent($url);
         $data = null;
         // Collect DATA
         if ($res !== false) {
             $json = json_decode($res, true);
-            foreach ($json as $city) {
+            foreach ($json ?? [] as $city) {
                 if (($city['has_streets'] == false) && $city['area_id'] == 0) {
                     continue;
                 }
@@ -706,7 +753,7 @@ class MyMuell extends IPSModuleStrict
         // Build URL data
         $url = $this->BuildURL('streets', $domain, $city);
         // Request Data
-        $res = @file_get_contents($url);
+        $res = $this->GetUrlContent($url);
         $data = null;
         // Collect DATA
         if ($res !== false) {
@@ -740,13 +787,13 @@ class MyMuell extends IPSModuleStrict
         // Build URL data
         $url = $this->BuildURL('trash', $domain, $city, $area);
         // Request Data
-        $res = @file_get_contents($url);
+        $res = $this->GetUrlContent($url);
         $data = null;
         // Collect DATA
         if ($res !== false) {
             $json = json_decode($res, true);
             $waste = [];
-            foreach ($json as $fract) {
+            foreach ($json ?? [] as $fract) {
                 if (!isset($waste[$fract['name']])) {
                     $waste[$fract['name']] = $fract['title'];
                 }
@@ -783,6 +830,7 @@ class MyMuell extends IPSModuleStrict
             'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
             'tonneAlpha'    => $this->ReadPropertyInteger('settingsTonneAlpha') . '%',
             'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor'),
+            'tileMaxView'   => $this->ReadPropertyInteger('settingsTileMaxView'),
         ];
         $result = array_merge($ac, $wd);
 

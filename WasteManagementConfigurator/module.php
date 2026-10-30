@@ -2,11 +2,12 @@
 
 declare(strict_types=1);
 
-/** Generell funktions */
+/** General functions */
 require_once __DIR__ . '/../libs/_traits.php';
 
 /** Namespaced traits */
 use Wilkware\WasteManagement\DebugHelper;
+use Wilkware\WasteManagement\FormHelper;
 use Wilkware\WasteManagement\ServiceHelper;
 
 /**
@@ -22,6 +23,7 @@ class WasteManagementConfigurator extends IPSModuleStrict
     // -------------------------------------------------------------------------
 
     use DebugHelper;
+    use FormHelper;
     use ServiceHelper;
 
     // -------------------------------------------------------------------------
@@ -67,7 +69,10 @@ class WasteManagementConfigurator extends IPSModuleStrict
         $ins = IPS_GetInstance($this->InstanceID);
         $mod = IPS_GetModule($ins['ModuleInfo']['ModuleID']);
         $lib = IPS_GetLibrary($mod['LibraryID']);
-        $form['actions'][1]['items'][2]['caption'] = sprintf('v%s.%d', $lib['Version'], $lib['Build']);
+        $this->ModifyFormElement($form['actions'], 'Version', function (array &$element) use ($lib): void
+        {
+            $element['caption'] = sprintf('v%s.%d', $lib['Version'], $lib['Build']);
+        });
 
         // Collect all values
         $values = [];
@@ -82,7 +87,7 @@ class WasteManagementConfigurator extends IPSModuleStrict
             ];
         }
         foreach (self::$PROVIDERS as $key => $value) {
-            $modules = @IPS_GetInstanceListByModuleID($value[1]);
+            $modules = IPS_ModuleExists($value[1]) ? IPS_GetInstanceListByModuleID($value[1]) : [];
             $count = 0;
             foreach ($modules as $id) {
                 $values[] = [
@@ -99,6 +104,7 @@ class WasteManagementConfigurator extends IPSModuleStrict
                         ],
                     ],
                 ];
+                $count++;
             }
             $values[] = [
                 'parent'            => $value[0],
@@ -117,7 +123,10 @@ class WasteManagementConfigurator extends IPSModuleStrict
 
         // Set available values
         if (!empty($values)) {
-            $form['actions'][0]['values'] = $values;
+            $this->ModifyFormElement($form['actions'], 'Configurator', function (array &$element) use ($values): void
+            {
+                $element['values'] = $values;
+            });
         }
 
         return json_encode($form);

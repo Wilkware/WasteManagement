@@ -113,7 +113,7 @@
                             "caption": "Download URL (iCal-File):",
                             "width": "900px",
                             "visible": false,
-                            "validate": "^(http(s?):\\/\\/)?(((www\\.)?[a-zA-Z0-9\\.\\-\\_]+(\\.[a-zA-Z]{2,24})+)(:[0-9]{1,5})?|(\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b))(:[0-9]{1,5})?(\\/[a-zA-Z0-9\\_\\-\\s\\,\\.\\/\\?\\%\\#\\&\\=]*)?$"
+                            "validate": "^((https?|webcal):\\/\\/)?(((www\\.)?[a-zA-Z0-9\\.\\-\\_]+(\\.[a-zA-Z]{2,24})+)(:[0-9]{1,5})?|(\\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\b))(:[0-9]{1,5})?(\\/[a-zA-Z0-9\\_\\-\\s\\,\\.\\/\\?\\%\\#\\&\\=\\{\\}\\+\\~\\:\\;\\@\\!\\(\\)\\*\\[\\]\\u00C0-\\u017F]*)?$"
                         },
                         {
                             "type": "SelectFile",
@@ -123,6 +123,13 @@
                             "visible": false
                         }
                     ]
+                },
+                {
+                    "type": "Label",
+                    "name": "urlHint",
+                    "caption": "Placeholders for the current date in the link: {%Y} = year (2026), {%y} = year (26), {%m} = month, {%d} = day",
+                    "italic": true,
+                    "visible": false
                 },
                 {
                     "type": "RowLayout",
@@ -352,6 +359,26 @@
                     "italic": true
                 },
                 {
+                    "type": "Select",
+                    "name": "settingsTileMaxView",
+                    "caption": "Largest view (larger tiles):",
+                    "width": "450px",
+                    "options": [
+                        {
+                            "caption": "Icons only",
+                            "value": 0
+                        },
+                        {
+                            "caption": "Compact list",
+                            "value": 1
+                        },
+                        {
+                            "caption": "Large view (default)",
+                            "value": 2
+                        }
+                    ]
+                },
+                {
                     "type": "RowLayout",
                     "items": [
                         {
@@ -456,6 +483,13 @@
                             "caption": "Update",
                             "onClick": "WMICS_Update($id);",
                             "visible": true
+                        },
+                        {
+                            "type": "Button",
+                            "name": "lookAheadButton",
+                            "caption": "Look ahead",
+                            "onClick": "WMICS_LookAhead($id);",
+                            "visible": true
                         }
                     ]
                 }
@@ -492,6 +526,7 @@
                 },
                 {
                     "type": "Label",
+                    "name": "Version",
                     "color": 8421504
                 }
             ]
@@ -536,6 +571,11 @@
             "code": 202,
             "icon": "inactive",
             "caption": "Please select a offered disposals!"
+        },
+        {
+            "code": 203,
+            "icon": "error",
+            "caption": "Service request failed (see log/debug)!"
         }
     ]
 }

@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-/** Generell funktions */
+/** General functions */
 require_once __DIR__ . '/../libs/_traits.php';
 
 /** Namespaced traits */
 use Wilkware\WasteManagement\DebugHelper;
 use Wilkware\WasteManagement\EventHelper;
 use Wilkware\WasteManagement\FormatHelper;
+use Wilkware\WasteManagement\FormHelper;
 use Wilkware\WasteManagement\ServiceHelper;
 use Wilkware\WasteManagement\VariableHelper;
 use Wilkware\WasteManagement\VisualisationHelper;
@@ -25,6 +26,7 @@ class Abfall_APP extends IPSModuleStrict
     use DebugHelper;
     use EventHelper;
     use FormatHelper;
+    use FormHelper;
     use ServiceHelper;
     use VariableHelper;
     use VisualisationHelper;
@@ -50,6 +52,9 @@ class Abfall_APP extends IPSModuleStrict
 
     /** @var array<int,string> Service Skip Fractions */
     private const SERVICE_H2_SKIP = ['Sondermüll', 'Giftmobil'];
+
+    /** @var int Status Service Error */
+    private const STATUS_SERVICE_ERROR = 203;
 
     // -------------------------------------------------------------------------
     // Actions
@@ -83,23 +88,14 @@ class Abfall_APP extends IPSModuleStrict
     // Form Elements
     // -------------------------------------------------------------------------
 
-    /** @var int Lement Postion Provi */
-    private const ELEM_PROVI = 1;
-
-    /** @var int Panael Element MyMDE */
-    private const ELEM_WASTE = 2;
-
-    /** @var int Panael Element Visualisation */
-    private const ELEM_VISU = 3;
-
     /** @var array<int,mixed>  Form Elements Mapping */
     private const FORM_MAPPING = [
-        self::CHANGE_FEDERAL    => ['bundesland', 'bundesland_id', 'federalID', 1, 0],
-        self::CHANGE_COUNTY     => ['landkreis', 'landkreis_id', 'countyID', 1, 1],
-        self::CHANGE_COMMUNE    => ['kommune', 'kommune_id', 'communeID', 2, 0],
-        self::CHANGE_DISTRICT   => ['bezirk', 'bezirk_id', 'districtID', 2, 1],
-        self::CHANGE_STREET     => ['strasse', 'strasse_id', 'streetID', 3, 1],
-        self::CHANGE_ADDON      => ['hnr', 'hnr_id', 'addonID', 3, 2],
+        self::CHANGE_FEDERAL    => ['bundesland', 'bundesland_id', 'federalID'],
+        self::CHANGE_COUNTY     => ['landkreis', 'landkreis_id', 'countyID'],
+        self::CHANGE_COMMUNE    => ['kommune', 'kommune_id', 'communeID'],
+        self::CHANGE_DISTRICT   => ['bezirk', 'bezirk_id', 'districtID'],
+        self::CHANGE_STREET     => ['strasse', 'strasse_id', 'streetID'],
+        self::CHANGE_ADDON      => ['hnr', 'hnr_id', 'addonID'],
     ];
 
     // -------------------------------------------------------------------------
@@ -140,6 +136,7 @@ class Abfall_APP extends IPSModuleStrict
         $this->RegisterPropertyInteger('settingsAccentTomorrow', -1);
         $this->RegisterPropertyInteger('settingsTonneAlpha', 100);
         $this->RegisterPropertyBoolean('settingsTonneColor', true);
+        $this->RegisterPropertyInteger('settingsTileMaxView', 2);
         $this->RegisterPropertyBoolean('settingsHtmlBox', true);
         $this->RegisterPropertyBoolean('settingsLookAhead', false);
         $this->RegisterPropertyString('settingsLookTime', '{"hour":12,"minute":0,"second":0}');
@@ -157,7 +154,7 @@ class Abfall_APP extends IPSModuleStrict
         // Register daily look ahead timer
         $this->RegisterTimer('LookAheadTimer', 0, 'APAPP_LookAhead(' . $this->InstanceID . ');');
 
-        // Set visualization type to 1, as we want to offer HTML
+        // Set visualization type to 0 (no visualization until enabled in ApplyChanges)
         $this->SetVisualizationType(0);
     }
 
@@ -189,15 +186,27 @@ class Abfall_APP extends IPSModuleStrict
         $ins = IPS_GetInstance($this->InstanceID);
         $mod = IPS_GetModule($ins['ModuleInfo']['ModuleID']);
         $lib = IPS_GetLibrary($mod['LibraryID']);
-        $form['actions'][1]['items'][2]['caption'] = sprintf('v%s.%d', $lib['Version'], $lib['Build']);
+        $this->ModifyFormElement($form['actions'], 'Version', function (array &$element) use ($lib): void
+        {
+            $element['caption'] = sprintf('v%s.%d', $lib['Version'], $lib['Build']);
+        });
 
         // Service Values
         $country = $this->ReadPropertyString('serviceCountry');
         // Service Provider
-        $form['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
-        $form['elements'][self::ELEM_PROVI]['items'][1]['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
+        $this->ModifyFormElement($form['elements'], 'serviceProvider', function (array &$element): void
+        {
+            $element['options'] = $this->GetProviderOptions();
+        });
+        $this->ModifyFormElement($form['elements'], 'serviceCountry', function (array &$element): void
+        {
+            $element['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
+        });
         // Waste Management
-        $form['elements'][self::ELEM_WASTE]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
+        $this->ModifyFormElement($form['elements'], 'clientID', function (array &$element) use ($country): void
+        {
+            $element['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
+        });
 
         $client = $this->ReadPropertyString('clientID');
         // Client
@@ -222,20 +231,33 @@ class Abfall_APP extends IPSModuleStrict
                         ];
                     }
                     array_unshift($options, $prompt);
-                    $form['elements'][self::ELEM_WASTE]['items'][$field[3]]['items'][$field[4]]['options'] = $options;
-                    $form['elements'][self::ELEM_WASTE]['items'][$field[3]]['items'][$field[4]]['visible'] = true;
-                    $form['elements'][self::ELEM_WASTE]['items'][$field[3]]['items'][$field[4]]['enabled'] = ($value == 'null');
+                    $this->ModifyFormElement($form['elements'], $field[2], function (array &$element) use ($options, $value): void
+                    {
+                        $element['options'] = $options;
+                        $element['visible'] = true;
+                        $element['enabled'] = ($value == 'null');
+                    });
                 }
             }
 
             // Fraction Checkboxes
             if (isset($io['abfallarten']) && !empty($io['abfallarten'])) {
                 // Label
-                $form['elements'][self::ELEM_WASTE]['items'][4]['visible'] = true;
+                $this->ModifyFormElement($form['elements'], 'fractionLabel', function (array &$element): void
+                {
+                    $element['visible'] = true;
+                });
                 $f = 1;
                 foreach ($io['abfallarten'] as $fract) {
-                    $form['elements'][self::ELEM_WASTE]['items'][$f + 4]['caption'] = $fract['name'];
-                    $form['elements'][self::ELEM_WASTE]['items'][$f + 4]['visible'] = true;
+                    if ($f > self::$FRACTIONS) {
+                        $this->LogDebug(__FUNCTION__, 'WARNING: More waste types offered than supported (' . self::$FRACTIONS . ')!');
+                        break;
+                    }
+                    $this->ModifyFormElement($form['elements'], 'fractionID' . $f, function (array &$element) use ($fract): void
+                    {
+                        $element['caption'] = $fract['name'];
+                        $element['visible'] = true;
+                    });
                     $f++;
                 }
             }
@@ -246,7 +268,10 @@ class Abfall_APP extends IPSModuleStrict
         $colors = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         if (empty($colors)) {
             $this->LogDebug(__FUNCTION__, 'Translate Waste Visu');
-            $form['elements'][self::ELEM_VISU]['items'][1]['values'] = $this->GetWasteValues();
+            $this->ModifyFormElement($form['elements'], 'settingsTileColors', function (array &$element): void
+            {
+                $element['values'] = $this->GetWasteValues();
+            });
         }
         // Return Form
         return json_encode($form);
@@ -278,11 +303,11 @@ class Abfall_APP extends IPSModuleStrict
         $htmlbox = $this->ReadPropertyBoolean('settingsHtmlBox');
         $loakahead = $this->ReadPropertyBoolean('settingsLookAhead');
 
-        // Safty default
+        // Safety default
         $this->SetTimerInterval('UpdateTimer', 0);
         $this->SetTimerInterval('LookAheadTimer', 0);
-        // Support for Tile Viso (v7.x)
-        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, '~HTMLBox', 0, $tilevisu && $htmlbox);
+        // Support for Tile Visu (v7.x)
+        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, ['PRESENTATION' => VARIABLE_PRESENTATION_WEB_CONTENT], 0, $tilevisu && $htmlbox);
 
         // Set status
         $io = unserialize($this->ReadAttributeString('io'));
@@ -302,18 +327,19 @@ class Abfall_APP extends IPSModuleStrict
                     'todayColor'    => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentToday')),
                     'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
                     'tonneAlpha'    => $this->ReadPropertyInteger('settingsTonneAlpha') . '%',
-                    'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor')
+                    'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor'),
+                    'tileMaxView'   => $this->ReadPropertyInteger('settingsTileMaxView')
                 ]));
             }
             $this->CreateVariables($io);
             if ($activate == true) {
-                // Time neu berechnen
+                // Recalculate time
                 $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
-                $this->LogDebug(__FUNCTION__, 'Update Timer aktiviert!');
-                if ($loakahead & $tilevisu) {
+                $this->LogDebug(__FUNCTION__, 'Update timer activated!');
+                if ($loakahead && $tilevisu) {
                     $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
                     if (($time['hour'] == 0) && ($time['minute'] <= 30)) {
-                        $this->LogDebug(__FUNCTION__, 'LookAhead Time zu niedrieg!');
+                        $this->LogDebug(__FUNCTION__, 'LookAhead time too early!');
                     } else {
                         $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second']);
                     }
@@ -337,7 +363,42 @@ class Abfall_APP extends IPSModuleStrict
     {
         // Debug output
         $this->LogDebug(__FUNCTION__, $ident . ' => ' . $value);
-        eval('$this->' . $ident . '(\'' . $value . '\');');
+        // Dispatch form actions (no eval, values can contain user input)
+        switch ($ident) {
+            case 'OnChangeCountry':
+                $this->OnChangeCountry((string) $value);
+                break;
+            case 'OnChangeClient':
+                $this->OnChangeClient((string) $value);
+                break;
+            case 'OnChangeFederal':
+                $this->OnChangeFederal((string) $value);
+                break;
+            case 'OnChangeCounty':
+                $this->OnChangeCounty((string) $value);
+                break;
+            case 'OnChangeCommune':
+                $this->OnChangeCommune((string) $value);
+                break;
+            case 'OnChangeDistrict':
+                $this->OnChangeDistrict((string) $value);
+                break;
+            case 'OnChangeStreet':
+                $this->OnChangeStreet((string) $value);
+                break;
+            case 'OnChangeAddon':
+                $this->OnChangeAddon((string) $value);
+                break;
+            case 'SearchStreet':
+                $this->SearchStreet((string) $value);
+                break;
+            case 'LookAhead':
+                // Tap on the 'Today' badge of the tile
+                $this->LookAhead();
+                break;
+            default:
+                $this->LogDebug(__FUNCTION__, 'Unknown ident: ' . $ident);
+        }
     }
 
     /**
@@ -350,8 +411,8 @@ class Abfall_APP extends IPSModuleStrict
      */
     public function LookAhead(): void
     {
-        // Check instance state
-        if ($this->GetStatus() != 102) {
+        // Check instance state (after a service error the variables still hold valid dates)
+        if (!in_array($this->GetStatus(), [102, self::STATUS_SERVICE_ERROR])) {
             $this->LogDebug(__FUNCTION__, 'Status: Instance is not active.');
             return;
         }
@@ -371,6 +432,10 @@ class Abfall_APP extends IPSModuleStrict
 
         if (isset($io['abfallarten']) && !empty($io['abfallarten'])) {
             foreach ($io['abfallarten'] as $fract) {
+                // Only registered fraction properties exist
+                if ($f > self::$FRACTIONS) {
+                    break;
+                }
                 $this->LogDebug(__FUNCTION__, 'Fraction ident: ' . $fract['value'] . ', Name: ' . $fract['name']);
                 $enabled = $this->ReadPropertyBoolean('fractionID' . $f++);
                 if ($enabled) {
@@ -403,31 +468,51 @@ class Abfall_APP extends IPSModuleStrict
      */
     public function Update(): void
     {
-        // Check instance state
-        if ($this->GetStatus() != 102) {
+        // Check instance state (a previous service error must not block the retry)
+        if (!in_array($this->GetStatus(), [102, self::STATUS_SERVICE_ERROR])) {
             $this->LogDebug(__FUNCTION__, 'Status: Instance is not active.');
             return;
         }
         $io = unserialize($this->ReadAttributeString('io'));
         $this->LogDebug(__FUNCTION__, $io);
 
-        //$ret = $this->SelectAllWasteTypes($io);
+        // Fresh session like the official app: new client registered via config.xml/login
+        $io['client'] = $this->GenerateClientID();
+        $io['cookies'] = [];
+        $session = $io;
+        if (!$this->InitConnection($session)) {
+            $this->LogDebug(__FUNCTION__, 'Init connection failed!');
+            $this->LogMessage('Could not retrieve collection dates from service (see debug for details)!', KL_ERROR);
+            $this->SetServiceError(self::STATUS_SERVICE_ERROR);
+            return;
+        }
+        // InitConnection overwrites the selection with the login defaults, keep only the session cookies
+        $io['cookies'] = $session['cookies'];
         if (!$this->Validate($io)) {
             $this->LogDebug(__FUNCTION__, 'Validation failed!');
+            $this->LogMessage('Could not retrieve collection dates from service (see debug for details)!', KL_ERROR);
+            $this->SetServiceError(self::STATUS_SERVICE_ERROR);
             return;
         }
         $collection = $this->GetCollectionDates($io);
         //$this->LogDebug(__FUNCTION__, $collection);
         if ($collection === false) {
             $this->LogDebug(__FUNCTION__, 'Get dates failed!');
+            $this->LogMessage('Could not retrieve collection dates from service (see debug for details)!', KL_ERROR);
+            $this->SetServiceError(self::STATUS_SERVICE_ERROR);
             return;
         }
+        $this->SetStatus(102);
 
         // fractions convert to name => ident
         $f = 1;
         $waste = [];
         if (isset($io['abfallarten']) && !empty($io['abfallarten'])) {
             foreach ($io['abfallarten'] as $fract) {
+                // Only registered fraction properties exist
+                if ($f > self::$FRACTIONS) {
+                    break;
+                }
                 $this->LogDebug(__FUNCTION__, 'Fraction ident: ' . $fract['value'] . ', Name: ' . $fract['name']);
                 $enabled = $this->ReadPropertyBoolean('fractionID' . $f++);
                 if ($enabled) {
@@ -478,7 +563,7 @@ class Abfall_APP extends IPSModuleStrict
                 $rs = IPS_RunScriptEx($script, ['TIMESTAMP' => time(), 'INSTANCE' => $this->InstanceID, 'DATA' => json_encode($waste)]);
                 $this->LogDebug(__FUNCTION__, 'Script Execute (Return Value): ' . $rs);
             } else {
-                $this->LogDebug(__FUNCTION__, 'Update: Script #' . $script . ' existiert nicht!');
+                $this->LogDebug(__FUNCTION__, 'Update: Script #' . $script . ' does not exist!');
             }
         }
 
@@ -746,7 +831,7 @@ class Abfall_APP extends IPSModuleStrict
     }
 
     /**
-     * Benutzer hat eine neue Straße oder Ortsteil ausgewählt.
+     * User has selected a new street or district.
      *
      * @param string $id Street GUID.
      *
@@ -771,7 +856,7 @@ class Abfall_APP extends IPSModuleStrict
                     if ($street['bezirk_id'] != null) {
                         $io['kommune_id'] = $street['bezirk_id'];
                     }
-                    // Strasse ID
+                    // Street ID
                     $io['strasse_id'] = $street['value'];
                     // Finished
                     $finished = $street['finished'];
@@ -792,7 +877,7 @@ class Abfall_APP extends IPSModuleStrict
     }
 
     /**
-     * Benutzer hat eine neue Hausnummer ausgewählt.
+     * User has selected a new house number.
      *
      * @param string $id Addon GUID .
      *
@@ -807,7 +892,7 @@ class Abfall_APP extends IPSModuleStrict
             $io = unserialize($this->ReadAttributeString('io'));
             foreach ($io['hnr'] as $addon) {
                 if ($addon['value'] == $id) {
-                    // Strasse ID
+                    // Street ID
                     if ($addon['strasse_id'] != null) {
                         $io['strasse_id'] = $addon['strasse_id'];
                     }
@@ -876,6 +961,9 @@ class Abfall_APP extends IPSModuleStrict
             $this->UpdateFormField('fractionLabel', 'visible', true);
             $f = 1;
             foreach ($io['abfallarten'] as $fract) {
+                if ($f > self::$FRACTIONS) {
+                    break;
+                }
                 $this->UpdateFormField('fractionID' . $f, 'visible', true);
                 $this->UpdateFormField('fractionID' . $f, 'caption', $fract['name']);
                 $f++;
@@ -905,7 +993,7 @@ class Abfall_APP extends IPSModuleStrict
         foreach ($io['abfallarten'] as $fract) {
             if ($i <= self::$FRACTIONS) {
                 $enabled = $this->ReadPropertyBoolean('fractionID' . $i);
-                $this->MaintainVariable($fract['value'], $fract['name'], VARIABLETYPE_STRING, '', $i, $enabled || $variable);
+                $this->MaintainVariable($fract['value'], $fract['name'], VARIABLETYPE_STRING, ['ICON' => 'trash-can', 'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION], $i, $enabled || $variable);
             }
             $i++;
         }
@@ -922,7 +1010,7 @@ class Abfall_APP extends IPSModuleStrict
     {
         $cd = explode(':', $app);
 
-        $io['client'] = uniqid();
+        $io['client'] = $this->GenerateClientID();
         $io['app'] = $cd[1];
         $io['app_id'] = $cd[0];
         $io['cookies'] = [];
@@ -963,7 +1051,7 @@ class Abfall_APP extends IPSModuleStrict
         $io = unserialize($this->ReadAttributeString('io'));
         $ret = $this->GetStreets($io, $search);
         if (!$ret) {
-            $this->LogDebug(__FUNCTION__, 'ERROR: Strasse suchen!');
+            $this->LogDebug(__FUNCTION__, 'ERROR: Searching street failed!');
             return;
         }
         $this->UpdateFormField('buttonStreet', 'visible', false);
@@ -989,7 +1077,11 @@ class Abfall_APP extends IPSModuleStrict
             'client' => $io['client'],
             'app_id' => $io['app_id'],
         ];
-        //$response = $this->ServiceRequest($io, "config.xml", self::SERVICE_BASE, $data);
+        // Register client like the official app does (see HA AppAbfallplusDe.init_connection)
+        if ($this->ServiceRequest($io, 'config.xml', self::SERVICE_BASE, $data) === false) {
+            $this->LogDebug(__FUNCTION__, 'Error in the request to: config.xml');
+            return false;
+        }
         $response = $this->ServiceRequest($io, 'login/', self::SERVICE_BASE, $data);
         $this->LogDebug(__FUNCTION__, $response);
 
@@ -1057,6 +1149,9 @@ class Abfall_APP extends IPSModuleStrict
         } else {
             // Here you would have to set the user agent dynamically if necessary
             $headers['User-Agent'] = str_replace('{}', $io['app'], self::SERVICE_USERAGENT);
+            // Required by the app API since 05/2026 (otherwise 401 UNAUTHORIZED)
+            $headers['x-abfallplus-client'] = $io['client'];
+            $headers['x-abfallplus-appid'] = $io['app_id'];
         }
         if (strpos($ending, 'config.xml') !== false) {
             $headers['Accept-Encoding'] = 'gzip, deflate, br';
@@ -1064,8 +1159,11 @@ class Abfall_APP extends IPSModuleStrict
         } else {
             sleep(1);
         }
-        // Build url
+        // Build url (query params must be appended before CURLOPT_URL is set)
         $url = $base . $ending;
+        if ($params) {
+            $url .= '?' . http_build_query($params);
+        }
         // Default headers
         $header = [];
         foreach ($headers as $key => $value) {
@@ -1074,6 +1172,8 @@ class Abfall_APP extends IPSModuleStrict
         $this->LogDebug(__FUNCTION__, $header);
         // Prepare curl
         $curl = curl_init();
+        curl_setopt($curl, CURLOPT_CONNECTTIMEOUT, self::$CONNECT_TIMEOUT);
+        curl_setopt($curl, CURLOPT_TIMEOUT, self::$TIMEOUT);
         curl_setopt($curl, CURLOPT_URL, $url);
         curl_setopt($curl, CURLOPT_HEADER, true);
         curl_setopt($curl, CURLOPT_HTTPHEADER, $header);
@@ -1083,14 +1183,11 @@ class Abfall_APP extends IPSModuleStrict
         //      curl_setopt($curl, CURLOPT_COOKIEFILE, $io['cookies']);
         curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
 
-        // Setze Cookies, falls vorhanden
+        // Set cookies, if available
         if (!empty($io['cookies'])) {
             curl_setopt($curl, CURLOPT_COOKIE, $this->GetCookies($io['cookies']));
         }
 
-        if (($method == 'get') && $params) {
-            $url .= '?' . http_build_query($params); // Appending params to the URL for GET requests
-        }
         if ($method == 'post') {
             curl_setopt($curl, CURLOPT_POST, true);
             // POST data
@@ -1104,17 +1201,22 @@ class Abfall_APP extends IPSModuleStrict
         // Check for errors
         if (curl_errno($curl)) {
             $this->LogDebug(__FUNCTION__, 'cURL Error: ' . curl_error($curl));
-            curl_close($curl);
             return false;
         }
-        // Cut response in header und body
+        // Cut response in header and body
+        $code = (int) curl_getinfo($curl, CURLINFO_RESPONSE_CODE);
         $size = curl_getinfo($curl, CURLINFO_HEADER_SIZE);
         $header = substr($response, 0, $size);
         $body = substr($response, $size);
-        // Save cookies?
-        $io['cookies'] = $this->SetCookies($header);
+        $this->LogDebug(__FUNCTION__, strtoupper($method) . ' ' . $url . ' => HTTP ' . $code . ': ' . substr($body, 0, 200));
+        // Error handling
+        if ($code >= 400) {
+            $this->LogDebug(__FUNCTION__, 'ERROR: HTTP ' . $code . ' for ' . $url);
+            return false;
+        }
+        // Save cookies (merge, responses without Set-Cookie must not drop the session)
+        $io['cookies'] = array_merge($io['cookies'] ?? [], $this->SetCookies($header));
         // Send data back
-        curl_close($curl);
         return $body;
     }
 
@@ -1131,49 +1233,49 @@ class Abfall_APP extends IPSModuleStrict
         $state = array_shift($io['actions']);
         $this->LogDebug(__FUNCTION__, $state);
         switch ($state) {
-            // BUNDESLAND auswählen
+            // Select FEDERAL STATE
             case 'bundesland':
                 $ret = $this->GetFederalStates($io);
                 if (!$ret) {
-                    $this->LogDebug(__FUNCTION__, 'ERROR: Bundesländer auslesen!');
+                    $this->LogDebug(__FUNCTION__, 'ERROR: Reading federal states failed!');
                 }
                 break;
-                // LANDKREIS auswählen
+                // Select COUNTY
             case 'region':
             case 'landkreis':
                 $ret = $this->GetCountyDistricts($io, $state);
                 if (!$ret) {
-                    $this->LogDebug(__FUNCTION__, 'ERROR: Landkreise auslesen!');
+                    $this->LogDebug(__FUNCTION__, 'ERROR: Reading counties failed!');
                 }
                 break;
-                // KOMMUNE auswählen
+                // Select COMMUNE
             case 'kommune':
                 $ret = $this->GetCommunes($io);
                 if (!$ret) {
-                    $this->LogDebug(__FUNCTION__, 'ERROR: Kommunen auslesen!');
+                    $this->LogDebug(__FUNCTION__, 'ERROR: Reading communes failed!');
                 }
                 break;
-                // BEZIRK auswählen
+                // Select DISTRICT
             case 'bezirk':
                 $ret = $this->GetDistricts($io);
                 if (!$ret) {
-                    $this->LogDebug(__FUNCTION__, 'ERROR: Bezirke auslesen!');
+                    $this->LogDebug(__FUNCTION__, 'ERROR: Reading districts failed!');
                 }
                 break;
-                // STRASSE auswählen
+                // Select STREET
             case 'strasse':
                 $ret = $this->GetStreets($io);
                 if (!$ret) {
-                    $this->LogDebug(__FUNCTION__, 'ERROR: Strasse muss eingegeben werden!');
+                    $this->LogDebug(__FUNCTION__, 'ERROR: Street must be entered!');
                     $this->UpdateFormField('buttonStreet', 'visible', true);
                     $ret = true;
                 }
                 break;
-                // HAUSNUMMER auswählen
+                // Select HOUSE NUMBER
             case 'hnr':
                 $ret = $this->GetAddOns($io);
                 if (!$ret) {
-                    $this->LogDebug(__FUNCTION__, 'ERROR: Hausnummer auslesen!');
+                    $this->LogDebug(__FUNCTION__, 'ERROR: Reading house numbers failed!');
                 }
                 break;
         }
@@ -1555,7 +1657,7 @@ class Abfall_APP extends IPSModuleStrict
             foreach ($elements as $element) {
                 $parentDiv = $element->parentNode;
                 if ($parentDiv) {
-                    // Entferne das Element aus dem DOM
+                    // Remove the element from the DOM
                     $parentDiv->parentNode->removeChild($parentDiv);
                 }
             }
@@ -1636,7 +1738,7 @@ class Abfall_APP extends IPSModuleStrict
         $this->LogDebug(__FUNCTION__, $response);
         // Error handling
         if (!$value['assistantCompleted']) {
-            $this->LogDebug(__FUNCTION__, 'Einrichtung NICHT erfolgreich abgeschlossen!');
+            $this->LogDebug(__FUNCTION__, 'Setup NOT completed successfully!');
             return false;
         }
         return true;
@@ -1651,29 +1753,37 @@ class Abfall_APP extends IPSModuleStrict
      */
     private function GetCollectionDates(array &$io): array|false
     {
-        // Target url endpoint
-        $ending = 'version.xml';  // Ziel-URL
-        // Send HTTP request
-        $response = $this->ServiceRequest($io, $ending, self::SERVICE_BASE, ['client' => $io['client'], 'app_id' => $io['app_id']]);
-        // Error handling
-        if (!$response) {
-            $this->LogDebug(__FUNCTION__, "Error in the request to: $ending");
-            return false;
+        // Target url endpoint (the result is not needed, like the official app only struktur.xml.zip is evaluated)
+        $ending = 'version.xml';
+        if ($this->ServiceRequest($io, $ending, self::SERVICE_BASE, ['client' => $io['client'], 'app_id' => $io['app_id']]) === false) {
+            $this->LogDebug(__FUNCTION__, "WARNING: Request to $ending failed!");
         }
-        // Send HTTP request
-        $response = $this->ServiceRequest($io, $ending, self::SERVICE_BASE, ['client' => $io['client'], 'app_id' => $io['app_id']], ['renew' => 1]);
-        // Error handling
-        if (!$response) {
-            $this->LogDebug(__FUNCTION__, "Error in the request to: $ending");
-            return false;
+        if ($this->ServiceRequest($io, $ending, self::SERVICE_BASE, ['client' => $io['client'], 'app_id' => $io['app_id']], ['renew' => 1]) === false) {
+            $this->LogDebug(__FUNCTION__, "WARNING: Request to $ending (renew) failed!");
         }
 
         // Target url endpoint
         $ending = 'struktur.xml.zip';  // Ziel-URL
         // Send HTTP request
         $response = $this->ServiceRequest($io, $ending, self::SERVICE_BASE, ['client' => $io['client'], 'app_id' => $io['app_id']]);
-
-        $xml = new SimpleXMLElement($response);
+        // Error handling
+        if (!$response) {
+            $this->LogDebug(__FUNCTION__, "Error in the request to: $ending");
+            return false;
+        }
+        // Parse XML without throwing on invalid content
+        $internal = libxml_use_internal_errors(true);
+        $xml = simplexml_load_string($response);
+        if ($xml === false) {
+            foreach (libxml_get_errors() as $error) {
+                $this->LogDebug(__FUNCTION__, 'XML Error: ' . trim($error->message));
+            }
+            libxml_clear_errors();
+            libxml_use_internal_errors($internal);
+            $this->LogDebug(__FUNCTION__, 'Response is not valid XML: ' . substr($response, 0, 200));
+            return false;
+        }
+        libxml_use_internal_errors($internal);
         // Extract waste types
         $categories = [];
         $dict = $xml->xpath("//key[text()='categories']/following-sibling::array")[0] ?? null;
@@ -1707,6 +1817,19 @@ class Abfall_APP extends IPSModuleStrict
             ];
         }
         return $collections;
+    }
+
+    /**
+     * Generates a random client id (UUID v4) like the official app.
+     *
+     * @return string Client ID
+     */
+    private function GenerateClientID(): string
+    {
+        $bytes = random_bytes(16);
+        $bytes[6] = chr((ord($bytes[6]) & 0x0f) | 0x40);
+        $bytes[8] = chr((ord($bytes[8]) & 0x3f) | 0x80);
+        return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($bytes), 4));
     }
 
     /**
@@ -1766,6 +1889,7 @@ class Abfall_APP extends IPSModuleStrict
             'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
             'tonneAlpha'    => $this->ReadPropertyInteger('settingsTonneAlpha') . '%',
             'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor'),
+            'tileMaxView'   => $this->ReadPropertyInteger('settingsTileMaxView'),
         ];
         $result = array_merge($ac, $wd);
 

@@ -32,24 +32,35 @@ trait ServiceHelper
         'maxde' => [5, '{2EC7DFA0-62D9-2E92-ADB1-6B8201D142FA}', 'MüllMax', 'muellmax.de', 'Waste calendar - barrier-free online and printed!'],
         'wmics' => [6, '{9E99E213-F884-FC95-A8ED-4F3FCC368E70}', 'Abfall.ICS', 'asmium.de', 'Read out waste data via ICS calendar file.'],
         'apapp' => [7, '{E3371D9B-9206-9584-4ACE-03AB9DB9C346}', 'Abfall.APP', 'abfallplus.de', 'Abfall+ is the solution to the challenges of waste management.'],
+        'sec27' => [8, '{7A9CE295-F3E3-4299-9A2D-8DFE75EB085D}', 'sector27', 'sector27.de', 'The digital waste calendar from sector27.'],
     ];
 
     /** @var array<string,array<string,string>> $COUNTRIES Supported Countries per Service */
     private static array $COUNTRIES = [
         'awido' => ['de' => 'Germany'],
-        'abpio' => ['de' => 'Germany', 'at' => 'Austria'],
+        'abpio' => ['de' => 'Germany'],
         'mymde' => ['de' => 'Germany'],
         'regio' => ['de' => 'Germany'],
         'maxde' => ['de' => 'Germany'],
-        'wmics' => ['de' => 'Germany', 'at' => 'Austria'],
+        'wmics' => ['de' => 'Germany', 'at' => 'Austria', 'ch' => 'Switzerland'],
         'apapp' => ['de' => 'Germany', 'at' => 'Austria'],
+        'sec27' => ['de' => 'Germany'],
     ];
 
     /** @var string $CLIENTS API URL for Client IDs */
     private static string $CLIENTS = 'https://api.asmium.de/waste/';
 
-    /** @var int $FRACTIONS Maximale Anzahl an Entsorgungsarten */
+    /** @var int $FRACTIONS Maximum number of waste types */
     private static int $FRACTIONS = 30;
+
+    /** @var int $TIMEOUT Timeout in seconds for service requests */
+    private static int $TIMEOUT = 30;
+
+    /** @var int $CONNECT_TIMEOUT Connect timeout in seconds for service requests */
+    private static int $CONNECT_TIMEOUT = 10;
+
+    /** @var int $RETRY Retry interval in seconds after a failed update */
+    private static int $RETRY = 3600;
 
     /**
      * Returns the supported service provider for the dropdown menu.
@@ -122,6 +133,24 @@ trait ServiceHelper
     }
 
     /**
+     * Sets the service error status and schedules a retry of the update (only if the daily update is active).
+     * After a successful update the timer is set back to the daily schedule.
+     *
+     * @param int $status Service error status code
+     * @param string $activate Name of the property which activates the daily update
+     *
+     * @return void
+     */
+    protected function SetServiceError(int $status, string $activate = 'settingsActivate'): void
+    {
+        $this->SetStatus($status);
+        if ($this->ReadPropertyBoolean($activate)) {
+            $this->SetTimerInterval('UpdateTimer', self::$RETRY * 1000);
+            $this->LogDebug(__FUNCTION__, 'Retry update in ' . self::$RETRY . ' seconds');
+        }
+    }
+
+    /**
      * Get and extract clients from json format.
      *
      * @param string $url API URL to receive client information.
@@ -132,19 +161,40 @@ trait ServiceHelper
     {
         // Debug output
         $this->LogDebug(__FUNCTION__, 'LINK: ' . $url);
-        //$url = $url . '/index.json';
         // read API URL
-        $json = @file_get_contents($url);
-        // error handling
+        $json = $this->GetUrlContent($url);
+        // error handling (GetUrlContent has already notified the user)
         if ($json === false) {
-            $this->LogMessage($this->Translate('Could not load json data!'), KL_ERROR);
-            $this->LogDebug(__FUNCTION__, 'ERROR LOAD DATA');
             return [];
         }
         // json decode
         $data = json_decode($json, true);
-        // return the events
+        if (!is_array($data['data']['clients'] ?? null)) {
+            $this->LogMessage($this->Translate('Could not load json data!'), KL_ERROR);
+            $this->LogDebug(__FUNCTION__, 'ERROR: Invalid json data!');
+            return [];
+        }
+        // return the clients
         return $data['data']['clients'];
+    }
+
+    /**
+     * Reads the content of an URL (with timeout).
+     *
+     * @param string $url URL to read
+     *
+     * @return string|false Content or false on error
+     */
+    private function GetUrlContent(string $url): string|false
+    {
+        $context = stream_context_create(['http' => ['timeout' => self::$TIMEOUT]]);
+        // the result is checked and the user is notified on failure
+        $content = @file_get_contents($url, false, $context);
+        if ($content === false) {
+            $this->LogDebug(__FUNCTION__, 'ERROR: Could not load ' . $url);
+            $this->LogMessage('Could not load data from ' . $url, KL_WARNING);
+        }
+        return $content;
     }
 
     /**

@@ -474,6 +474,23 @@
                 display: flex;
             }
         }
+
+        /* ── Größte Ansicht (Konfiguration) ──────────────────────────────── */
+        body.max-small #view-small {
+            display: flex;
+        }
+
+        body.max-small #view-medium,
+        body.max-small #view-large,
+        body.max-medium #view-large {
+            display: none;
+        }
+
+        @media (min-width: 380px) {
+            body.max-medium #view-medium {
+                display: flex;
+            }
+        }
     </style>
 </head>
 
@@ -644,7 +661,7 @@
         function updateBodyClass(width) {
             const URGENCY_CLASSES = ["urgency-today", "urgency-tomorrow", "urgency-tonne"];
             document.body.classList.remove(...URGENCY_CLASSES);
-            if (width < 220) {
+            if ((currentMaxView === 0) || (width < 220)) {
                 if (currentTonneColor) {
                     if (currentSmallDays === 0 || currentSmallDays === 1) {
                         document.body.classList.add('urgency-tonne');
@@ -684,6 +701,7 @@
         let currentPickups = [];
         let currentLookAhead = { active: false, offset: 0, pickups: 1 };
         let currentTonneColor = false; // Tonnenfarbe als Small-Hintergrund
+        let currentMaxView = 2; // Größte Ansicht: 0 = Symbole, 1 = Kompakte Liste, 2 = Große Ansicht
 
         // ── renderSmallIcons: Icon-Größe nach aktuellem Layout berechnen ──
         // #view-small kann display:none sein – body-Dimensionen nutzen.
@@ -722,7 +740,8 @@
             const count = currentSmallGroup.length;
             const raw = count > 1 ? Math.round(area / (1 + 0.35 * (count - 1))) : area;
             // Etwas Puffer abziehen damit Icon+Label nicht bündig am Rand sitzen
-            const iconSize = Math.min(Math.round(raw * 0.88), 80);
+            // Nur-Symbole darf größere Kacheln ausfüllen
+            const iconSize = Math.min(Math.round(raw * 0.88), currentMaxView === 0 ? 160 : 80);
             const stackOff = count > 1 ? Math.round(iconSize * 0.35) * (count - 1) : 0;
             const stackSize = iconSize + stackOff;
 
@@ -935,6 +954,12 @@
 
                     case 'tonneColor':
                         currentTonneColor = decodedData[parameter] === true;
+                        break;
+
+                    case 'tileMaxView':
+                        currentMaxView = Number(decodedData[parameter]);
+                        document.body.classList.toggle('max-small', currentMaxView === 0);
+                        document.body.classList.toggle('max-medium', currentMaxView === 1);
                         break;
 
                     case 'lookAhead':

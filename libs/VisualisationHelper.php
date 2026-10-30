@@ -65,7 +65,7 @@ trait VisualisationHelper
     protected function BuildWidget(array $waste, array $custom, bool $lookahead = false): void
     {
         $this->LogDebug(__FUNCTION__, $waste);
-        // (*) tabel with all infos
+        // (*) table with all infos
         $table = [];
         // (*) build new data array
         foreach ($waste as $key => $value) {
@@ -84,7 +84,7 @@ trait VisualisationHelper
         $empty = empty($table);
         if ($empty) {
             $table[] = ['name' => 'No DATA!', 'type' => 'red', 'date' => date('d.m.Y'), 'days' => 0];
-            $this->LogMessage('SECURITY CHECK: NO DATA!!!');
+            $this->LogMessage('SECURITY CHECK: NO DATA!!!', KL_WARNING);
         }
         // (*) sort waste by date
         usort($table, function ($a, $b)
@@ -137,13 +137,13 @@ trait VisualisationHelper
 
         // (*) build html texts
         $next = '';
-        // show today only if no date tommorow
+        // show today only if no date tomorrow
         if (strtotime($table[$offset]['date']) === strtotime('today')) {
-            $next = $this->Translate('Heute');
+            $next = $this->Translate('Today');
         }
-        // tommorow overrule today
+        // tomorrow overrules today
         if (strtotime($table[$offset]['date']) === strtotime('tomorrow')) {
-            $next = $this->Translate('Morgen');
+            $next = $this->Translate('Tomorrow');
         }
         // generate widget for tile visu
         if ($next == '') {

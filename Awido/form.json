@@ -345,6 +345,26 @@
                     "italic": true
                 },
                 {
+                    "type": "Select",
+                    "name": "settingsTileMaxView",
+                    "caption": "Largest view (larger tiles):",
+                    "width": "450px",
+                    "options": [
+                        {
+                            "caption": "Icons only",
+                            "value": 0
+                        },
+                        {
+                            "caption": "Compact list",
+                            "value": 1
+                        },
+                        {
+                            "caption": "Large view (default)",
+                            "value": 2
+                        }
+                    ]
+                },
+                {
                     "type": "RowLayout",
                     "items": [
                         {
@@ -449,6 +469,13 @@
                             "caption": "Update",
                             "onClick": "AWIDO_Update($id);",
                             "visible": false
+                        },
+                        {
+                            "type": "Button",
+                            "name": "lookAheadButton",
+                            "caption": "Look ahead",
+                            "onClick": "AWIDO_LookAhead($id);",
+                            "visible": false
                         }
                     ]
                 }
@@ -485,6 +512,7 @@
                 },
                 {
                     "type": "Label",
+                    "name": "Version",
                     "color": 8421504
                 }
             ]
@@ -530,6 +558,11 @@
             "code": 205,
             "icon": "inactive",
             "caption": "Please select a offered disposals!"
+        },
+        {
+            "code": 206,
+            "icon": "error",
+            "caption": "Service request failed (see log/debug)!"
         }
     ]
 }

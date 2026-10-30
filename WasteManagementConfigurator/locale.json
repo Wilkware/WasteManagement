@@ -4,18 +4,20 @@
             "Waste Management Configurator": "Abfallwirtschaft Konfigurator",
             "With the help of this configurator, one can select from the list of currently available online services for providing disposal dates and configure an instance for one's own home town.": "Mit Hilfe dieser Konfigurators kann man aus der Liste der aktuell verfügbaren Online-Diensten zur Bereitstellung von Entsorgungsterminen auswählen und eine Instanz für seinen eigenen Heimatort konfigurieren.",
             "Provider:": "Anbieter:",
-            "Short description": "Kurzbeschreibung",
             "Online service": "Online Dienst",
+            "Short description": "Kurzbeschreibung",
+            "Website": "Webseite",
+            "🎗️ Source code, donation and licence ...": "🎗️ Quellcode, Spende und Lizenz ...",
+            "The software is free of charge for non-commercial use, I would appreciate a donation if you like the module.": "Die Software ist für die nicht kommerzielle Nutzung kostenlos, über eine Spende bei Gefallen des Moduls würde ich mich sehr freuen.",
             "New disposal calendar": "Neuer Entsorgungskalender",
             "The web application with all important waste disposal dates online!": "Die Web-Anwendung mit alle wichtigen Entsorgungstermine online!",
             "Abfall+ is the solution for electronic citizen services in waste management!": "Abfall+ ist die Lösung für elektronische Bürgerdienste in der Abfallwirtschaft!",
-            "Abfall+ is the solution to the challenges of waste management.": "Abfall+ ist die Lösung für die Herausforderungen der Abfallwirtschaft.",
             "Waste and recyclables neatly organised!": "Abfall und Wertstoffe sauber organisiert!",
             "The digital waste calendar from regio IT for waste disposal.": "Der digitale Abfallkalender der regio IT für die Abfallentsorgung.",
             "Waste calendar - barrier-free online and printed!": "Abfallkalender – barrierefrei online und gedruckt!",
             "Read out waste data via ICS calendar file.": "Abfalldaten per Kalenderdatei ICS auslesen.",
-            "🎗️ Source code, donation and licence ...": "🎗️ Quellcode, Spende und Lizenz ...",
-            "The software is free of charge for non-commercial use, I would appreciate a donation if you like the module.": "Die Software ist für die nicht kommerzielle Nutzung kostenlos, über eine Spende bei Gefallen des Moduls würde ich mich sehr freuen."
+            "Abfall+ is the solution to the challenges of waste management.": "Abfall+ ist die Lösung für die Herausforderungen der Abfallwirtschaft.",
+            "The digital waste calendar from sector27.": "Der digitale Müllkalender von sector27."
         }
     }
 }

@@ -1,12 +1,13 @@
-# Abfallwirtschaft (Waste Management)
+# ♻️ Abfallwirtschaft (Waste Management)
 
 [![Home](https://img.shields.io/badge/Home-wilkware.de-0b1830.svg?style=flat-square)](https://wilkware.de/module/abfallwirtschaft/)
 [![Version](https://img.shields.io/badge/Symcon-PHP--Bibliothek-purple.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-8.1-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
-[![Licence](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
+[![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/ci.yml?branch=main&label=CI&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
 
 Symcon Modulbibliothek für die Visualisierung von Entsorgungsterminen.  
-Die Bibliothek nutzt verschieden Online-Dienste um bevorstehende Entsorgungstermine (Entsorgungskalender) in IPS zu integrieren.
+Die Bibliothek nutzt verschiedene Online-Dienste um bevorstehende Entsorgungstermine (Entsorgungskalender) in Symcon zu integrieren.
 
 Folgende Module beinhaltet diese Bibliothek:
 
@@ -34,10 +35,14 @@ Folgende Module beinhaltet diese Bibliothek:
 - __MyMuell__ ([Dokumentation](MyMuell))  
     MyMüll.de für die saubere Organisierung von Abfall und Wertstoffe.
 
-__HINWEIS:__ Über diese [Suchseite](https://asmium.de) kann man ganz schnell herausfinden ob die eigene Stadt/Gemeinde von einem der aufgelisteten Dienste unterstützt wird! :+1:
+- __Sector27__ ([Dokumentation](Sector27))  
+    Der digitale Müllkalender von sector27.
+
+__HINWEIS:__ Über diese [Suchseite](https://wilkware.de/apps/abfallwirtschaft-suche/) kann man ganz schnell herausfinden ob die eigene Stadt/Gemeinde von einem der aufgelisteten Dienste unterstützt wird! :+1:
 
 ## Historie
 
+- 2026-10-30: Modul Sector27 (sector27 Müllkalender), Anpassung Abfall.APP an die geänderte Schnittstelle, Einstellung "Größte Ansicht" für Kacheln, Vereinheitlichung aller Module
 - 2026-08-31: Unterstützung von neuen Top-Level-Domains, Automatischer Cache Update für TileVisu
 - 2026-07-10: Kompatibilität v8.1 , Umstellung auf Strict-Modus, Support für Kachel-Visualisierung
 - 2026-06-22: Datenübergabe an Skript, Kleinere Fehlerbehebungen

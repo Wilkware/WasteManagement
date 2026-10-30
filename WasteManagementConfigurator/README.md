@@ -1,15 +1,15 @@
-# Abfallwirtschafts-Konfigurator (Waste Management Configutrator)
+# ♻️ Abfallwirtschafts-Konfigurator (Waste Management Configurator)
 
 [![Home](https://img.shields.io/badge/Home-wilkware.de-0b1830.svg?style=flat-square)](https://wilkware.de/module/abfallwirtschaft/configurator/)
 [![Version](https://img.shields.io/badge/Symcon-PHP--Modul-red.svg?style=flat-square)](https://www.symcon.de/service/dokumentation/entwicklerbereich/sdk-tools/sdk-php/)
 [![Product](https://img.shields.io/badge/Symcon%20Version-8.1-blue.svg?style=flat-square)](https://www.symcon.de/produkt/)
-[![Version](https://img.shields.io/badge/Modul%20Version-5.2.20260902-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
+[![Version](https://img.shields.io/badge/Modul%20Version-5.3.20261030-orange.svg?style=flat-square)](https://github.com/Wilkware/WasteManagement)
 [![License](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-green.svg?style=flat-square)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Actions](https://img.shields.io/github/actions/workflow/status/wilkware/WasteManagement/ci.yml?branch=main&label=CI&style=flat-square)](https://github.com/Wilkware/WasteManagement/actions)
 
 Symcon Modul für die Verwaltung von Online Diensten zur Bestimmung von Entsorgungsterminen.
 
-## Inhaltverzeichnis
+## Inhaltsverzeichnis
 
 1. [Funktionsumfang](#user-content-1-funktionsumfang)
 2. [Voraussetzungen](#user-content-2-voraussetzungen)
@@ -31,10 +31,12 @@ Derzeit unterstützt der Konfigurator folgende Anbieter:
 * [Abfall+](https://abfallplus.de) - "Die Gesamtlösung für elektronische Bürgerdienste in der Abfallwirtschaft!"
 * [MyMüll.de](https://mymuell.de) - "Abfall und Wertstoffe sauber organisiert!"
 * [AbfallNavi](https://regioit.de) - "Der digitale Abfallkalender der regio IT für die Abfallentsorgung!"
-* [MyMuell](https://muellmax.de) - "Müllmax Abfallkalender barrierefrei online und gedruckt."
-* [Abfall.ICS](https://asmium.de) - "Abfalldaten via Kalenderdatei ICS auslesen."
+* [MüllMax](https://muellmax.de) - "Müllmax Abfallkalender barrierefrei online und gedruckt."
+* [Abfall.ICS](https://wilkware.de/module/abfallwirtschaft/wmics/) - "Abfalldaten via Kalenderdatei ICS auslesen."
+* [Abfall.APP](https://abfallplus.de) - "Abfall+ ist die Lösung für die Herausforderungen der Abfallwirtschaft."
+* [sector27](https://muellkalender.sector27.de) - "Der digitale Müllkalender von sector27."
 
-__HINWEIS:__ Über diese [Suchseite](https://asmium.de) kann man ganz schnell herausfinden ob die eigene Stadt/Gemeinde von einem der aufgelisteten Dienste unterstützt wird! :+1:
+__HINWEIS:__ Über diese [Suchseite](https://wilkware.de/apps/abfallwirtschaft-suche/) kann man ganz schnell herausfinden ob die eigene Stadt/Gemeinde von einem der aufgelisteten Dienste unterstützt wird! :+1:
 
 Wenn jemand noch weitere kennt, bitte einfach bei mir melden!
 
@@ -56,17 +58,12 @@ __Konfigurationsseite__:
 
 Innerhalb der Konfiguratorliste wird anhand des verfügbaren Dienstes gruppiert.
 Man kann pro Dienst mehrere Instanzen anlegen und auch wieder löschen.
-Legt man eine entsprechende Zielkategorie fest, werden neu zu erstellende Instanzen unterhalb dieser Kategorie angelegt.
 
-_Einstellungsbereich:_
+Einstellungsbereich:
 
-Name                         | Beschreibung
----------------------------- | ---------------------------------
-Erstellen neuer Instanzen in | Kategorie unter welcher neue Instanzen erzeugt werden (keine Auswahl im Root). Nur bis Version 7!
+Es gibt keine Einstellungen.
 
-_Aktionsbereich:_
-
-> 🚀 Aktion ausführen ...
+Aktionsbereich:
 
 Name                         | Beschreibung
 ---------------------------- | ---------------------------------
@@ -90,6 +87,13 @@ Das Modul bietet keine direkten Funktionsaufrufe.
 
 ### 9. Versionshistorie
 
+v5.3.20261030
+
+* _NEU_: Unterstützung für sector27 (Modul Sector27)
+* _FIX_: Mehrere Instanzen eines Anbieters werden in der Liste korrekt angezeigt
+* _FIX_: Timeouts und Fehlerbehandlung beim Laden der Anbieterdaten
+* _FIX_: Dokumentation überarbeitet und vereinheitlicht
+
 v5.2.20260902
 
 * _FIX_: Ampelfarben im HTML Widget gefixt
@@ -102,7 +106,7 @@ v5.1.20260831
 
 v5.0.20260710
 
-* _NEU_: Kompatibilität auf IPS 8.1 vereinheitlicht
+* _NEU_: Kompatibilität auf Symcon 8.1 vereinheitlicht
 * _NEU_: Umstellung auf Strict-Modus (IPSModuleStrict)
 * _NEU_: Modulversion wird in Quellcodesektion angezeigt
 * _FIX_: Modulkonfiguration überarbeitet und vereinheitlicht
@@ -130,7 +134,7 @@ v1.3.20220309
 
 v1.2.20211109
 
-* _NEU_: Kompatibilität auf IPS 6.0 hoch gesetzt
+* _NEU_: Kompatibilität auf Symcon 6.0 hoch gesetzt
 * _NEU_: Konfigurationsformular an die neuen Möglichkeiten der 6.0 angepasst
 
 v1.1.20211109

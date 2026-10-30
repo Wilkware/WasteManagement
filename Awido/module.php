@@ -2,13 +2,14 @@
 
 declare(strict_types=1);
 
-/** Generell funktions */
+/** General functions */
 require_once __DIR__ . '/../libs/_traits.php';
 
 /** Namespaced traits */
 use Wilkware\WasteManagement\DebugHelper;
 use Wilkware\WasteManagement\EventHelper;
 use Wilkware\WasteManagement\FormatHelper;
+use Wilkware\WasteManagement\FormHelper;
 use Wilkware\WasteManagement\ServiceHelper;
 use Wilkware\WasteManagement\VariableHelper;
 use Wilkware\WasteManagement\VisualisationHelper;
@@ -25,6 +26,7 @@ class Awido extends IPSModuleStrict
     use DebugHelper;
     use EventHelper;
     use FormatHelper;
+    use FormHelper;
     use ServiceHelper;
     use VariableHelper;
     use VisualisationHelper;
@@ -37,17 +39,11 @@ class Awido extends IPSModuleStrict
     private const SERVICE_PROVIDER = 'awido';
 
     // -------------------------------------------------------------------------
-    // Form Elements
+    // Status Codes
     // -------------------------------------------------------------------------
 
-    /** @var int Lement Postion Provi */
-    private const ELEM_PROVI = 1;
-
-    /** @var int Panael Element MyMDE */
-    private const ELEM_WASTE = 2;
-
-    /** @var int Panael Element Visualisation */
-    private const ELEM_VISU = 3;
+    /** @var int Status Service Error */
+    private const STATUS_SERVICE_ERROR = 206;
 
     // -------------------------------------------------------------------------
     // Methods
@@ -84,6 +80,7 @@ class Awido extends IPSModuleStrict
         $this->RegisterPropertyInteger('settingsAccentTomorrow', -1);
         $this->RegisterPropertyInteger('settingsTonneAlpha', 100);
         $this->RegisterPropertyBoolean('settingsTonneColor', true);
+        $this->RegisterPropertyInteger('settingsTileMaxView', 2);
         $this->RegisterPropertyBoolean('settingsHtmlBox', true);
         $this->RegisterPropertyBoolean('settingsLookAhead', false);
         $this->RegisterPropertyString('settingsLookTime', '{"hour":12,"minute":0,"second":0}');
@@ -106,7 +103,7 @@ class Awido extends IPSModuleStrict
         // Register daily look ahead timer
         $this->RegisterTimer('LookAheadTimer', 0, 'AWIDO_LookAhead(' . $this->InstanceID . ');');
 
-        // Set visualization type to 1, as we want to offer HTML
+        // Set visualization type to 0 (no visualization until enabled in ApplyChanges)
         $this->SetVisualizationType(0);
     }
 
@@ -138,7 +135,10 @@ class Awido extends IPSModuleStrict
         $ins = IPS_GetInstance($this->InstanceID);
         $mod = IPS_GetModule($ins['ModuleInfo']['ModuleID']);
         $lib = IPS_GetLibrary($mod['LibraryID']);
-        $form['actions'][1]['items'][2]['caption'] = sprintf('v%s.%d', $lib['Version'], $lib['Build']);
+        $this->ModifyFormElement($form['actions'], 'Version', function (array &$element) use ($lib): void
+        {
+            $element['caption'] = sprintf('v%s.%d', $lib['Version'], $lib['Build']);
+        });
 
         // Service Values
         $country = $this->ReadPropertyString('serviceCountry');
@@ -185,34 +185,77 @@ class Awido extends IPSModuleStrict
         $this->LogDebug(__FUNCTION__, 'cID=' . $clientId . ', pId=' . $placeId . ', sId=' . $streetId . ', aId=' . $addonId . ', fId=' . $fractIds);
 
         // Service Provider
-        $form['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
-        $form['elements'][self::ELEM_PROVI]['items'][1]['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
+        $this->ModifyFormElement($form['elements'], 'serviceProvider', function (array &$element): void
+        {
+            $element['options'] = $this->GetProviderOptions();
+        });
+        $this->ModifyFormElement($form['elements'], 'serviceCountry', function (array &$element): void
+        {
+            $element['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
+        });
 
         // Waste Management
-        $form['elements'][self::ELEM_WASTE]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
-        $form['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['options'] = $this->GetPlaceOptions();
-        $form['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['options'] = $this->GetStreetOptions();
-        $form['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['options'] = $this->GetAddonOptions();
+        $this->ModifyFormElement($form['elements'], 'clientID', function (array &$element) use ($country): void
+        {
+            $element['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
+        });
+        $this->ModifyFormElement($form['elements'], 'placeGUID', function (array &$element): void
+        {
+            $element['options'] = $this->GetPlaceOptions();
+        });
+        $this->ModifyFormElement($form['elements'], 'streetGUID', function (array &$element): void
+        {
+            $element['options'] = $this->GetStreetOptions();
+        });
+        $this->ModifyFormElement($form['elements'], 'addonGUID', function (array &$element): void
+        {
+            $element['options'] = $this->GetAddonOptions();
+        });
         $data = $this->GetFractionOptions();
         foreach ($data as $fract) {
-            $form['elements'][self::ELEM_WASTE]['items'][intval($fract['id']) + 3]['caption'] = $fract['caption'];
-            $form['elements'][self::ELEM_WASTE]['items'][intval($fract['id']) + 3]['visible'] = true;
+            $this->ModifyFormElement($form['elements'], 'fractionID' . $fract['id'], function (array &$element) use ($fract): void
+            {
+                $element['caption'] = $fract['caption'];
+                $element['visible'] = true;
+            });
         }
 
         // Elements visible (client always visible)
-        $form['elements'][self::ELEM_WASTE]['items'][1]['items'][0]['visible'] = ($clientId != 'null');
-        $form['elements'][self::ELEM_WASTE]['items'][2]['items'][0]['visible'] = ($placeId != 'null');
-        $form['elements'][self::ELEM_WASTE]['items'][2]['items'][1]['visible'] = ($streetId != 'null');
-        $form['elements'][self::ELEM_WASTE]['items'][3]['visible'] = ($addonId != 'null');
+        $this->ModifyFormElement($form['elements'], 'placeGUID', function (array &$element) use ($clientId): void
+        {
+            $element['visible'] = ($clientId != 'null');
+        });
+        $this->ModifyFormElement($form['elements'], 'streetGUID', function (array &$element) use ($placeId): void
+        {
+            $element['visible'] = ($placeId != 'null');
+        });
+        $this->ModifyFormElement($form['elements'], 'addonGUID', function (array &$element) use ($streetId): void
+        {
+            $element['visible'] = ($streetId != 'null');
+        });
+        $this->ModifyFormElement($form['elements'], 'labelFraction', function (array &$element) use ($addonId): void
+        {
+            $element['visible'] = ($addonId != 'null');
+        });
 
         // Actions visible
-        $form['actions'][0]['items'][0]['items'][0]['visible'] = ($addonId != 'null');
+        $this->ModifyFormElement($form['actions'], 'updateButton', function (array &$element) use ($addonId): void
+        {
+            $element['visible'] = ($addonId != 'null');
+        });
+        $this->ModifyFormElement($form['actions'], 'lookAheadButton', function (array &$element) use ($addonId): void
+        {
+            $element['visible'] = ($addonId != 'null');
+        });
 
         //Only add default element if we do not have anything in persistence
         $colors = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         if (empty($colors)) {
             $this->LogDebug(__FUNCTION__, 'Translate Waste Visu');
-            $form['elements'][self::ELEM_VISU]['items'][1]['values'] = $this->GetWasteValues();
+            $this->ModifyFormElement($form['elements'], 'settingsTileColors', function (array &$element): void
+            {
+                $element['values'] = $this->GetWasteValues();
+            });
         }
 
         // Return form
@@ -246,11 +289,11 @@ class Awido extends IPSModuleStrict
         }
         $fractIds = implode(',', $fractions);
         $this->LogDebug(__FUNCTION__, 'clientID=' . $clientId . ', placeId=' . $placeId . ', streetId=' . $streetId . ', addonId=' . $addonId . ', fractIds=' . $fractIds);
-        // Safty default
+        // Safety default
         $this->SetTimerInterval('UpdateTimer', 0);
         $this->SetTimerInterval('LookAheadTimer', 0);
-        // Support for Tile Viso (v7.x)
-        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, '~HTMLBox', 0, $tilevisu && $htmlbox);
+        // Support for Tile Visu (v7.x)
+        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, ['PRESENTATION' => VARIABLE_PRESENTATION_WEB_CONTENT], 0, $tilevisu && $htmlbox);
         //$status = 102;
         if ($clientId == 'null') {
             $status = 201;
@@ -270,18 +313,19 @@ class Awido extends IPSModuleStrict
                     'todayColor'    => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentToday')),
                     'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
                     'tonneAlpha'    => $this->ReadPropertyInteger('settingsTonneAlpha') . '%',
-                    'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor')
+                    'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor'),
+                    'tileMaxView'   => $this->ReadPropertyInteger('settingsTileMaxView')
                 ]));
             }
             $this->CreateVariables($clientId, $fractIds);
             $status = 102;
-            // Time neu berechnen
+            // Recalculate time
             $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
-            $this->LogDebug(__FUNCTION__, 'Update Timer aktiviert!');
-            if ($loakahead & $tilevisu) {
+            $this->LogDebug(__FUNCTION__, 'Update timer activated!');
+            if ($loakahead && $tilevisu) {
                 $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
                 if (($time['hour'] == 0) && ($time['minute'] <= 30)) {
-                    $this->LogDebug(__FUNCTION__, 'LookAhead Time zu niedrieg!');
+                    $this->LogDebug(__FUNCTION__, 'LookAhead time too early!');
                 } else {
                     $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second']);
                 }
@@ -305,7 +349,30 @@ class Awido extends IPSModuleStrict
     {
         // Debug output
         $this->LogDebug(__FUNCTION__, $ident . ' => ' . $value);
-        eval('$this->' . $ident . '(\'' . $value . '\');');
+        // Dispatch form actions (no eval, values can contain user input)
+        switch ($ident) {
+            case 'OnChangeCountry':
+                $this->OnChangeCountry((string) $value);
+                break;
+            case 'OnChangeClient':
+                $this->OnChangeClient((string) $value);
+                break;
+            case 'OnChangePlace':
+                $this->OnChangePlace((string) $value);
+                break;
+            case 'OnChangeStreet':
+                $this->OnChangeStreet((string) $value);
+                break;
+            case 'OnChangeAddon':
+                $this->OnChangeAddon((string) $value);
+                break;
+            case 'LookAhead':
+                // Tap on the 'Today' badge of the tile
+                $this->LookAhead();
+                break;
+            default:
+                $this->LogDebug(__FUNCTION__, 'Unknown ident: ' . $ident);
+        }
     }
 
     /**
@@ -318,8 +385,8 @@ class Awido extends IPSModuleStrict
      */
     public function LookAhead(): void
     {
-        // Check instance state
-        if ($this->GetStatus() != 102) {
+        // Check instance state (after a service error the variables still hold valid dates)
+        if (!in_array($this->GetStatus(), [102, self::STATUS_SERVICE_ERROR])) {
             $this->LogDebug(__FUNCTION__, 'Status: Instance is not active.');
             return;
         }
@@ -330,13 +397,21 @@ class Awido extends IPSModuleStrict
             return;
         }
 
+        // Set Timer to the next day
+        $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
+        $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second']);
+
         // rebuild informations
         $clientId = $this->ReadPropertyString('clientID');
         $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=' . $clientId;
-        $json = file_get_contents($url);
-        $data = json_decode($json);
+        $data = $this->ServiceRequest($url);
+        if (!is_array($data)) {
+            // keep the current widget, the dates are still valid
+            $this->LogDebug(__FUNCTION__, 'Service request failed, widget not updated!');
+            return;
+        }
 
-        // Fractions mit Kurzzeichen(Short Name)) in Array konvertieren
+        // Convert fractions with short name into array
         $waste = [];
         foreach ($data as $fract) {
             $fractID = $this->ReadPropertyBoolean('fractionID' . $fract->id);
@@ -353,10 +428,6 @@ class Awido extends IPSModuleStrict
         $list = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         $this->BuildWidget($waste, $list, true);
 
-        // Set Timer to the next day
-        $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
-        $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second']);
-
         // send a complete update message to the display, as parameters may have changed
         $this->UpdateVisualizationValue($this->GetFullUpdateMessage());
     }
@@ -371,6 +442,11 @@ class Awido extends IPSModuleStrict
      */
     public function Update(): void
     {
+        // Check instance state (a previous service error must not block the retry)
+        if (!in_array($this->GetStatus(), [102, self::STATUS_SERVICE_ERROR])) {
+            $this->LogDebug(__FUNCTION__, 'Status: Instance is not active.');
+            return;
+        }
         $clientId = $this->ReadPropertyString('clientID');
         $placeId = $this->ReadPropertyString('placeGUID');
         $streetId = $this->ReadPropertyString('streetGUID');
@@ -392,10 +468,13 @@ class Awido extends IPSModuleStrict
         // rebuild informations
         $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=' . $clientId;
 
-        $json = file_get_contents($url);
-        $data = json_decode($json);
+        $data = $this->ServiceRequest($url);
+        if (!is_array($data)) {
+            $this->ServiceError();
+            return;
+        }
 
-        // Fractions mit Kurzzeichen(Short Name)) in Array konvertieren
+        // Convert fractions with short name into array
         $waste = [];
         foreach ($data as $fract) {
             $fractID = $this->ReadPropertyBoolean('fractionID' . $fract->id);
@@ -406,22 +485,28 @@ class Awido extends IPSModuleStrict
 
         // update data
         $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getData/' . $addonId . '?fractions=' . $fractIds . '&client=' . $clientId;
-        $json = file_get_contents($url);
-        $data = json_decode($json);
+        $data = $this->ServiceRequest($url);
+        if (!isset($data->calendar)) {
+            $this->ServiceError();
+            return;
+        }
+        if ($this->GetStatus() == self::STATUS_SERVICE_ERROR) {
+            $this->SetStatus(102);
+        }
 
-        // Kalenderdaten durchgehen
+        // go through the calendar data
         foreach ($data->calendar as $day) {
-            // nur Abholdaten nehmen, keine Feiertage
+            // only pickup dates, no holidays
             if ($day->fr == '') {
                 continue;
             }
-            // Datum in Vergangenheit brauchen wir nicht
+            // skip dates in the past
             if ($day->dt < date('Ymd')) {
                 continue;
             }
-            // YYYYMMDD umwandeln in DD.MM.YYYY
+            // convert YYYYMMDD into DD.MM.YYYY
             $tag = substr($day->dt, 6) . '.' . substr($day->dt, 4, 2) . '.' . substr($day->dt, 0, 4);
-            // Entsorgungsart herausfinden
+            // find out the waste type
             foreach ($day->fr as $snm) {
                 if ($waste[$snm]['date'] == '') {
                     $waste[$snm]['date'] = $tag;
@@ -458,7 +543,7 @@ class Awido extends IPSModuleStrict
                 $rs = IPS_RunScriptEx($scriptId, ['TIMESTAMP' => time(), 'INSTANCE' => $this->InstanceID, 'DATA' => json_encode($data)]);
                 $this->LogDebug(__FUNCTION__, 'Script Execute (Return Value): ' . $rs);
             } else {
-                $this->LogDebug(__FUNCTION__, 'Update: Script #' . $scriptId . ' existiert nicht!');
+                $this->LogDebug(__FUNCTION__, 'Update: Script #' . $scriptId . ' does not exist!');
             }
         }
 
@@ -563,7 +648,7 @@ class Awido extends IPSModuleStrict
     }
 
     /**
-     * Benutzer hat eine neue Straße oder Ortsteil ausgewählt.
+     * User has selected a new street or district.
      *
      * @param string $id Street GUID .
      *
@@ -587,7 +672,7 @@ class Awido extends IPSModuleStrict
     }
 
     /**
-     * Benutzer hat eine neue Hausnummer ausgewählt.
+     * User has selected a new house number.
      *
      * @param string $id Addon GUID .
      *
@@ -612,7 +697,7 @@ class Awido extends IPSModuleStrict
     }
 
     /**
-     * Returns for the dropdown menu the selectable locations in the desorking area.
+     * Returns for the dropdown menu the selectable locations in the disposal area.
      *
      * @return list<array<string,string>> List of places.
      */
@@ -628,9 +713,8 @@ class Awido extends IPSModuleStrict
         // Data
         if ($cId != 'null') {
             $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getPlaces/client=' . $cId;
-            $json = file_get_contents($url);
-            $data = json_decode($json);
-            foreach ($data as $place) {
+            $data = $this->ServiceRequest($url);
+            foreach ($data ?? [] as $place) {
                 $options[] = ['caption' => $place->value, 'value' => $place->key];
             }
         }
@@ -639,7 +723,7 @@ class Awido extends IPSModuleStrict
     }
 
     /**
-     * Returns for the dropdown menu the selectable streets in the desorking area.
+     * Returns for the dropdown menu the selectable streets in the disposal area.
      *
      * @return list<array<string,string>> List of streets.
      */
@@ -656,11 +740,10 @@ class Awido extends IPSModuleStrict
         // Default key
         $options[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
         // Data
-        if ($cId != 'null' & $pId != 'null') {
+        if ($cId != 'null' && $pId != 'null') {
             $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getGroupedStreets/' . $pId . '?selectedOTId=null&client=' . $cId;
-            $json = file_get_contents($url);
-            $data = json_decode($json);
-            foreach ($data as $street) {
+            $data = $this->ServiceRequest($url);
+            foreach ($data ?? [] as $street) {
                 $options[] = ['caption' => $street->value, 'value' => $street->key];
             }
         }
@@ -669,7 +752,7 @@ class Awido extends IPSModuleStrict
     }
 
     /**
-     * Returns for the dropdown menu the selectable house numbers in the desorking area.
+     * Returns for the dropdown menu the selectable house numbers in the disposal area.
      *
      * @return list<array<string,string>> List of house numbers.
      */
@@ -686,11 +769,10 @@ class Awido extends IPSModuleStrict
         // Default key
         $options[] = ['caption' => $this->Translate('Please select ...') . str_repeat(' ', 79), 'value' => 'null'];
         // Data
-        if ($cId != 'null' & $sId != 'null') {
+        if ($cId != 'null' && $sId != 'null') {
             $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getStreetAddons/' . $sId . '?client=' . $cId;
-            $json = file_get_contents($url);
-            $data = json_decode($json);
-            foreach ($data as $addon) {
+            $data = $this->ServiceRequest($url);
+            foreach ($data ?? [] as $addon) {
                 if ($addon->value == '') {
                     $addon->value = 'All';
                 }
@@ -718,9 +800,8 @@ class Awido extends IPSModuleStrict
         // Data
         if ($cId != 'null') {
             $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=' . $cId;
-            $json = file_get_contents($url);
-            $data = json_decode($json);
-            foreach ($data as $fract) {
+            $data = $this->ServiceRequest($url);
+            foreach ($data ?? [] as $fract) {
                 $ids[] = $fract->id;
                 $options[] = ['id' => $fract->id, 'caption' => html_entity_decode($fract->nm) . ' (' . $fract->snm . ')'];
             }
@@ -754,6 +835,7 @@ class Awido extends IPSModuleStrict
         }
         // Action area
         $this->UpdateFormField('updateButton', 'visible', $fr);
+        $this->UpdateFormField('lookAheadButton', 'visible', $fr);
     }
 
     /**
@@ -772,16 +854,46 @@ class Awido extends IPSModuleStrict
         }
         // create or update all variables
         $url = 'https://awido.cubefour.de/WebServices/Awido.Service.svc/getFractions/client=' . $cId;
-        $json = file_get_contents($url);
-        $data = json_decode($json);
+        $data = $this->ServiceRequest($url) ?? [];
         // how to maintain?
         $variable = $this->ReadPropertyBoolean('createVariables');
         foreach ($data as $fract) {
             $fractID = $this->ReadPropertyBoolean('fractionID' . $fract->id);
             $fractIDENT = $this->GetVariableIdent($fract->snm);
-            $this->MaintainVariable($fractIDENT, html_entity_decode($fract->nm), VARIABLETYPE_STRING, '', $fract->id, $fractID || $variable);
+            $this->MaintainVariable($fractIDENT, html_entity_decode($fract->nm), VARIABLETYPE_STRING, ['ICON' => 'trash-can', 'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION], $fract->id, $fractID || $variable);
         }
     }
+    /**
+     * Requests json data from the service.
+     *
+     * @param string $url Service URL
+     *
+     * @return mixed Decoded json data or null on error
+     */
+    private function ServiceRequest(string $url): mixed
+    {
+        $json = $this->GetUrlContent($url);
+        if ($json === false) {
+            return null;
+        }
+        $data = json_decode($json);
+        if ($data === null) {
+            $this->LogDebug(__FUNCTION__, 'ERROR: Invalid json data from ' . $url);
+        }
+        return $data;
+    }
+
+    /**
+     * Logs a failed service request and sets the error status.
+     *
+     * @return void
+     */
+    private function ServiceError(): void
+    {
+        $this->LogMessage('Could not retrieve collection dates from service (see debug for details)!', KL_ERROR);
+        $this->SetServiceError(self::STATUS_SERVICE_ERROR, 'activateAWIDO');
+    }
+
     /**
      * Generate a message that updates all elements in the HTML display.
      *
@@ -807,6 +919,7 @@ class Awido extends IPSModuleStrict
             'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
             'tonneAlpha'    => $this->ReadPropertyInteger('settingsTonneAlpha') . '%',
             'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor'),
+            'tileMaxView'   => $this->ReadPropertyInteger('settingsTileMaxView'),
         ];
         $result = array_merge($ac, $wd);
 

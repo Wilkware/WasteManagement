@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-/** Generell funktions */
+/** General functions */
 require_once __DIR__ . '/../libs/_traits.php';
 
 /** ICS Parser */
@@ -14,6 +14,7 @@ use ICal\ICal;
 use Wilkware\WasteManagement\DebugHelper;
 use Wilkware\WasteManagement\EventHelper;
 use Wilkware\WasteManagement\FormatHelper;
+use Wilkware\WasteManagement\FormHelper;
 use Wilkware\WasteManagement\ServiceHelper;
 use Wilkware\WasteManagement\VariableHelper;
 
@@ -31,6 +32,7 @@ class Abfall_ICS extends IPSModuleStrict
     use DebugHelper;
     use EventHelper;
     use FormatHelper;
+    use FormHelper;
     use ServiceHelper;
     use VariableHelper;
     use VisualisationHelper;
@@ -62,17 +64,11 @@ class Abfall_ICS extends IPSModuleStrict
     private const IO_FRACTIONS = 'fract';
 
     // -------------------------------------------------------------------------
-    // Form Elements
+    // Status Codes
     // -------------------------------------------------------------------------
 
-    /** @var int Lement Postion Provi */
-    private const ELEM_PROVI = 1;
-
-    /** @var int Panael Element MyMDE */
-    private const ELEM_WASTE = 2;
-
-    /** @var int Panael Element Visualisation */
-    private const ELEM_VISU = 3;
+    /** @var int Status Service Error */
+    private const STATUS_SERVICE_ERROR = 203;
 
     // -------------------------------------------------------------------------
     // Methods
@@ -112,6 +108,7 @@ class Abfall_ICS extends IPSModuleStrict
         $this->RegisterPropertyInteger('settingsAccentTomorrow', -1);
         $this->RegisterPropertyInteger('settingsTonneAlpha', 100);
         $this->RegisterPropertyBoolean('settingsTonneColor', true);
+        $this->RegisterPropertyInteger('settingsTileMaxView', 2);
         $this->RegisterPropertyBoolean('settingsHtmlBox', true);
         $this->RegisterPropertyBoolean('settingsLookAhead', false);
         $this->RegisterPropertyString('settingsLookTime', '{"hour":12,"minute":0,"second":0}');
@@ -130,7 +127,7 @@ class Abfall_ICS extends IPSModuleStrict
         // Buffer for ICS/CSV data
         $this->SetBuffer('ics_cache', '');
 
-        // Set visualization type to 1, as we want to offer HTML
+        // Set visualization type to 0 (no visualization until enabled in ApplyChanges)
         $this->SetVisualizationType(0);
     }
 
@@ -162,7 +159,10 @@ class Abfall_ICS extends IPSModuleStrict
         $ins = IPS_GetInstance($this->InstanceID);
         $mod = IPS_GetModule($ins['ModuleInfo']['ModuleID']);
         $lib = IPS_GetLibrary($mod['LibraryID']);
-        $form['actions'][1]['items'][2]['caption'] = sprintf('v%s.%d', $lib['Version'], $lib['Build']);
+        $this->ModifyFormElement($form['actions'], 'Version', function (array &$element) use ($lib): void
+        {
+            $element['caption'] = sprintf('v%s.%d', $lib['Version'], $lib['Build']);
+        });
 
         // Settings
         $activate = $this->ReadPropertyBoolean('settingsActivate');
@@ -178,11 +178,20 @@ class Abfall_ICS extends IPSModuleStrict
         $this->LogDebug(__FUNCTION__, 'clientID=' . $id . ' ,clientTYPE=' . $type);
 
         // Service Provider
-        $form['elements'][self::ELEM_PROVI]['items'][0]['options'] = $this->GetProviderOptions();
-        $form['elements'][self::ELEM_PROVI]['items'][1]['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
+        $this->ModifyFormElement($form['elements'], 'serviceProvider', function (array &$element): void
+        {
+            $element['options'] = $this->GetProviderOptions();
+        });
+        $this->ModifyFormElement($form['elements'], 'serviceCountry', function (array &$element): void
+        {
+            $element['options'] = $this->GetCountryOptions(self::SERVICE_PROVIDER);
+        });
 
         // Waste Management
-        $form['elements'][self::ELEM_WASTE]['items'][0]['items'][0]['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
+        $this->ModifyFormElement($form['elements'], 'clientID', function (array &$element) use ($country): void
+        {
+            $element['options'] = $this->GetClientOptions(self::SERVICE_PROVIDER, $country);
+        });
 
         // IO Data
         $io = unserialize($this->ReadAttributeString('io'));
@@ -190,22 +199,41 @@ class Abfall_ICS extends IPSModuleStrict
 
         // Button (more)
         if ($io[self::IO_CLIENT] != 'null') {
-            $form['elements'][self::ELEM_WASTE]['items'][0]['items'][1]['visible'] = true;
+            $this->ModifyFormElement($form['elements'], 'buttonID', function (array &$element): void
+            {
+                $element['visible'] = true;
+            });
         }
 
         // Type (File or Link)
-        $form['elements'][self::ELEM_WASTE]['items'][1]['items'][1]['visible'] = ($type == self::IMPORT_LINK);
-        $form['elements'][self::ELEM_WASTE]['items'][1]['items'][2]['visible'] = ($type == self::IMPORT_FILE);
+        $this->ModifyFormElement($form['elements'], 'clientURL', function (array &$element) use ($type): void
+        {
+            $element['visible'] = ($type == self::IMPORT_LINK);
+        });
+        $this->ModifyFormElement($form['elements'], 'clientFILE', function (array &$element) use ($type): void
+        {
+            $element['visible'] = ($type == self::IMPORT_FILE);
+        });
+        $this->ModifyFormElement($form['elements'], 'urlHint', function (array &$element) use ($type): void
+        {
+            $element['visible'] = ($type == self::IMPORT_LINK);
+        });
 
         // Fractions
         if (!empty($io[self::IO_FRACTIONS])) {
             // Label
-            $form['elements'][self::ELEM_WASTE]['items'][3]['visible'] = true;
+            $this->ModifyFormElement($form['elements'], 'fractionLabel', function (array &$element): void
+            {
+                $element['visible'] = true;
+            });
             $i = 1;
             foreach ($io[self::IO_FRACTIONS] as $fract) {
-                $form['elements'][self::ELEM_WASTE]['items'][$i + 3]['caption'] = $fract['name'];
-                $form['elements'][self::ELEM_WASTE]['items'][$i + 3]['value'] = $fract['active'];
-                $form['elements'][self::ELEM_WASTE]['items'][$i + 3]['visible'] = true;
+                $this->ModifyFormElement($form['elements'], 'fractionID' . $i, function (array &$element) use ($fract): void
+                {
+                    $element['caption'] = $fract['name'];
+                    $element['value'] = $fract['active'];
+                    $element['visible'] = true;
+                });
                 $i++;
             }
         }
@@ -214,7 +242,10 @@ class Abfall_ICS extends IPSModuleStrict
         $colors = json_decode($this->ReadPropertyString('settingsTileColors'), true);
         if (empty($colors)) {
             $this->LogDebug(__FUNCTION__, 'Translate Waste Visu');
-            $form['elements'][self::ELEM_VISU]['items'][1]['values'] = $this->GetWasteValues();
+            $this->ModifyFormElement($form['elements'], 'settingsTileColors', function (array &$element): void
+            {
+                $element['values'] = $this->GetWasteValues();
+            });
         }
 
         // Return Form
@@ -237,7 +268,7 @@ class Abfall_ICS extends IPSModuleStrict
         $htmlbox = $this->ReadPropertyBoolean('settingsHtmlBox');
         $loakahead = $this->ReadPropertyBoolean('settingsLookAhead');
         $this->LogDebug(__FUNCTION__, 'clientID=' . $id . ' ,clientTYPE=' . $type);
-        // Safty default
+        // Safety default
         $this->SetTimerInterval('UpdateTimer', 0);
         $this->SetTimerInterval('LookAheadTimer', 0);
         // Set status
@@ -266,8 +297,8 @@ class Abfall_ICS extends IPSModuleStrict
             }
             $this->WriteAttributeString('io', serialize($io));
         }
-        // Support for Tile Viso (v7.x)
-        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, '~HTMLBox', 0, $tilevisu && $htmlbox);
+        // Support for Tile Visu (v7.x)
+        $this->MaintainVariable('Widget', $this->Translate('Pickup'), VARIABLETYPE_STRING, ['PRESENTATION' => VARIABLE_PRESENTATION_WEB_CONTENT], 0, $tilevisu && $htmlbox);
         // All okay
         if ($status == 102) {
             // Update visualization
@@ -277,18 +308,19 @@ class Abfall_ICS extends IPSModuleStrict
                     'todayColor'    => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentToday')),
                     'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
                     'tonneAlpha'    => $this->ReadPropertyInteger('settingsTonneAlpha') . '%',
-                    'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor')
+                    'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor'),
+                    'tileMaxView'   => $this->ReadPropertyInteger('settingsTileMaxView')
                 ]));
             }
             $this->CreateVariables();
             if ($activate == true) {
-                // Time neu berechnen
+                // Recalculate time
                 $this->UpdateTimerInterval('UpdateTimer', 0, 10, 0);
-                $this->LogDebug(__FUNCTION__, 'Update Timer aktiviert!');
-                if ($loakahead & $tilevisu) {
+                $this->LogDebug(__FUNCTION__, 'Update timer activated!');
+                if ($loakahead && $tilevisu) {
                     $time = json_decode($this->ReadPropertyString('settingsLookTime'), true);
                     if (($time['hour'] == 0) && ($time['minute'] <= 30)) {
-                        $this->LogDebug(__FUNCTION__, 'LookAhead Time zu niedrieg!');
+                        $this->LogDebug(__FUNCTION__, 'LookAhead time too early!');
                     } else {
                         $this->UpdateTimerInterval('LookAheadTimer', $time['hour'], $time['minute'], $time['second']);
                     }
@@ -313,7 +345,27 @@ class Abfall_ICS extends IPSModuleStrict
     {
         // Debug output
         $this->LogDebug(__FUNCTION__, $ident . ' => ' . $value);
-        eval('$this->' . $ident . '(\'' . $value . '\');');
+        // Dispatch form actions (no eval, values can contain user input)
+        switch ($ident) {
+            case 'OnChangeCountry':
+                $this->OnChangeCountry((string) $value);
+                break;
+            case 'OnChangeClient':
+                $this->OnChangeClient((string) $value);
+                break;
+            case 'OnChangeImport':
+                $this->OnChangeImport((string) $value);
+                break;
+            case 'OnChangeType':
+                $this->OnChangeType((int) $value);
+                break;
+            case 'LookAhead':
+                // Tap on the 'Today' badge of the tile
+                $this->LookAhead();
+                break;
+            default:
+                $this->LogDebug(__FUNCTION__, 'Unknown ident: ' . $ident);
+        }
     }
 
     /**
@@ -326,8 +378,8 @@ class Abfall_ICS extends IPSModuleStrict
      */
     public function LookAhead(): void
     {
-        // Check instance state
-        if ($this->GetStatus() != 102) {
+        // Check instance state (after a service error the variables still hold valid dates)
+        if (!in_array($this->GetStatus(), [102, self::STATUS_SERVICE_ERROR])) {
             $this->LogDebug(__FUNCTION__, 'Status: Instance is not active.');
             return;
         }
@@ -375,8 +427,8 @@ class Abfall_ICS extends IPSModuleStrict
      */
     public function Update(): void
     {
-        // Check instance state
-        if ($this->GetStatus() != 102) {
+        // Check instance state (a previous service error must not block the retry)
+        if (!in_array($this->GetStatus(), [102, self::STATUS_SERVICE_ERROR])) {
             $this->LogDebug(__FUNCTION__, 'Status: Instance is not active.');
             return;
         }
@@ -404,17 +456,20 @@ class Abfall_ICS extends IPSModuleStrict
                 'skipRecurrence'              => false, // Default value
             ]);
             if ($io[self::IO_TYPE] == self::IMPORT_LINK) {
-                $ical->initUrl($this->ReadPropertyString('clientURL'));
+                $ical->initUrl($this->ExpandUrl($this->ReadPropertyString('clientURL')));
             } else {
                 $ical->initString(base64_decode($this->ReadPropertyString('clientFILE')));
             }
         } catch (Exception $e) {
             $this->LogDebug(__FUNCTION__, 'initICS: ' . $e);
+            $this->LogMessage('Could not retrieve collection dates from service (see debug for details)!', KL_ERROR);
+            $this->SetServiceError(self::STATUS_SERVICE_ERROR);
             return;
         }
+        $this->SetStatus(102);
         // get all events
         $events = $ical->sortEventsWithOrder($ical->events());
-        // go throw all events
+        // go through all events
         $this->LogDebug(__FUNCTION__, 'ICS Events: ' . $ical->eventCount);
         foreach ($events as $event) {
             $this->LogDebug(__FUNCTION__, 'Event: ' . $event->summary . ' = ' . $event->dtstart);
@@ -422,7 +477,7 @@ class Abfall_ICS extends IPSModuleStrict
             if ($dtstart < date('Ymd')) {
                 continue;
             }
-            // YYYYMMDD umwandeln in DD.MM.YYYY
+            // convert YYYYMMDD into DD.MM.YYYY
             $day = substr($event->dtstart, 6, 2) . '.' . substr($event->dtstart, 4, 2) . '.' . substr($event->dtstart, 0, 4);
             // Update fraction
             $name = $event->summary;
@@ -452,7 +507,7 @@ class Abfall_ICS extends IPSModuleStrict
                 $rs = IPS_RunScriptEx($script, ['TIMESTAMP' => time(), 'INSTANCE' => $this->InstanceID, 'DATA' => json_encode($waste)]);
                 $this->LogDebug(__FUNCTION__, 'Script Execute (Return Value): ' . $rs);
             } else {
-                $this->LogDebug(__FUNCTION__, 'Update: Script #' . $script . ' existiert nicht!');
+                $this->LogDebug(__FUNCTION__, 'Update: Script #' . $script . ' does not exist!');
             }
         }
 
@@ -551,7 +606,7 @@ class Abfall_ICS extends IPSModuleStrict
                 'skipRecurrence'              => false, // Default value
             ]);
             if ($io[self::IO_TYPE] == self::IMPORT_LINK) {
-                $ical->initUrl($data['l']);
+                $ical->initUrl($this->ExpandUrl($data['l']));
             } else {
                 $ical->initString(base64_decode($data['f']));
             }
@@ -567,7 +622,7 @@ class Abfall_ICS extends IPSModuleStrict
 
         // get all events
         $events = $ical->events();
-        // go throw all events
+        // go through all events
         $names = [];
         $this->LogDebug(__FUNCTION__, 'ICS Events: ' . $ical->eventCount);
         foreach ($events as $event) {
@@ -607,6 +662,7 @@ class Abfall_ICS extends IPSModuleStrict
     {
         $this->LogDebug(__FUNCTION__, 'Value: ' . $value);
         $this->UpdateFormField('clientURL', 'visible', ($value == self::IMPORT_LINK));
+        $this->UpdateFormField('urlHint', 'visible', ($value == self::IMPORT_LINK));
         $this->UpdateFormField('clientFILE', 'visible', ($value == self::IMPORT_FILE));
     }
 
@@ -661,7 +717,7 @@ class Abfall_ICS extends IPSModuleStrict
         foreach ($io[self::IO_FRACTIONS] as $fract) {
             if ($i <= self::$FRACTIONS) {
                 $enabled = $fract['active'];
-                $this->MaintainVariable($fract['ident'], $fract['name'], VARIABLETYPE_STRING, '', $i, $enabled || $variable);
+                $this->MaintainVariable($fract['ident'], $fract['name'], VARIABLETYPE_STRING, ['ICON' => 'trash-can', 'PRESENTATION' => VARIABLE_PRESENTATION_VALUE_PRESENTATION], $i, $enabled || $variable);
             }
             $i++;
         }
@@ -670,15 +726,15 @@ class Abfall_ICS extends IPSModuleStrict
     /**
      * Serialize properties to IO interface array
      *
-     * @param ?string $c client value
-     * @param ?int $t type value
+     * @param ?string $client client value
+     * @param ?int $type type value
      *
      * @return array<string,mixed> IO interface data
      */
-    protected function PrepareIO(?string $c = 'null', ?int $t = 0): array
+    protected function PrepareIO(?string $client = 'null', ?int $type = 0): array
     {
-        $io[self::IO_CLIENT] = $c;
-        $io[self::IO_TYPE] = $t;
+        $io[self::IO_CLIENT] = $client;
+        $io[self::IO_TYPE] = $type;
         $io[self::IO_FRACTIONS] = [];
         // data2array
         return $io;
@@ -711,6 +767,22 @@ class Abfall_ICS extends IPSModuleStrict
         $this->UpdateFormField('EchoMessage', 'caption', $this->Translate($caption));
         $this->UpdateFormField('EchoPopup', 'visible', true);
     }
+
+    /**
+     * Expands date placeholders and the webcal scheme of a calendar link.
+     *
+     * Supported placeholders: {%Y} (2026), {%y} (26), {%m} (01-12), {%d} (01-31)
+     *
+     * @param string $url Calendar link, e.g. https://example.com/ics?year={%Y}
+     *
+     * @return string Link with the current date values
+     */
+    private function ExpandUrl(string $url): string
+    {
+        $url = preg_replace('/^webcal:\/\//i', 'https://', trim($url));
+        return preg_replace_callback('/\{%([Yymd])\}/', fn ($m) => date($m[1]), $url);
+    }
+
     /**
      * Generate a message that updates all elements in the HTML display.
      *
@@ -736,6 +808,7 @@ class Abfall_ICS extends IPSModuleStrict
             'tomorrowColor' => $this->GetColorFormatted($this->ReadPropertyInteger('settingsAccentTomorrow')),
             'tonneAlpha'    => $this->ReadPropertyInteger('settingsTonneAlpha') . '%',
             'tonneColor'    => $this->ReadPropertyBoolean('settingsTonneColor'),
+            'tileMaxView'   => $this->ReadPropertyInteger('settingsTileMaxView'),
         ];
         $result = array_merge($ac, $wd);
 
